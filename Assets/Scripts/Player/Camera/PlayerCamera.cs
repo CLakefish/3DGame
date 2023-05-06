@@ -7,6 +7,7 @@ public class PlayerCamera : MonoBehaviour
     [Header("Orientation")]
     public Transform orientation;
     public Transform playerObj;
+    public PlayerController player;
     internal Camera cam;
 
     [Header("Mouse Stuff")]
@@ -22,9 +23,7 @@ public class PlayerCamera : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
 
-        playerObj = GameObject.FindGameObjectWithTag("Player").transform;
         cam = GetComponent<Camera>();
     }
 
@@ -44,7 +43,7 @@ public class PlayerCamera : MonoBehaviour
         mouseRotation.x = Mathf.Clamp(mouseRotation.x, -90f, 90f);
 
         // Proper Rotation
-        transform.rotation = Quaternion.Euler(mouseRotation);
+        transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x, mouseRotation.y, transform.rotation.z + player.viewTilt));
         orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
 
         // Proper Positioning

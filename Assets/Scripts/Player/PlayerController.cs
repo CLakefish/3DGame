@@ -9,6 +9,9 @@ public class PlayerController : MonoBehaviour
     public PlayerCamera Camera;
     public Transform viewPosition;
 
+    [Header("Firing")]
+    public LayerMask layers;
+
     [Header("Rigidbody")]
     public Rigidbody rb;
 
@@ -28,6 +31,7 @@ public class PlayerController : MonoBehaviour
     [Header("View")]
     internal float walkingFOV;
     internal float runningFOV;
+    internal float viewTilt;
     float FOV;
 
     [Header("VECTORS! OH YEAH!!")]
@@ -75,6 +79,8 @@ public class PlayerController : MonoBehaviour
         // Move Direction
         moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x) * moveSpeed;
         ClampVel();
+
+        CameraTilt();
 
         #region State Machine
 
@@ -134,7 +140,7 @@ public class PlayerController : MonoBehaviour
         Ray ray = Camera.cam.ScreenPointToRay(Input.mousePosition);
         RaycastHit raycast;
 
-        if (Physics.Raycast(ray, out raycast, Mathf.Infinity, 1))
+        if (Physics.Raycast(ray, out raycast, Mathf.Infinity, layers))
         {
             Debug.Log("Hit!");
         }
@@ -153,6 +159,25 @@ public class PlayerController : MonoBehaviour
         {
             Vector3 newVel = vel.normalized * moveSpeed;
             rb.velocity = new Vector3(newVel.x, rb.velocity.y, newVel.z);
+        }
+    }
+
+    void CameraTilt()
+    {
+        if (inputs.x != 0)
+        {
+            if (inputs.x > 0)
+            {
+                viewTilt = Mathf.Lerp(viewTilt, (state == Player.PlayerState.Running) ? -3 : -2, 3 * Time.deltaTime);
+            }
+            else if (inputs.x < 0)
+            {
+                viewTilt = Mathf.Lerp(viewTilt, (state == Player.PlayerState.Running) ? 3 : 2, 3 * Time.deltaTime);
+            }
+        }
+        else
+        {
+            viewTilt = Mathf.Lerp(viewTilt, 0, 3 * Time.deltaTime);
         }
     }
 }
