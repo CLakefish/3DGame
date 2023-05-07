@@ -25,17 +25,22 @@ namespace Player
         public WeaponType weapon;
         public BulletType bulletType;
 
-        [Header("Weapon Attributes")]
+        [Header("Bullets")]
         public float bulletDamage;
-        public float bulletCount,
-                     fireRate,
-                     reloadTime,
+        public float timeBetweenShots;
+        public float bulletCount;
+        [SerializeField, Range(0, 1)]
+        public float bulletSpread;
+        public float reloadTime,
                      bounceCount,
                      enemyKnockback;
 
         [Header("Trail Rendering")]
         public TrailRenderer bulletTrail;
         public float trailSpeed;
+
+        [Header("Bullet Hole")]
+        public GameObject hitParticle;
 
         internal bool isReloading,
                       isEmpty,
@@ -51,7 +56,7 @@ namespace Player
 
             bulletDamage = newData.bulletDamage;
             bulletCount = newData.bulletCount;
-            fireRate = newData.fireRate;
+            timeBetweenShots = newData.timeBetweenShots;
             reloadTime = newData.reloadTime;
             enemyKnockback = newData.enemyKnockback;
             currentBulletCount = newData.currentBulletCount;
