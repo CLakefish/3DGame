@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
     [Header("Shootable Layers")]
     public LayerMask layers;
     float previousFireTime;
+    public float heldTime;
+    bool isFiring;
 
     #endregion
 
@@ -31,6 +33,8 @@ public class PlayerController : MonoBehaviour
 
         weaponData = weaponItems[0].weaponData;
         weaponData.currentBulletCount = weaponData.bulletCount;
+
+        weaponData.isReloading = false;
     }
 
     void Update()
@@ -46,6 +50,8 @@ public class PlayerController : MonoBehaviour
                 if (selectedIndex < weaponItems.Count - 1) selectedIndex++;
                 else selectedIndex = 0;
 
+                heldTime = 0f;
+
                 weaponData = weaponItems[selectedIndex].weaponData;
                 weaponData.isEmpty = false;
             }
@@ -56,14 +62,28 @@ public class PlayerController : MonoBehaviour
                 if (selectedIndex > 0) selectedIndex--;
                 else selectedIndex = weaponItems.Count - 1;
 
+                heldTime = 0f;
 
                 weaponData = weaponItems[selectedIndex].weaponData;
                 weaponData.isEmpty = false;
             }
         }
 
+        isFiring = (weaponData.bulletType == BulletType.Charge) ? Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) : Input.GetMouseButton(0);
+
+        if (Input.GetKeyDown(KeyCode.R) && !isFiring) StartCoroutine(Reload());
+
+        if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) && (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce))
+        {
+            heldTime += Time.deltaTime;
+        }
+        else
+        {
+            heldTime = 0;
+        }
+
         // Shooting 
-        if (Input.GetMouseButton(0) && weaponData.currentBulletCount > 0 && !weaponData.isReloading) ShootObj();
+        if (isFiring && weaponData.currentBulletCount > 0 && !weaponData.isReloading) ShootObj();
         else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty) StartCoroutine(Reload());
     }
 
@@ -96,7 +116,17 @@ public class PlayerController : MonoBehaviour
             switch (weaponData.weapon)
             {
                 case (Player.WeaponType.Single):
-                    weaponData.currentBulletCount--;
+
+                    if (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce)
+                    {
+                        if (!weaponData.isReloading)
+                        {
+                            weaponData.currentBulletCount--;
+                            StartCoroutine(ChargedProjectileShotHandler());
+                        }
+                        break;
+                    }
+
                     ProjectileShotHandler();
                     break;
 
@@ -149,28 +179,125 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    IEnumerator ChargedProjectileShotHandler()
+    {
+        Debug.Log("yessir");
+        weaponData.isReloading = true;
+
+        float bounceCount = weaponData.bounceCount;
+        float tempStore = weaponData.trailSpeed;
+
+        while (weaponData.isReloading)
+        {
+            if (!isFiring)
+            {
+                heldTime = 0f;
+                break;
+            }
+            else
+            {
+                if (heldTime > 0.5)
+                {
+                    weaponData.bounceCount++;
+                    weaponData.trailSpeed = tempStore + 35f;
+                    Debug.Log("1");
+                }
+                if (heldTime > 1)
+                {
+                    weaponData.bounceCount++;
+                    weaponData.trailSpeed = tempStore + 50f;
+                    Debug.Log("2");
+                }
+                if (heldTime > 2f)
+                {
+                    weaponData.bounceCount++;
+                    weaponData.trailSpeed = tempStore * 3f;
+                    Debug.Log("3");
+                    heldTime = 0f;
+                    break;
+                }
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+
+        ProjectileShotHandler();
+
+        weaponData.bounceCount = bounceCount;
+        weaponData.trailSpeed = tempStore;
+
+        yield return new WaitForSeconds(1f);
+
+        weaponData.isReloading = false;
+
+        yield return null;
+    }
+
     // Visualization
     IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit raycast, Vector3 point, Vector3 normal, float bounceCount, float bounceDistance, bool hitObj)
     {
         if (weaponData.bulletType == BulletType.Follow)
         {
-            Vector3 startPos = trail.transform.position;
-            Vector3 EnemyPos = GetClosestEnemy(GameObject.FindGameObjectsWithTag("Enemy")).transform.position + new Vector3(Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread));
-
-            float d = Vector3.Distance(trail.transform.position, EnemyPos);
-            float startDist = d;
-
-            while (d > 0)
+            if (GetClosestEnemy(GameObject.FindGameObjectsWithTag("Enemy")) == null)
             {
-                trail.transform.position = Vector3.Slerp(startPos, EnemyPos, 1 - (d / startDist));
-                d -= Time.deltaTime * weaponData.trailSpeed;
+                Vector3 startPos = trail.transform.position;
+                Vector3 dir = (point - trail.transform.position).normalized;
 
-                yield return null;
+                float d = Vector3.Distance(trail.transform.position, point);
+                float startDist = d;
+
+                while (d > 0)
+                {
+                    trail.transform.position = Vector3.Lerp(startPos, point, 1 - (d / startDist));
+                    d -= Time.deltaTime * weaponData.trailSpeed;
+
+                    yield return null;
+                }
+
+                trail.transform.position = point;
+
+                if (hitObj)
+                {
+                    GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
+                    if (raycast.collider.gameObject != null)
+                    {
+                        obj.transform.parent = raycast.collider.gameObject.transform;
+                    }
+                    Destroy(obj, 2f);
+                }
             }
+            else
+            {
+                Vector3 startPos = trail.transform.position;
+                Vector3 EnemyPos = GetClosestEnemy(GameObject.FindGameObjectsWithTag("Enemy")).transform.position + new Vector3(Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread));
 
-            trail.transform.position = EnemyPos;
+                float d = Vector3.Distance(trail.transform.position, EnemyPos);
+                float startDist = d;
 
-            Destroy(trail, .25f);
+                while (d > 0)
+                {
+                    trail.transform.position = Vector3.Slerp(startPos, EnemyPos, 1 - (d / startDist));
+                    d -= Time.deltaTime * weaponData.trailSpeed;
+
+                    yield return null;
+                }
+
+                trail.transform.position = EnemyPos;
+
+                if (hitObj)
+                {
+                    GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
+
+                    if (raycast.collider != null)
+                    {
+                        obj.transform.parent = raycast.collider.gameObject.transform;
+                    }
+
+                    Destroy(obj, 2f);
+                }
+
+                Destroy(trail, .25f);
+            }
         }
         else
         {
@@ -196,10 +323,13 @@ public class PlayerController : MonoBehaviour
                 // Use Object Pooling here eventually 
 
                 GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
-                obj.transform.parent = raycast.collider.gameObject.transform;
+                if (raycast.collider != null)
+                {
+                    obj.transform.parent = raycast.collider.gameObject.transform;
+                }
                 Destroy(obj, 2f);
 
-                if (weaponData.bulletType == BulletType.Bounce && bounceCount > 0)
+                if ((weaponData.bulletType == BulletType.Bounce || weaponData.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
                 {
                     Vector3 bounceDir = Vector3.Reflect(dir, normal);
 
@@ -215,10 +345,14 @@ public class PlayerController : MonoBehaviour
                         yield return StartCoroutine(SpawnTrail(trail, raycast, bounceDir * bounceDistance, Vector3.zero, 0, 0, false));
                     }
                 }
-                else if (bounceCount <= 0) Destroy(trail, trail.time * 2f);
+                else if (bounceCount <= 0)
+                {
+                    Debug.Log("dead!");
+                    Destroy(trail, trail.time * 2f);
+                }
             }
 
-            Destroy(trail, .25f);
+            Destroy(trail, 1f);
         }
     }
 
@@ -226,6 +360,8 @@ public class PlayerController : MonoBehaviour
 
     GameObject GetClosestEnemy(GameObject[] enemies)
     {
+        if (enemies == null) return null;
+
         GameObject bestTarget = null;
         float closestDistanceSqr = Mathf.Infinity;
         Vector3 currentPosition = rb.transform.position;

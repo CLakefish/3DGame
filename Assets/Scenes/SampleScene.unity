@@ -142,7 +142,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &11292981
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2093,7 +2093,7 @@ MonoBehaviour:
   weaponData:
     Name: 
     weapon: 0
-    bulletType: 0
+    bulletType: 4
     bulletDamage: 0
     timeBetweenShots: 0
     bulletCount: 0
@@ -2104,10 +2104,14 @@ MonoBehaviour:
     bulletTrail: {fileID: 0}
     trailSpeed: 0
     hitParticle: {fileID: 0}
+    isReloading: 0
+    isEmpty: 0
+    isShooting: 0
   selectedIndex: 0
   layers:
     serializedVersion: 2
     m_Bits: 1
+  heldTime: 0
 --- !u!114 &1599680255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2360,7 +2364,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1812872229
 MonoBehaviour:
   m_ObjectHideFlags: 0

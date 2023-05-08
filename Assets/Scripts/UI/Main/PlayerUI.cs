@@ -34,7 +34,7 @@ public class PlayerUI : MonoBehaviour
             }
         }
 
-        if (player.weaponData.isReloading)
+        if (player.weaponData.isReloading && player.weaponData.isEmpty)
         {
             ammoCount.text = "Reloading!";
         }

@@ -16,6 +16,8 @@ namespace Player
         Normal,
         Follow,
         Bounce,
+        Charge,
+        ChargeBounce,
     }
 
     [System.Serializable]
@@ -45,7 +47,7 @@ namespace Player
         [Header("Bullet Hole")]
         public GameObject hitParticle;
 
-        internal bool isReloading,
+        public bool isReloading,
                       isEmpty,
                       isShooting;
 
