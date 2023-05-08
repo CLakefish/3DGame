@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Basic
   m_EditorClassIdentifier: 
   weaponData:
+    Name: Pistol
     weapon: 0
     bulletType: 2
     bulletDamage: 0
@@ -25,3 +26,6 @@ MonoBehaviour:
     bulletTrail: {fileID: 6727316020457667749, guid: 9fbf7d3363f565f439e53a9d8fcd7c13, type: 3}
     trailSpeed: 75
     hitParticle: {fileID: 8890879366852258217, guid: b7e8e86824d5d0c4ab8dc9718f7015c9, type: 3}
+    isReloading: 0
+    isEmpty: 0
+    isShooting: 0

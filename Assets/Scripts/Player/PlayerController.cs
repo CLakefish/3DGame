@@ -30,6 +30,7 @@ public class PlayerController : MonoBehaviour
     public WeaponData weaponData;
     public int selectedIndex = 0;
     public LayerMask layers;
+    float previousFireTime;
 
     [Header("Rigidbody")]
     public Rigidbody rb;
@@ -72,6 +73,8 @@ public class PlayerController : MonoBehaviour
         {
             if (Mathf.Sign(Input.GetAxis("Mouse ScrollWheel")) == 1)
             {
+                weaponItems[selectedIndex].weaponData = weaponData;
+
                 if (selectedIndex < weaponItems.Count - 1) selectedIndex++;
                 else selectedIndex = 0;
 
@@ -79,6 +82,8 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
+                weaponItems[selectedIndex].weaponData = weaponData;
+
                 if (selectedIndex > 0) selectedIndex--;
                 else selectedIndex = weaponItems.Count - 1;
 
@@ -92,10 +97,9 @@ public class PlayerController : MonoBehaviour
 
         bool inputting = (inputs != new Vector2(0f, 0f));
         bool running = Input.GetKey(KeyCode.LeftShift);
-        bool isShooting = !Input.GetMouseButtonUp(0) && Input.GetMouseButton(0);
 
         // Shooting 
-        if (isShooting && weaponData.currentBulletCount > 0 && !weaponData.isReloading) ShootObj();
+        if (Input.GetMouseButton(0) && weaponData.currentBulletCount > 0 && !weaponData.isReloading) ShootObj();
         else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty) StartCoroutine(Reload());
 
         // Speed
@@ -181,9 +185,11 @@ public class PlayerController : MonoBehaviour
     public void ShootObj()
     {
         // If the time is greater than the previous time + fireRate time then fire (Technically makes fireRate different but whatever)
-        if (Time.time > weaponData.previousFireTime + weaponData.timeBetweenShots && weaponData.currentBulletCount > 0)
+        if (Time.time > previousFireTime + weaponData.timeBetweenShots && weaponData.currentBulletCount > 0)
         {
-            weaponData.previousFireTime = Time.time;
+            Debug.Log("gone");
+
+            previousFireTime = Time.time;
             weaponData.isShooting = true;
 
             // For different weapon types

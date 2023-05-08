@@ -21,6 +21,9 @@ namespace Player
     [System.Serializable]
     public struct WeaponData
     {
+        [Header("Name")]
+        public string Name;
+
         [Header("Weapon Type")]
         public WeaponType weapon;
         public BulletType bulletType;
@@ -42,28 +45,12 @@ namespace Player
         [Header("Bullet Hole")]
         public GameObject hitParticle;
 
-        internal bool isReloading,
+        public bool isReloading,
                       isEmpty,
                       isShooting;
 
         internal float currentBulletCount,
                        previousFireTime;
-
-        public void ApplyChanges(WeaponData newData)
-        {
-            weapon = newData.weapon;
-            bulletType = newData.bulletType;
-
-            bulletDamage = newData.bulletDamage;
-            bulletCount = newData.bulletCount;
-            timeBetweenShots = newData.timeBetweenShots;
-            reloadTime = newData.reloadTime;
-            enemyKnockback = newData.enemyKnockback;
-            currentBulletCount = newData.currentBulletCount;
-
-            isEmpty = newData.isEmpty;
-            isReloading = false;
-        }
     }
 }
 
