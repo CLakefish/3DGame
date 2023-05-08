@@ -45,12 +45,14 @@ namespace Player
         [Header("Bullet Hole")]
         public GameObject hitParticle;
 
-        public bool isReloading,
+        internal bool isReloading,
                       isEmpty,
                       isShooting;
 
         internal float currentBulletCount,
                        previousFireTime;
+
+        internal bool hasBeenEquiped;
     }
 }
 

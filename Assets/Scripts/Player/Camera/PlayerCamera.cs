@@ -7,7 +7,7 @@ public class PlayerCamera : MonoBehaviour
     [Header("Orientation")]
     public Transform orientation;
     public Transform playerObj;
-    public PlayerController player;
+    public PlayerMovement player;
     internal Camera cam;
 
     [Header("Mouse Stuff")]
@@ -42,7 +42,7 @@ public class PlayerCamera : MonoBehaviour
         #region FOV
 
         // Change FOV in game
-        newFOV = (player.state == PlayerController.PlayerState.Running) ? newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) : newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
+        newFOV = (player.state == PlayerMovement.PlayerState.Running) ? newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) : newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
 
         // FOV Change based on FOV 
         cam.fieldOfView = newFOV;

@@ -25,12 +25,18 @@ public class PlayerUI : MonoBehaviour
         ammoCount.text = player.weaponData.currentBulletCount.ToString() + " / " + player.weaponData.bulletCount.ToString();
         storedWeapons.text = "Stored Weapons: \n";
 
+        // Weapon Storage UI
         if (player.weaponItems.Count > 0)
         {
             for (int i = 0; i < player.weaponItems.Count; i++)
             {
                 storedWeapons.text += player.weaponItems[i].weaponData.Name + "\n";
             }
+        }
+
+        if (player.weaponData.isReloading)
+        {
+            ammoCount.text = "Reloading!";
         }
     }
 }

@@ -3,55 +3,31 @@ using System.Collections.Generic;
 using UnityEngine;
 using Player;
 
+[RequireComponent(typeof(PlayerMovement))]
 public class PlayerController : MonoBehaviour
 {
-
     #region Parameters
 
-    // Enum
-    public enum PlayerState
-    {
-        Walking,
-        Running,
-        Firing,
-    }
-
-    internal PlayerState state;
-    internal PlayerState prevState;
-    internal float stateDur;
-
-    [Header("Camera Variables")]
-    public PlayerCamera Camera;
-    public Transform viewPosition;
-    internal Vector2 viewTilt;
+    [Header("Assignables")]
+    internal Rigidbody rb;
+    internal PlayerCamera Camera;
 
     [Header("Weapon Information")]
     public List<WeaponItem> weaponItems;
+    [Header("Debugging")]
     public WeaponData weaponData;
     public int selectedIndex = 0;
+
+    [Header("Shootable Layers")]
     public LayerMask layers;
     float previousFireTime;
-
-    [Header("Rigidbody")]
-    public Rigidbody rb;
-
-    [Header("Movement Variables")]
-    public float walkingSpeed;
-    public float runningSpeed;
-
-    public float acceleration,
-                 deceleration;
-
-    [Header("VECTORS! OH YEAH!!")]
-    Vector3 currentVel;
-    Vector3 moveDir;
-    Vector2 inputs;
 
     #endregion
 
     void Start()
     {
-        rb.freezeRotation = true;
+        rb = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
+        Camera = FindObjectOfType<PlayerCamera>();
 
         weaponData = weaponItems[0].weaponData;
         weaponData.currentBulletCount = weaponData.bulletCount;
@@ -59,14 +35,6 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-
-
-        void ChangeState(PlayerState changeState)
-        {
-            prevState = state;
-            state = changeState;
-            stateDur = 0f;
-        }
 
         // Weapon Change 
         if (Input.GetAxis("Mouse ScrollWheel") != 0)
@@ -79,6 +47,7 @@ public class PlayerController : MonoBehaviour
                 else selectedIndex = 0;
 
                 weaponData = weaponItems[selectedIndex].weaponData;
+                weaponData.isEmpty = false;
             }
             else
             {
@@ -89,82 +58,13 @@ public class PlayerController : MonoBehaviour
 
 
                 weaponData = weaponItems[selectedIndex].weaponData;
+                weaponData.isEmpty = false;
             }
         }
-
-        // Inputs
-        inputs = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-
-        bool inputting = (inputs != new Vector2(0f, 0f));
-        bool running = Input.GetKey(KeyCode.LeftShift);
 
         // Shooting 
         if (Input.GetMouseButton(0) && weaponData.currentBulletCount > 0 && !weaponData.isReloading) ShootObj();
         else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty) StartCoroutine(Reload());
-
-        // Speed
-        float moveSpeed = (state == PlayerState.Running) ? runningSpeed : walkingSpeed;
-        float speedIncrease = inputting ? acceleration : deceleration;
-
-        // Move Direction
-        moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x) * moveSpeed;
-
-        // Clamp Speed
-        ClampVel(moveSpeed);
-
-        CameraTilt();
-
-        #region State Machine
-
-        // On enter
-        if (stateDur == 0)
-        {
-            switch (state)
-            {
-                case (PlayerState.Walking):
-
-                    break;
-
-                case (PlayerState.Running):
-
-                    break;
-
-            }
-        }
-
-        stateDur += Time.deltaTime;
-
-        // While Running
-        switch (state)
-        {
-            case (PlayerState.Walking):
-
-                if (running) ChangeState(PlayerState.Running);
-
-                break;
-
-            case (PlayerState.Running):
-
-                if (!running) ChangeState(PlayerState.Walking);
-
-                break;
-        }
-
-        #endregion
-
-        rb.velocity = Vector3.SmoothDamp(rb.velocity, moveDir, ref currentVel, speedIncrease);
-    }
-
-    // Movement
-    void ClampVel(float moveSpeed)
-    {
-        Vector3 vel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
-        if (vel.magnitude > moveSpeed)
-        {
-            Vector3 newVel = vel.normalized * moveSpeed;
-            rb.velocity = new Vector3(newVel.x, rb.velocity.y, newVel.z);
-        }
     }
 
 
@@ -323,33 +223,6 @@ public class PlayerController : MonoBehaviour
     }
 
     #endregion
-
-    void CameraTilt()
-    {
-        if (inputs.x != 0)
-        {
-            if (Mathf.Sign(inputs.x) == 1)
-                viewTilt.x = Mathf.Lerp(viewTilt.x, (state == PlayerState.Running) ? -3 : -2, 3 * Time.deltaTime);
-            else 
-                viewTilt.x = Mathf.Lerp(viewTilt.x, (state == PlayerState.Running) ? 3 : 2, 3 * Time.deltaTime);
-        }
-        else
-        {
-            viewTilt.x = Mathf.Lerp(viewTilt.x, 0, 3 * Time.deltaTime);
-        }
-
-        if (inputs.y != 0)
-        {
-            if (Mathf.Sign(inputs.y) == 1)
-                viewTilt.y = Mathf.Lerp(viewTilt.y, (state == PlayerState.Running) ? -2 : -1, 3 * Time.deltaTime);
-            else
-                viewTilt.y = Mathf.Lerp(viewTilt.y, (state == PlayerState.Running) ? 2 : 1, 3 * Time.deltaTime);
-        }
-        else
-        {
-            viewTilt.y = Mathf.Lerp(viewTilt.y, 0, 3 * Time.deltaTime);
-        }
-    }
 
     GameObject GetClosestEnemy(GameObject[] enemies)
     {

@@ -19,6 +19,7 @@ public class WeaponObject : MonoBehaviour
 
             player.weaponItems.Add(weapon);
             player.selectedIndex++;
+            weapon.weaponData.isEmpty = false;
             player.weaponData = player.weaponItems[player.selectedIndex].weaponData;
 
             Destroy(gameObject);
