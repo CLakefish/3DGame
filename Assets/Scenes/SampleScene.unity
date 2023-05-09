@@ -233,7 +233,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d80c26ed61d1fa74bade27661fc31b9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotateToCam: 0
   camera: {fileID: 918017423}
+  currentIndex: 0
 --- !u!1 &43413120
 GameObject:
   m_ObjectHideFlags: 0
@@ -595,7 +597,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38.22
+  m_fontSize: 18
   m_fontSizeBase: 36.5
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1473,7 +1475,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d80c26ed61d1fa74bade27661fc31b9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotateToCam: 0
   camera: {fileID: 918017423}
+  currentIndex: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -1951,7 +1955,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2806,7 +2810,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d80c26ed61d1fa74bade27661fc31b9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rotateToCam: 0
   camera: {fileID: 918017423}
+  currentIndex: 0
 --- !u!65 &1812872230
 BoxCollider:
   m_ObjectHideFlags: 0

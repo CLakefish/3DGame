@@ -231,7 +231,7 @@ public class PlayerController : MonoBehaviour
                 if (heldTime > 2f)
                 {
                     weaponData.bounceCount = bounceCount + 3;
-                    weaponData.trailSpeed = tempStore * 10f;
+                    weaponData.trailSpeed = tempStore * 100f;
                     Debug.Log("3");
                     heldTime = 0f;
                     break;
@@ -245,8 +245,6 @@ public class PlayerController : MonoBehaviour
 
         weaponData.bounceCount = bounceCount;
         weaponData.trailSpeed = tempStore;
-
-        yield return new WaitForSeconds(1f);
 
         weaponData.isReloading = false;
 

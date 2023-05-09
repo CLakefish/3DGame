@@ -19,8 +19,8 @@ public class PlayerCamera : MonoBehaviour
           newWalkingFOV,
           newRunningFOV;
 
+    float shakePos;
     public bool invertY;
-    bool vertialRecoilPlaying;
 
     Vector2 mouseRotation;
 
@@ -60,10 +60,31 @@ public class PlayerCamera : MonoBehaviour
         mouseRotation.x = Mathf.Clamp(mouseRotation.x, -90f, 90f);
 
         // Proper Rotation
-        transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - player.viewTilt.y, mouseRotation.y, transform.rotation.z + player.viewTilt.x));
+        transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - player.viewTilt.y, mouseRotation.y, transform.rotation.z + player.viewTilt.x + shakePos));
         orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
 
         // Proper Positioning
         transform.position = new Vector3(playerObj.transform.position.x, playerObj.transform.position.y + yOffset, playerObj.transform.position.z);
+    }
+
+    public void UpdateFOV(float FOV)
+    {
+        newFOV = FOV;
+        newWalkingFOV = FOV;
+        newRunningFOV = FOV * 1.25f;
+    }
+
+    public void ShakeCamera(float s, float t)
+    {
+        float time = Time.time;
+
+        Debug.Log("shake");
+
+        while (time + t > Time.time)
+        {
+            shakePos = Quaternion.Euler(transform.rotation.x, transform.rotation.y, transform.eulerAngles.z * Random.insideUnitSphere.z * s).z;
+        }
+
+        shakePos = Mathf.Lerp(shakePos, 0, Time.deltaTime);
     }
 }

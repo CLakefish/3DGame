@@ -107,17 +107,19 @@ public class PlayerMovement : MonoBehaviour
         moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x) * moveSpeed;
 
         Vector3 newVel = Vector3.SmoothDamp(rb.velocity, moveDir, ref currentVel, speedIncrease);
-        if (!isGrounded) newVel.y += -0.75f;
+
+        if (!isGrounded && rb.velocity.y < 0) newVel.y += -60f - (Time.deltaTime * 10);
 
         newVel.y = Mathf.Clamp(newVel.y, -300, Mathf.Infinity);
 
         // Clamp Speed
         ClampVel(moveSpeed, newVel);
 
-        AdjustSlopeVel(newVel);
+        /*AdjustSlopeVel(newVel);*/
         rb.velocity = newVel;
     }
 
+    // This does not work!
     public Vector3 AdjustSlopeVel(Vector3 vel)
     {
         Ray ray = new Ray(rb.transform.position, Vector3.down);
@@ -142,7 +144,7 @@ public class PlayerMovement : MonoBehaviour
         if (v.magnitude > moveSpeed)
         {
             Vector3 newVel = vel.normalized * moveSpeed;
-            AdjustSlopeVel(newVel);
+            /*AdjustSlopeVel(newVel);*/
             v = new Vector3(newVel.x, vel.y, newVel.z);
         }
 
