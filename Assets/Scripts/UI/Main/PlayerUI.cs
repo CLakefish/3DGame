@@ -10,6 +10,8 @@ public class PlayerUI : MonoBehaviour
                     ammoCount,
                     storedWeapons;
 
+    public TMP_Text charge;
+
     public PlayerController player;
 
     // Start is called before the first frame update
@@ -24,6 +26,8 @@ public class PlayerUI : MonoBehaviour
         weaponName.text = "Current Weapon: " + player.weaponData.Name.ToString();
         ammoCount.text = player.weaponData.currentBulletCount.ToString() + " / " + player.weaponData.bulletCount.ToString();
         storedWeapons.text = "Stored Weapons: \n";
+
+        charge.text = player.heldTime.ToString();
 
         // Weapon Storage UI
         if (player.weaponItems.Count > 0)

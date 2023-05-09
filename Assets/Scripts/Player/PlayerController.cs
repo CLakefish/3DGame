@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
     public LayerMask layers;
     float previousFireTime;
     public float heldTime;
+    public bool canShoot = true;
     bool isFiring;
 
     #endregion
@@ -43,6 +44,8 @@ public class PlayerController : MonoBehaviour
         // Weapon Change 
         if (Input.GetAxis("Mouse ScrollWheel") != 0)
         {
+            if (weaponItems.Count <= 1) return;
+
             if (Mathf.Sign(Input.GetAxis("Mouse ScrollWheel")) == 1)
             {
                 weaponItems[selectedIndex].weaponData = weaponData;
@@ -54,6 +57,9 @@ public class PlayerController : MonoBehaviour
 
                 weaponData = weaponItems[selectedIndex].weaponData;
                 weaponData.isEmpty = false;
+                weaponData.isReloading = false;
+
+                StartCoroutine(ItemSwitchPause());
             }
             else
             {
@@ -66,6 +72,9 @@ public class PlayerController : MonoBehaviour
 
                 weaponData = weaponItems[selectedIndex].weaponData;
                 weaponData.isEmpty = false;
+                weaponData.isReloading = false;
+
+                StartCoroutine(ItemSwitchPause());
             }
         }
 
@@ -73,7 +82,7 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R) && !isFiring) StartCoroutine(Reload());
 
-        if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) && (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce))
+        if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) && (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce) && canShoot)
         {
             heldTime += Time.deltaTime;
         }
@@ -83,8 +92,8 @@ public class PlayerController : MonoBehaviour
         }
 
         // Shooting 
-        if (isFiring && weaponData.currentBulletCount > 0 && !weaponData.isReloading) ShootObj();
-        else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty) StartCoroutine(Reload());
+        if (isFiring && weaponData.currentBulletCount > 0 && !weaponData.isReloading && canShoot) ShootObj();
+        else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty && canShoot) StartCoroutine(Reload());
     }
 
 
@@ -104,6 +113,8 @@ public class PlayerController : MonoBehaviour
 
     public void ShootObj()
     {
+        if (!canShoot) return;
+
         // If the time is greater than the previous time + fireRate time then fire (Technically makes fireRate different but whatever)
         if (Time.time > previousFireTime + weaponData.timeBetweenShots && weaponData.currentBulletCount > 0)
         {
@@ -167,7 +178,7 @@ public class PlayerController : MonoBehaviour
         ray.direction += new Vector3(Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread));
 
         // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
-        if (Physics.Raycast(ray, out raycast, Mathf.Infinity, layers))
+        if (Physics.Raycast(ray, out raycast, 10000, layers))
         {
             Debug.Log("Hit!");
 
@@ -179,8 +190,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    IEnumerator ItemSwitchPause()
+    {
+        canShoot = false;
+        yield return new WaitForSeconds(0.6f);
+        canShoot = true;
+    }
+
     IEnumerator ChargedProjectileShotHandler()
     {
+        StopCoroutine(ChargedProjectileShotHandler());
+
         Debug.Log("yessir");
         weaponData.isReloading = true;
 
@@ -196,22 +216,22 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                if (heldTime > 0.5)
+                if (heldTime > 0.5f)
                 {
-                    weaponData.bounceCount++;
+                    weaponData.bounceCount = bounceCount + 1;
                     weaponData.trailSpeed = tempStore + 35f;
                     Debug.Log("1");
                 }
-                if (heldTime > 1)
+                if (heldTime > 1f)
                 {
-                    weaponData.bounceCount++;
-                    weaponData.trailSpeed = tempStore + 50f;
+                    weaponData.bounceCount = bounceCount + 2;
+                    weaponData.trailSpeed = tempStore * 3f;
                     Debug.Log("2");
                 }
                 if (heldTime > 2f)
                 {
-                    weaponData.bounceCount++;
-                    weaponData.trailSpeed = tempStore * 3f;
+                    weaponData.bounceCount = bounceCount + 3;
+                    weaponData.trailSpeed = tempStore * 10f;
                     Debug.Log("3");
                     heldTime = 0f;
                     break;
@@ -259,7 +279,7 @@ public class PlayerController : MonoBehaviour
                 if (hitObj)
                 {
                     GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
-                    if (raycast.collider.gameObject != null)
+                    if (raycast.collider != null)
                     {
                         obj.transform.parent = raycast.collider.gameObject.transform;
                     }
@@ -310,11 +330,15 @@ public class PlayerController : MonoBehaviour
 
             while (d > 0)
             {
+                if (trail == null) break;
+
                 trail.transform.position = Vector3.Lerp(startPos, point, 1 - (d / startDist));
                 d -= Time.deltaTime * weaponData.trailSpeed;
 
                 yield return null;
             }
+
+            if (trail == null) yield return null;
 
             trail.transform.position = point;
 
