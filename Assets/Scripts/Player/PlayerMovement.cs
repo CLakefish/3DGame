@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
         Walking,
         Running,
         Firing,
+        Falling,
     }
 
     internal PlayerState state;
