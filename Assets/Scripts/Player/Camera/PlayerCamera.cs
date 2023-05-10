@@ -77,7 +77,11 @@ public class PlayerCamera : MonoBehaviour
         newWalkingFOV = FOV;
         newRunningFOV = FOV * 1.25f;
     }
-
+    public void UpdateSensitivity(float FOV)
+    {
+        sensX = FOV;
+        sensY = FOV;
+    }
     public void ShakeCamera(float s, float t)
     {
         float time = Time.time;
