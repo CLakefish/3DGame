@@ -277,7 +277,7 @@ public class PlayerController : MonoBehaviour
                 if (hitObj)
                 {
                     GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
-                    if (raycast.collider != null)
+                    if (raycast.collider != null && raycast.collider.tag == "Enemy")
                     {
                         obj.transform.parent = raycast.collider.gameObject.transform;
                     }

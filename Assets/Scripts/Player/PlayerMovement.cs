@@ -108,8 +108,6 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 newVel = Vector3.SmoothDamp(rb.velocity, moveDir, ref currentVel, speedIncrease);
 
-        if (!isGrounded && rb.velocity.y < 0) newVel.y += -60f - (Time.deltaTime * 10);
-
         newVel.y = Mathf.Clamp(newVel.y, -300, Mathf.Infinity);
 
         // Clamp Speed
