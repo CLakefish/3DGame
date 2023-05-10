@@ -22,6 +22,7 @@ public class PlayerCamera : MonoBehaviour
     float shakePos;
     public bool invertY;
 
+    public bool CanRotate = true;
     Vector2 mouseRotation;
 
     // Start is called before the first frame update
@@ -39,32 +40,35 @@ public class PlayerCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        #region FOV
+        if (CanRotate)
+        {
+            #region FOV
 
-        // Change FOV in game
-        newFOV = (player.state == PlayerMovement.PlayerState.Running) ? newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) : newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
+            // Change FOV in game
+            newFOV = (player.state == PlayerMovement.PlayerState.Running) ? newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) : newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
 
-        // FOV Change based on FOV 
-        cam.fieldOfView = newFOV;
+            // FOV Change based on FOV 
+            cam.fieldOfView = newFOV;
 
-        #endregion
+            #endregion
 
-        // Get mouse pos
-        Vector2 mousePos = new Vector2(Input.GetAxis("Mouse X") * sensX, Input.GetAxis("Mouse Y") * sensY);
+            // Get mouse pos
+            Vector2 mousePos = new Vector2(Input.GetAxis("Mouse X") * sensX, Input.GetAxis("Mouse Y") * sensY);
 
-        // Mouse stuff
-        mouseRotation.x -= mousePos.y;
-        mouseRotation.y = (invertY) ? mouseRotation.y -= mousePos.x : mouseRotation.y += mousePos.x;
+            // Mouse stuff
+            mouseRotation.x -= mousePos.y;
+            mouseRotation.y = (invertY) ? mouseRotation.y -= mousePos.x : mouseRotation.y += mousePos.x;
 
-        // Clamp
-        mouseRotation.x = Mathf.Clamp(mouseRotation.x, -90f, 90f);
+            // Clamp
+            mouseRotation.x = Mathf.Clamp(mouseRotation.x, -90f, 90f);
 
-        // Proper Rotation
-        transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - player.viewTilt.y, mouseRotation.y, transform.rotation.z + player.viewTilt.x + shakePos));
-        orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
+            // Proper Rotation
+            transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - player.viewTilt.y, mouseRotation.y, transform.rotation.z + player.viewTilt.x + shakePos));
+            orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
 
-        // Proper Positioning
-        transform.position = new Vector3(playerObj.transform.position.x, playerObj.transform.position.y + yOffset, playerObj.transform.position.z);
+            // Proper Positioning
+            transform.position = new Vector3(playerObj.transform.position.x, playerObj.transform.position.y + yOffset, playerObj.transform.position.z);
+        }
     }
 
     public void UpdateFOV(float FOV)
