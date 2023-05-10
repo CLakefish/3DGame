@@ -25,6 +25,9 @@ public class PlayerMovement : MonoBehaviour
     public Transform viewPosition;
     internal PlayerCamera Camera;
     internal Vector2 viewTilt;
+    const float smoothDampSpeed = 0.1f,
+                maxSmoothDampSpeed = 10f;
+    Vector2 currentCameraSpeed;
 
     [Header("Ground Layer")]
     public LayerMask groundLayer;
@@ -151,28 +154,16 @@ public class PlayerMovement : MonoBehaviour
 
     void CameraTilt()
     {
-        if (inputs.x != 0)
-        {
-            if (Mathf.Sign(inputs.x) == 1)
-                viewTilt.x = Mathf.Lerp(viewTilt.x, (state == PlayerState.Running) ? -3 : -2, 3 * Time.deltaTime);
-            else
-                viewTilt.x = Mathf.Lerp(viewTilt.x, (state == PlayerState.Running) ? 3 : 2, 3 * Time.deltaTime);
-        }
-        else
-        {
-            viewTilt.x = Mathf.Lerp(viewTilt.x, 0, 3 * Time.deltaTime);
-        }
+        // Tilt Values
+        Vector2 xTiltValues = new(3, 2),
+                yTiltValues = new(2, 1);
 
-        if (inputs.y != 0)
-        {
-            if (Mathf.Sign(inputs.y) == 1)
-                viewTilt.y = Mathf.Lerp(viewTilt.y, (state == PlayerState.Running) ? -2 : -1, 3 * Time.deltaTime);
-            else
-                viewTilt.y = Mathf.Lerp(viewTilt.y, (state == PlayerState.Running) ? 2 : 1, 3 * Time.deltaTime);
-        }
-        else
-        {
-            viewTilt.y = Mathf.Lerp(viewTilt.y, 0, 3 * Time.deltaTime);
-        }
+        // Tilting
+        Vector2 tiltStrength = -inputs * (state == PlayerState.Running ? new Vector2(xTiltValues.x, yTiltValues.x) : new Vector2(xTiltValues.y, yTiltValues.y));
+
+        // Smoothdamp? I hardly know her!
+        viewTilt = new(
+          Mathf.SmoothDamp(viewTilt.x, tiltStrength.x, ref currentCameraSpeed.x, smoothDampSpeed, maxSmoothDampSpeed, Time.deltaTime),
+          Mathf.SmoothDamp(viewTilt.y, tiltStrength.y, ref currentCameraSpeed.y, smoothDampSpeed, maxSmoothDampSpeed, Time.deltaTime));
     }
 }
