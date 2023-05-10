@@ -440,13 +440,37 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 53208181}
     m_Modifications:
+    - target: {fileID: 6034790606450842458, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -700
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 2008441389}
+      objectReference: {fileID: 1599680256}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetActive
+      value: CloseSettings
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: PauseMenu, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606729022056, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_Pivot.x
@@ -535,6 +559,10 @@ PrefabInstance:
     - target: {fileID: 6034790606729022063, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_Name
       value: SettignsPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606729022063, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
@@ -2368,6 +2396,7 @@ MonoBehaviour:
   yOffset: 0.5
   FOV: 85
   invertY: 0
+  CanRotate: 1
 --- !u!1 &1035674317
 GameObject:
   m_ObjectHideFlags: 0
@@ -2749,7 +2778,7 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &1386880225
 MonoBehaviour:
@@ -3374,7 +3403,7 @@ MonoBehaviour:
   ClosingUI: {fileID: 2008441389}
   OpeningUI: {fileID: 103804766}
   PauseUI: {fileID: 2008441389}
-  pauseFirstButton: {fileID: 0}
+  PlayerCamera: {fileID: 963194229}
 --- !u!1 &1701167680
 GameObject:
   m_ObjectHideFlags: 0
@@ -4183,7 +4212,7 @@ MonoBehaviour:
   ClosingUI: {fileID: 730144654}
   OpeningUI: {fileID: 2008441389}
   PauseUI: {fileID: 2008441389}
-  pauseFirstButton: {fileID: 0}
+  PlayerCamera: {fileID: 0}
 --- !u!114 &2008441392
 MonoBehaviour:
   m_ObjectHideFlags: 0

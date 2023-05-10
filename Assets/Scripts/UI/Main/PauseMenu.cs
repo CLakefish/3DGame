@@ -20,8 +20,8 @@ public class PauseMenu : MonoBehaviour
     public GameObject OpeningUI;
     public GameObject PauseUI;
 
+    public PlayerCamera PlayerCamera;
 
-    public GameObject pauseFirstButton;
     private void Awake()
     {
         canPause = true;
@@ -57,35 +57,28 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1;
         Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false;
-
+        PlayerCamera.CanRotate = true;
     }
     void Pause()
     {
         PauseUI.SetActive(true);
         GameisPaused = true;
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(pauseFirstButton);
         isPaused = true;
         Time.timeScale = 0;
         Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
+        PlayerCamera.CanRotate = false;
     }
     public void OpenSettings()
     {
         SettingsisOpen = true;
         OpeningUI.SetActive(true);
         ClosingUI.SetActive(false);
-
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(pauseFirstButton);
     }
     public void CloseSettings()
     {
         SettingsisOpen = false;
         OpeningUI.SetActive(false);
         ClosingUI.SetActive(true);
-
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(pauseFirstButton);
     }
     public void StartGame()
     {
