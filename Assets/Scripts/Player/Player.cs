@@ -20,6 +20,13 @@ namespace Player
         ChargeBounce,
     }
 
+    public enum PlayerState
+    {
+        Grounded,
+        Jumping,
+        Falling
+    }
+
     [System.Serializable]
     public struct WeaponData
     {
@@ -55,6 +62,45 @@ namespace Player
                        previousFireTime;
 
         internal bool hasBeenEquiped;
+    }
+
+    public static class MovementHelp
+    {
+        public static Vector3 ClosestPointMesh(this MeshCollider col, Vector3 point)
+        {
+            point = col.transform.InverseTransformPoint(point);
+
+            var mesh = col.GetComponent<MeshFilter>().mesh;
+            float dist = Mathf.Infinity;
+            Vector3 closest = Vector3.positiveInfinity;
+
+            foreach (var vertex in mesh.vertices)
+            {
+
+                float newDist = (vertex - point).magnitude;
+
+                if (newDist < dist)
+                {
+                    dist = newDist;
+                    closest = vertex;
+                }
+            }
+
+            return col.transform.TransformPoint(closest);
+        }
+
+        public static Vector3 VelocityClamp(float moveSpeed, Vector3 reference)
+        {
+            Vector3 sirSplinkle = reference;
+
+            if (sirSplinkle.magnitude > moveSpeed)
+            {
+                Vector3 newVel = reference.normalized * moveSpeed;
+                sirSplinkle = new Vector3(newVel.x, reference.y, newVel.z);
+            }
+
+            return sirSplinkle;
+        }
     }
 }
 
