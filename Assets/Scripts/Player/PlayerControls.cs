@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Player;
+using Unity.VisualScripting;
 
 public class PlayerControls : MonoBehaviour
 {
@@ -27,9 +28,22 @@ public class PlayerControls : MonoBehaviour
 
     [Header("Movement Variables")] // Eventually Add Gravity
     public Vector2 walkingSpeed;
-    public Vector2 runningSpeed;
-    public Vector2 acceleration,
-                   deceleration;
+    public Vector2 runningSpeed, acceleration, deceleration;
+
+    [Tooltip("1 is default, > 1 is a positive modifier, < 1 is a negative modifier")]
+    [Header("Movement Modifiers")]
+    public string README;
+    [Tooltip("Velocity modifier for when entering a slide")]
+    public float slideModifier = 1.0f;
+    [Tooltip("Velocity modifier for when jumping out of a slide")]
+    public float slideJumpModifier = 1.0f;
+    [Tooltip("Velocity modifier for when in the air")]
+    public float airModifier = 1.0f;
+    [Tooltip("Movement speed modifier for when crouching")]
+    public float crouchModifier = 1.0f;
+    [Tooltip("Fall speed modifier")]
+    public float fallModifier = 0.5f;
+
 
     [Space()]
     public float jumpTime;
@@ -109,8 +123,7 @@ public class PlayerControls : MonoBehaviour
         // Inputs
         inputs = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
-        bool inputting = (inputs != new Vector2(0f, 0f));
-        isRunning = Input.GetKey(KeyCode.LeftShift);
+        bool inputting = (inputs != new Vector2(0f, 0f)), isCrouching = (Input.GetKey(KeyCode.LeftControl)), isRunning = Input.GetKey(KeyCode.LeftShift);
 
         #endregion
 
@@ -135,10 +148,17 @@ public class PlayerControls : MonoBehaviour
         {
             switch (state)
             {
+
                 case (PlayerState.Jumping):
 
                     rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
                     rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
+
+                    break;
+
+                case (PlayerState.Sliding):
+
+                    rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideModifier, ForceMode.Impulse);
 
                     break;
             }
@@ -152,6 +172,7 @@ public class PlayerControls : MonoBehaviour
         switch (state)
         {
             case (PlayerState.Grounded):
+
                 if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
                 {
                     ChangeState(PlayerState.Jumping);
@@ -168,12 +189,43 @@ public class PlayerControls : MonoBehaviour
                     jumpCoyoteTimeT = jumpCoyoteTime;
                     ChangeState(PlayerState.Falling);
                 }
+                
+                if (isRunning)
+                {
+                    ChangeState(PlayerState.Running);
+                }
+
+                if (isCrouching)
+                {
+                    ChangeState(PlayerState.Crouching);
+                }
+
+                break;
+
+            case (PlayerState.Running):
+
+                if (isGrounded && isCrouching)
+                {
+                    ChangeState(PlayerState.Sliding);
+                }
+
+                if (Input.GetKeyUp(KeyCode.LeftShift))
+                {
+                    ChangeState(PlayerState.Grounded);
+                }
+
+                if (Input.GetKey(KeyCode.Space))
+                {
+                    ChangeState(PlayerState.Jumping);
+                }
 
                 break;
 
             case (PlayerState.Jumping):
 
                 if ((stateDur > jumpTime) || (rb.velocity.y < 0) || (!Input.GetKey(KeyCode.Space))) ChangeState(PlayerState.Falling);
+
+                rb.velocity = new Vector3((rb.velocity.x * airModifier), rb.velocity.y, (rb.velocity.z * airModifier));
 
                 break;
 
@@ -185,15 +237,64 @@ public class PlayerControls : MonoBehaviour
                     {
                         jumpCoyoteTimeT = 0;
                         ChangeState(PlayerState.Jumping);
+
                         break;
                     }
+
+                    rb.velocity = new Vector3(rb.velocity.x * airModifier, rb.velocity.y, rb.velocity.z * airModifier);
 
                     jumpBufferTimeTemp = jumpBufferTime;
                 }
 
-                rb.AddForce(Vector3.down * stateDur / 2, ForceMode.Impulse);
+                rb.AddForce(Vector3.down * stateDur * fallModifier, ForceMode.Impulse);
 
                 if (isGrounded) ChangeState(PlayerState.Grounded);
+
+                break;
+
+            case (PlayerState.Crouching):
+
+                if(Input.GetKey(KeyCode.Space))
+                {
+                    ChangeState(PlayerState.Jumping);
+
+                }
+
+                if(Input.GetKeyUp(KeyCode.LeftControl))
+                {
+                    ChangeState(PlayerState.Grounded);
+                }
+
+                break;
+
+            case (PlayerState.Sliding):
+
+                if (stateDur > 2 || (rb.velocity.x < 1 && rb.velocity.x > -1) || (rb.velocity.z < 1 && rb.velocity.z > -1))
+                {
+                    ChangeState(PlayerState.Crouching);
+                }
+
+                if (Input.GetKey(KeyCode.Space))
+                {
+                    rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
+                    rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideJumpModifier, ForceMode.Impulse);
+                    ChangeState(PlayerState.Jumping);
+                }
+
+                if (Input.GetKeyUp(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.LeftShift))
+                {
+                    ChangeState(PlayerState.Grounded);
+                }
+
+                if (Input.GetKeyUp(KeyCode.LeftControl))
+                {
+                    ChangeState(PlayerState.Running);
+                }
+
+                if (Input.GetKeyUp(KeyCode.LeftShift))
+                {
+                    ChangeState(PlayerState.Crouching);
+                }
 
                 break;
         }
@@ -206,7 +307,7 @@ public class PlayerControls : MonoBehaviour
         // Clamp the Velocity to the Move Speed
         MovementHelp.VelocityClamp(moveSpeed, rb.velocity);
 
-        Debug.Log(isGrounded);
+        Debug.Log(state);
     }
 
     void CameraTilt(bool running)
