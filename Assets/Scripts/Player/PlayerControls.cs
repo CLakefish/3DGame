@@ -36,11 +36,13 @@ public class PlayerControls : MonoBehaviour
                  jumpBufferTime;
     float jumpBufferTimeTemp;
 
-    const float groundRay = 0.001f;
+     float groundRay = 0.005f;
+
     CapsuleCollider col;
 
+    public bool isRunning;
+
     [Header("VECTORS! OH YEAH!!")] // for use in velocity
-    Vector3 newVel;
     Vector3 currentVel;
     Vector3 moveDir;
     Vector2 inputs;
@@ -77,12 +79,12 @@ public class PlayerControls : MonoBehaviour
 
         bool checkCollider(Vector3 pos, out RaycastHit h)
         {
-            float rad = col.radius;
+            float rad = col.radius * .7f;
 
             // For each possible collider, get the closest one then return if you're hitting it.
             foreach (var collider in Physics.OverlapSphere(pos, rad, groundLayer))
             {
-                if (Physics.Raycast(new(rb.transform.position, (collider is MeshCollider ? (((MeshCollider)collider).ClosestPointMesh(rb.transform.position)) : collider.ClosestPoint(rb.transform.position)) - transform.position), out h, Mathf.Infinity, groundLayer))
+                if (Physics.Raycast(new(rb.transform.position, (collider is MeshCollider ? (((MeshCollider)collider).ClosestPointMesh(rb.transform.position)) : collider.ClosestPoint(rb.transform.position)) - rb.transform.position), out h, Mathf.Infinity, groundLayer))
                 {
                     return true;
                 }
@@ -103,11 +105,16 @@ public class PlayerControls : MonoBehaviour
         inputs = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
         bool inputting = (inputs != new Vector2(0f, 0f));
+        isRunning = Input.GetKey(KeyCode.LeftShift);
+
         #endregion
 
+        // Handles x & z movement & camera movement
+        #region Movement 
+
         // Speed
-        float moveSpeed = (Input.GetKey(KeyCode.LeftShift)) ? runningSpeed : walkingSpeed,
-              speedIncrease = ((inputting) ? ((isGrounded) ? acceleration.x : acceleration.y) : ((isGrounded) ? deceleration.x : deceleration.y));
+        float moveSpeed = isRunning ? runningSpeed : walkingSpeed,
+              speedIncrease = inputting ? (isGrounded ? acceleration.x : acceleration.y) : (isGrounded ? deceleration.x : deceleration.y);
 
         // Get the move direction of the viewPosition multiplied by the move speed
         moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x) * moveSpeed;
@@ -115,83 +122,71 @@ public class PlayerControls : MonoBehaviour
         // Camera Tilting
         CameraTilt(Input.GetKey(KeyCode.LeftShift));
 
-        // Smooth Damp for the win
-        newVel = new Vector3(Mathf.SmoothDamp(rb.velocity.x, moveDir.x, ref currentVel.x, speedIncrease), (state == PlayerState.Jumping && stateDur == 0) ? 0f : rb.velocity.y, Mathf.SmoothDamp(rb.velocity.z, moveDir.z, ref currentVel.z, speedIncrease));
+        #endregion
 
-        #region State Handler
+        #region states
 
         if (stateDur == 0)
         {
             switch (state)
             {
                 case (PlayerState.Jumping):
-                    newVel.y = 0f;
+
+                    rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+
+                    rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
+
                     break;
             }
         }
 
         stateDur += Time.deltaTime;
 
+        jumpBufferTimeTemp = Mathf.Lerp(jumpBufferTimeTemp, 0, Time.deltaTime);
+
         switch (state)
         {
             case (PlayerState.Grounded):
+                if (Input.GetKeyDown(KeyCode.Space) && isGrounded) ChangeState(PlayerState.Jumping);
 
-                if (jumpBufferTimeTemp > 0f || Input.GetKeyDown(KeyCode.Space))
+                if (jumpBufferTimeTemp > 0)
                 {
                     jumpBufferTimeTemp = 0f;
                     ChangeState(PlayerState.Jumping);
                 }
 
                 if (!isGrounded && !Input.GetKey(KeyCode.Space)) ChangeState(PlayerState.Falling);
-
                 break;
 
             case (PlayerState.Jumping):
 
-                if (stateDur > jumpTime) ChangeState(PlayerState.Falling);
-
-                if (Input.GetKeyUp(KeyCode.Space) && prevState == PlayerState.Grounded)
-                {
-                    StartCoroutine(JumpCancel());
-                    ChangeState(PlayerState.Falling);
-                }
-
-                rb.AddForce(Vector3.up * (jumpSpeed - stateDur), ForceMode.Impulse);
+                if ((stateDur > jumpTime) || (rb.velocity.y < 0) || (!Input.GetKey(KeyCode.Space))) ChangeState(PlayerState.Falling);
 
                 break;
 
             case (PlayerState.Falling):
 
+                if(Input.GetKeyDown(KeyCode.Space))
+                {
+                    jumpBufferTimeTemp = jumpBufferTime;
+                }
+
+                rb.AddForce(Vector3.down * 0.05f, ForceMode.Impulse);
+
                 if (isGrounded) ChangeState(PlayerState.Grounded);
-
-                if (Input.GetKeyDown(KeyCode.Space)) jumpBufferTimeTemp = jumpBufferTime;
-
-                jumpBufferTimeTemp -= Time.deltaTime;
-
-                newVel.y -= .15f * stateDur;
 
                 break;
         }
 
         #endregion
 
-        newVel.y = Mathf.Clamp(newVel.y, -150f, Mathf.Infinity);
+        // Smooth Damp for the win
+        rb.velocity = new Vector3(Mathf.SmoothDamp(rb.velocity.x, moveDir.x, ref currentVel.x, speedIncrease), rb.velocity.y, Mathf.SmoothDamp(rb.velocity.z, moveDir.z, ref currentVel.z, speedIncrease));
 
         // Clamp the Velocity to the Move Speed
-        MovementHelp.VelocityClamp(moveSpeed, newVel);
-
-        rb.velocity = newVel;
+        MovementHelp.VelocityClamp(moveSpeed, rb.velocity);
 
         Debug.Log(isGrounded);
-    }
-
-    IEnumerator JumpCancel()
-    {
-        while (state == PlayerState.Jumping)
-        {
-            rb.velocity = new Vector3(rb.velocity.x, Mathf.Lerp(rb.velocity.y, 0, 10f * Time.deltaTime), rb.velocity.z);
-            yield return new WaitForEndOfFrame();
-        }
     }
 
     void CameraTilt(bool running)

@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Player;
 
 public class PlayerCamera : MonoBehaviour
 {
     [Header("Orientation")]
     public Transform orientation;
     public Transform playerObj;
-    public PlayerMovement player;
+    public PlayerControls player;
     internal Camera cam;
 
     [Header("Mouse Stuff")]
@@ -45,7 +46,7 @@ public class PlayerCamera : MonoBehaviour
             #region FOV
 
             // Change FOV in game
-            newFOV = (player.state == PlayerMovement.PlayerState.Running) ? newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) : newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
+            newFOV = (player.isRunning) ? newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) : newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
 
             // FOV Change based on FOV 
             cam.fieldOfView = newFOV;
@@ -77,11 +78,13 @@ public class PlayerCamera : MonoBehaviour
         newWalkingFOV = FOV;
         newRunningFOV = FOV * 1.25f;
     }
+
     public void UpdateSensitivity(float FOV)
     {
         sensX = FOV;
         sensY = FOV;
     }
+
     public void ShakeCamera(float s, float t)
     {
         float time = Time.time;

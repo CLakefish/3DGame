@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Player;
 
-[RequireComponent(typeof(PlayerMovement))]
 public class PlayerController : MonoBehaviour
 {
     #region Parameters
@@ -231,7 +230,7 @@ public class PlayerController : MonoBehaviour
                 if (heldTime > 2f)
                 {
                     weaponData.bounceCount = bounceCount + 3;
-                    weaponData.trailSpeed = tempStore * 100f;
+                    weaponData.trailSpeed = tempStore * 5f;
                     Debug.Log("3");
                     heldTime = 0f;
                     break;
@@ -266,6 +265,8 @@ public class PlayerController : MonoBehaviour
 
                 while (d > 0)
                 {
+                    if (trail == null) StopCoroutine(SpawnTrail(trail, raycast, point, normal, bounceCount, bounceDistance, hitObj));
+
                     trail.transform.position = Vector3.Lerp(startPos, point, 1 - (d / startDist));
                     d -= Time.deltaTime * weaponData.trailSpeed;
 
@@ -294,6 +295,8 @@ public class PlayerController : MonoBehaviour
 
                 while (d > 0)
                 {
+                    if (trail == null) StopCoroutine(SpawnTrail(trail, raycast, point, normal, bounceCount, bounceDistance, hitObj));
+
                     trail.transform.position = Vector3.Slerp(startPos, EnemyPos, 1 - (d / startDist));
                     d -= Time.deltaTime * weaponData.trailSpeed;
 
@@ -328,15 +331,13 @@ public class PlayerController : MonoBehaviour
 
             while (d > 0)
             {
-                if (trail == null) break;
+                if (trail == null) StopCoroutine(SpawnTrail(trail, raycast, point, normal, bounceCount, bounceDistance, hitObj));
 
                 trail.transform.position = Vector3.Lerp(startPos, point, 1 - (d / startDist));
                 d -= Time.deltaTime * weaponData.trailSpeed;
 
                 yield return null;
             }
-
-            if (trail == null) yield return null;
 
             trail.transform.position = point;
 

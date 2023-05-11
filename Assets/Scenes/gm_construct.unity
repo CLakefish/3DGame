@@ -10355,7 +10355,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orientation: {fileID: 2004172934}
   playerObj: {fileID: 294303341}
-  player: {fileID: 1577823335}
+  player: {fileID: 1577823334}
   sensX: 3
   sensY: 3
   yOffset: 0.5
@@ -10784,7 +10784,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1577823337}
   - component: {fileID: 1577823336}
-  - component: {fileID: 1577823335}
   - component: {fileID: 1577823334}
   m_Layer: 0
   m_Name: Player (1)
@@ -10817,26 +10816,7 @@ MonoBehaviour:
   jumpTime: 0.1
   jumpSpeed: 0.05
   jumpBufferTime: 0.32
---- !u!114 &1577823335
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1577823333}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7165b346510bffb4bab8d5eb144b7baa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  viewPosition: {fileID: 2004172934}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 1
-  walkingSpeed: 12
-  runningSpeed: 14
-  acceleration: 0.075
-  deceleration: 0.075
+  isRunning: 0
 --- !u!114 &1577823336
 MonoBehaviour:
   m_ObjectHideFlags: 0
