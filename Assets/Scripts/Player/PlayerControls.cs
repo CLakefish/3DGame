@@ -146,8 +146,8 @@ public class PlayerControls : MonoBehaviour
 
         stateDur += Time.deltaTime;
 
-        jumpBufferTimeTemp = Mathf.Lerp(jumpBufferTimeTemp, 0, Time.deltaTime);
-        jumpCoyoteTimeT = Mathf.Lerp(jumpCoyoteTimeT, 0, Time.deltaTime);
+        jumpBufferTimeTemp = Mathf.MoveTowards(jumpBufferTimeTemp, 0, Time.deltaTime);
+        jumpCoyoteTimeT = Mathf.MoveTowards(jumpCoyoteTimeT, 0, Time.deltaTime);
 
         switch (state)
         {
@@ -185,7 +185,7 @@ public class PlayerControls : MonoBehaviour
                     {
                         jumpCoyoteTimeT = 0;
                         ChangeState(PlayerState.Jumping);
-                        return;
+                        break;
                     }
 
                     jumpBufferTimeTemp = jumpBufferTime;
