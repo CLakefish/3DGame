@@ -26,15 +26,19 @@ public class PlayerControls : MonoBehaviour
     public LayerMask groundLayer;
 
     [Header("Movement Variables")] // Eventually Add Gravity
-    public float walkingSpeed;
-    public float runningSpeed;
+    public Vector2 walkingSpeed;
+    public Vector2 runningSpeed;
     public Vector2 acceleration,
                    deceleration;
 
-    public float jumpTime,
-                 jumpSpeed,
+    [Space()]
+    public float jumpTime;
+    public float jumpSpeed,
                  jumpBufferTime;
-    float jumpBufferTimeTemp;
+    public float jumpCoyoteTime;
+
+    float jumpBufferTimeTemp,
+          jumpCoyoteTimeT;
 
      float groundRay = 0.005f;
 
@@ -60,6 +64,7 @@ public class PlayerControls : MonoBehaviour
         col = rb.GetComponent<CapsuleCollider>();
 
         jumpBufferTimeTemp = jumpBufferTime;
+        jumpCoyoteTimeT = 0;
     }
 
     // Update is called once per frame
@@ -113,7 +118,7 @@ public class PlayerControls : MonoBehaviour
         #region Movement 
 
         // Speed
-        float moveSpeed = isRunning ? runningSpeed : walkingSpeed,
+        float moveSpeed = isRunning ? ( state == PlayerState.Falling ? runningSpeed.x : runningSpeed.y) : ( state == PlayerState.Falling ? walkingSpeed.x : walkingSpeed.y),
               speedIncrease = inputting ? (isGrounded ? acceleration.x : acceleration.y) : (isGrounded ? deceleration.x : deceleration.y);
 
         // Get the move direction of the viewPosition multiplied by the move speed
@@ -133,7 +138,6 @@ public class PlayerControls : MonoBehaviour
                 case (PlayerState.Jumping):
 
                     rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-
                     rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
 
                     break;
@@ -143,11 +147,15 @@ public class PlayerControls : MonoBehaviour
         stateDur += Time.deltaTime;
 
         jumpBufferTimeTemp = Mathf.Lerp(jumpBufferTimeTemp, 0, Time.deltaTime);
+        jumpCoyoteTimeT = Mathf.Lerp(jumpCoyoteTimeT, 0, Time.deltaTime);
 
         switch (state)
         {
             case (PlayerState.Grounded):
-                if (Input.GetKeyDown(KeyCode.Space) && isGrounded) ChangeState(PlayerState.Jumping);
+                if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+                {
+                    ChangeState(PlayerState.Jumping);
+                }
 
                 if (jumpBufferTimeTemp > 0)
                 {
@@ -155,7 +163,12 @@ public class PlayerControls : MonoBehaviour
                     ChangeState(PlayerState.Jumping);
                 }
 
-                if (!isGrounded && !Input.GetKey(KeyCode.Space)) ChangeState(PlayerState.Falling);
+                if (!isGrounded && !Input.GetKey(KeyCode.Space))
+                {
+                    jumpCoyoteTimeT = jumpCoyoteTime;
+                    ChangeState(PlayerState.Falling);
+                }
+
                 break;
 
             case (PlayerState.Jumping):
@@ -168,10 +181,17 @@ public class PlayerControls : MonoBehaviour
 
                 if(Input.GetKeyDown(KeyCode.Space))
                 {
+                    if (prevState == PlayerState.Grounded && jumpCoyoteTimeT > 0)
+                    {
+                        jumpCoyoteTimeT = 0;
+                        ChangeState(PlayerState.Jumping);
+                        return;
+                    }
+
                     jumpBufferTimeTemp = jumpBufferTime;
                 }
 
-                rb.AddForce(Vector3.down * 0.05f, ForceMode.Impulse);
+                rb.AddForce(Vector3.down * stateDur / 2, ForceMode.Impulse);
 
                 if (isGrounded) ChangeState(PlayerState.Grounded);
 

@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
         weaponData.currentBulletCount = weaponData.bulletCount;
 
         weaponData.isReloading = false;
+        weaponData.isEmpty = false;
     }
 
     void Update()
@@ -92,7 +93,7 @@ public class PlayerController : MonoBehaviour
 
         // Shooting 
         if (isFiring && weaponData.currentBulletCount > 0 && !weaponData.isReloading && canShoot) ShootObj();
-        else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty && canShoot) StartCoroutine(Reload());
+        else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty) StartCoroutine(Reload());
     }
 
 
