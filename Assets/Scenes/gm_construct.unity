@@ -10813,6 +10813,12 @@ MonoBehaviour:
   runningSpeed: {x: 14, y: 14}
   acceleration: {x: 0.075, y: 0.075}
   deceleration: {x: 0.075, y: 0.075}
+  README: 
+  slideModifier: 1
+  slideJumpModifier: 1
+  airModifier: 1
+  crouchModifier: 1
+  fallModifier: 0.5
   jumpTime: 0.19
   jumpSpeed: 12.65
   jumpBufferTime: 0.1
