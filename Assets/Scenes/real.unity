@@ -1483,7 +1483,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh40886
+  m_Name: pb_Mesh27458
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3564,8 +3564,8 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
-  walkingSpeed: {x: 12, y: 12.75}
-  runningSpeed: {x: 14, y: 14.75}
+  walkingSpeed: {x: 12, y: 12.2}
+  runningSpeed: {x: 14, y: 14.2}
   acceleration: {x: 0.075, y: 0.095}
   deceleration: {x: 0.075, y: 0.095}
   jumpTime: 0.19
