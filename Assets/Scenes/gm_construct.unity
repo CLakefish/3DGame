@@ -10809,12 +10809,12 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
-  walkingSpeed: {x: 0, y: 0}
-  runningSpeed: {x: 0, y: 0}
+  walkingSpeed: {x: 12, y: 12}
+  runningSpeed: {x: 14, y: 14}
   acceleration: {x: 0.075, y: 0.075}
   deceleration: {x: 0.075, y: 0.075}
-  jumpTime: 0.1
-  jumpSpeed: 0.05
+  jumpTime: 0.19
+  jumpSpeed: 12.65
   jumpBufferTime: 0.1
   jumpCoyoteTime: 0.1
   isRunning: 0

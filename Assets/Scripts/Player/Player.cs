@@ -24,7 +24,10 @@ namespace Player
     {
         Grounded,
         Jumping,
-        Falling
+        Falling,
+        Crouching,
+        Sliding,
+        Running,
     }
 
     [System.Serializable]
