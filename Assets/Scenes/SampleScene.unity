@@ -433,6 +433,16 @@ MonoBehaviour:
   storedWeapons: {fileID: 374163332}
   charge: {fileID: 153664567}
   player: {fileID: 1599680254}
+  playerC: {fileID: 0}
+  points: []
+  c:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  moveTime: 0
+  index: 0
 --- !u!1001 &103804764
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -461,17 +471,9 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3117184748495581592, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
-      propertyPath: m_Value
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 3117184748495581592, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 963194229}
-    - target: {fileID: 3117184748495581592, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: UpdateSensitivity
-      objectReference: {fileID: 0}
     - target: {fileID: 3270556716927006482, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0.22222222
@@ -505,15 +507,31 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1599680256}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: CloseSettings
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: PauseMenu, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
       value: PauseMenu, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
@@ -523,6 +541,10 @@ PrefabInstance:
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606729022056, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_Pivot.x
@@ -617,10 +639,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6669456687027122533, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
-      propertyPath: m_Value
-      value: 85
-      objectReference: {fileID: 0}
-    - target: {fileID: 6669456687027122533, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_MaxValue
       value: 130
       objectReference: {fileID: 0}
@@ -629,25 +647,9 @@ PrefabInstance:
       value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6669456687027122533, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6669456687027122533, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 963194229}
-    - target: {fileID: 6669456687027122533, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: UpdateFOV
-      objectReference: {fileID: 0}
-    - target: {fileID: 6669456687027122533, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PlayerCamera, Assembly-CSharp
-      objectReference: {fileID: 0}
-    - target: {fileID: 6669456687027122533, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
-      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: UnityEngine.Object, UnityEngine
-      objectReference: {fileID: 0}
     - target: {fileID: 7069007405422416864, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_Name
       value: Sensitivity
@@ -2478,7 +2480,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orientation: {fileID: 918017423}
   playerObj: {fileID: 1708820812}
-  player: {fileID: 1599680255}
+  player: {fileID: 0}
   sensX: 3
   sensY: 3
   yOffset: 0.5
