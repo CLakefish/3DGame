@@ -11,71 +11,56 @@ public class PlayerUI : MonoBehaviour
                     ammoCount,
                     storedWeapons;
 
-    public TMP_Text charge;
+    //public TMP_Text charge;
 
     public PlayerController player;
     public PlayerControls playerC;
-    public Transform[] points;
-    public AnimationCurve c;
-    public float moveTime;
-    public int index = 0;
+
+    [SerializeField] private float hudLerpTime;
+    [SerializeField] private Transform hudTransform;
+    private PlayerCamera cam;
+
+    private Vector3 hudVel;
+    private Vector3 rotVel;
+    [SerializeField] float maxDist = 0.75f;
 
     // Start is called before the first frame update
     void Start()
     {
         player = FindObjectOfType<PlayerController>().GetComponent<PlayerController>();
         playerC = player.GetComponent<PlayerControls>();
+
+        cam = FindObjectOfType<PlayerCamera>().GetComponent<PlayerCamera>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        weaponName.text = "Current Weapon: " + player.weaponData.Name.ToString();
+        weaponName.text = player.weaponData.Name.ToString();
         ammoCount.text = player.weaponData.currentBulletCount.ToString() + " / " + player.weaponData.bulletCount.ToString();
-        storedWeapons.text = "Stored Weapons: \n";
+        //storedWeapons.text = "Stored Weapons: \n";
 
-        charge.text = player.heldTime.ToString();
+        //charge.text = player.heldTime.ToString();
 
-        // Weapon Storage UI
+        /*// Weapon Storage UI
         if (player.weaponItems.Count > 0)
         {
             for (int i = 0; i < player.weaponItems.Count; i++)
             {
                 storedWeapons.text += player.weaponItems[i].weaponData.Name + "\n";
             }
-        }
+        }*/
 
         if ((player.weaponData.isReloading && player.weaponData.isEmpty) || (player.weaponData.currentBulletCount <= 0 && player.weaponData.isReloading))
         {
             ammoCount.text = "Reloading!";
         }
 
-        StartCoroutine(moveTowards(points[index], moveTime));
+        if (Vector3.Max(hudTransform.position, transform.position + Vector3.ClampMagnitude(hudTransform.position - transform.position, maxDist)) != hudTransform.position) hudTransform.position = Vector3.SmoothDamp(hudTransform.position, transform.position, ref hudVel, hudLerpTime / 10f);
+        else hudTransform.position = Vector3.SmoothDamp(hudTransform.position, transform.position, ref hudVel, hudLerpTime);
+
+        hudTransform.position = transform.position + Vector3.ClampMagnitude(hudTransform.position - transform.position, maxDist);
+        hudTransform.rotation = transform.rotation;
     }
 
-    private void FixedUpdate()
-    {
-        index = playerC.isRunning ? 1 : 0;
     }
-
-    IEnumerator moveTowards(Transform obj, float speed)
-    {
-        float fraction = 0;
-        float time = 0;
-
-        do
-        {
-            fraction = time / speed;
-
-            time += Time.deltaTime;
-
-            transform.position = Vector3.Lerp(transform.position, obj.position, fraction);
-            transform.rotation = Quaternion.Lerp(transform.rotation, obj.rotation, fraction);
-
-            yield return new WaitForEndOfFrame();
-        }
-        while (Vector3.Distance(transform.position, obj.position) <= 0);
-
-
-    }
-}

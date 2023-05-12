@@ -67,6 +67,35 @@ namespace Player
         internal bool hasBeenEquiped;
     }
 
+    public abstract class Health : MonoBehaviour
+    {
+        [Header("Health")]
+        [SerializeField] public int health;
+        [SerializeField] public float invulnerabilitySeconds;
+        [SerializeField] public bool isInvulnerable = false;
+
+        public void Hit(int damage)
+        {
+            if (isInvulnerable) return;
+            health = health - damage;
+
+            if (health <= 0) OnDeath();
+
+            StartCoroutine(Invulnerable(invulnerabilitySeconds));
+        }
+
+        public abstract void OnDeath();
+
+        public IEnumerator Invulnerable(float seconds)
+        {
+            isInvulnerable = true;
+
+            yield return new WaitForSeconds(seconds);
+
+            isInvulnerable = false;
+        }
+    }
+
     public static class MovementHelp
     {
         public static Vector3 ClosestPointMesh(this MeshCollider col, Vector3 point)

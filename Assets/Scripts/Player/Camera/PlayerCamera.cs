@@ -25,6 +25,7 @@ public class PlayerCamera : MonoBehaviour
 
     public bool CanRotate = true;
     Vector2 mouseRotation;
+    internal Vector2 mousePos;
 
     // Start is called before the first frame update
     void Start()
@@ -54,7 +55,7 @@ public class PlayerCamera : MonoBehaviour
             #endregion
 
             // Get mouse pos
-            Vector2 mousePos = new Vector2(Input.GetAxis("Mouse X") * sensX, Input.GetAxis("Mouse Y") * sensY);
+            mousePos = new Vector2(Input.GetAxis("Mouse X") * sensX, Input.GetAxis("Mouse Y") * sensY);
 
             // Mouse stuff
             mouseRotation.x -= mousePos.y;

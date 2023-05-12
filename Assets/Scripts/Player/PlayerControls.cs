@@ -63,7 +63,7 @@ public class PlayerControls : MonoBehaviour
     [Header("VECTORS! OH YEAH!!")] // for use in velocity
     Vector3 currentVel;
     Vector3 moveDir;
-    Vector2 inputs;
+    internal Vector2 inputs;
 
     #endregion
 
