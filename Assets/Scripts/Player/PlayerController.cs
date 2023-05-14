@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Shootable Layers")]
     public LayerMask layers;
+    public GameObject firePos;
     float previousFireTime;
     public float heldTime;
     public bool canShoot = true;
@@ -78,7 +79,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        isFiring = (weaponData.bulletType == BulletType.Charge) ? Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) : Input.GetMouseButton(0);
+        isFiring = Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0);
 
         if (Input.GetKeyDown(KeyCode.R) && !isFiring) StartCoroutine(Reload());
 
@@ -133,20 +134,35 @@ public class PlayerController : MonoBehaviour
                         if (!weaponData.isReloading)
                         {
                             weaponData.currentBulletCount--;
+                            StopCoroutine(ChargedProjectileShotHandler());
                             StartCoroutine(ChargedProjectileShotHandler());
                         }
                         break;
                     }
 
+                    weaponData.currentBulletCount--;
                     ProjectileShotHandler();
                     break;
 
                 case (Player.WeaponType.Multi):
+
                     // Eventually this'll be better
                     for (int i = 0; i < (weaponData.bulletCount / 2); i++)
                     {
-                        weaponData.currentBulletCount--;
-                        ProjectileShotHandler();
+                        if (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce)
+                        {
+                            if (!weaponData.isReloading)
+                            {
+                                weaponData.currentBulletCount--;
+                                StartCoroutine(ChargedProjectileShotHandler());
+
+                            }
+                        }
+                        else
+                        {
+                            weaponData.currentBulletCount--;
+                            ProjectileShotHandler();
+                        }
                     }
 
                     break;
@@ -165,28 +181,63 @@ public class PlayerController : MonoBehaviour
     // Projectile Fire
     void ProjectileShotHandler()
     {
-        // Raycast to Mouse Input Position in world
-        Ray ray = Camera.cam.ScreenPointToRay(Input.mousePosition);
-
-        // Trail rendering
-        TrailRenderer trail = Instantiate(weaponData.bulletTrail, rb.transform.position, Quaternion.identity);
-
-        // Raycast Hit reference
-        RaycastHit raycast;
-
-        // Randomization to the bullet direction
-        ray.direction += new Vector3(Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread));
-
-        // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
-        if (Physics.Raycast(ray, out raycast, 10000, layers))
+        if (weaponData.bulletType == BulletType.Follow)
         {
-            Debug.Log("Hit!");
+            GameObject obj = GetClosestEnemy(GameObject.FindGameObjectsWithTag("Enemy"));
 
-            StartCoroutine(SpawnTrail(trail, raycast,  raycast.point, raycast.normal, weaponData.bounceCount, 100, true));
+            if (obj == null) return;
+
+            // Raycast to Mouse Input Position in world
+            Ray ray = new Ray(rb.transform.position, (obj.transform.position - rb.transform.position).normalized); 
+
+            // Trail rendering
+            TrailRenderer trail = Instantiate(weaponData.bulletTrail, rb.transform.position, Camera.transform.rotation);
+
+            // Raycast Hit reference
+            RaycastHit raycast;
+
+            Debug.Log(ray.direction);
+
+            float r1 = Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread);
+            float r2 = Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread);
+            float r3 = Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread);
+
+            // Randomization to the bullet direction
+            ray.direction = new Vector3((r1 == 0 ? ray.direction.x : ray.direction.x + r1), (r2 == 0 ? ray.direction.y : ray.direction.y + r2), r3 == 0 ? ray.direction.z : ray.direction.z + r3);
+
+            Debug.Log(ray.direction);
+
+            bool hit = Physics.Raycast(ray, out raycast, 1000);
+
+            // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
+            if (hit) StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, true));
+            else StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, false, true));
         }
         else
         {
-            StartCoroutine(SpawnTrail(trail, raycast, ray.direction * 100, new Vector3(0f, 0f, 0f), weaponData.bounceCount, 100, false));
+            // Raycast to Mouse Input Position in world
+            Ray ray = new Ray(firePos.transform.position, firePos.transform.rotation * Vector3.forward);
+
+            // Trail rendering
+            TrailRenderer trail = Instantiate(weaponData.bulletTrail, firePos.transform.position, Camera.transform.rotation);
+
+            // Raycast Hit reference
+            RaycastHit raycast;
+
+            // Randomization to the bullet direction
+            ray.direction += new Vector3(Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread));
+
+            // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
+            if (Physics.Raycast(ray, out raycast, 10000, layers))
+            {
+                Debug.Log("Hit!");
+
+                StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true));
+            }
+            else
+            {
+                StartCoroutine(SpawnTrail(trail, raycast, ray.direction * 690, new Vector3(0f, 0f, 0f), weaponData.bounceCount, 100, false));
+            }
         }
     }
 
@@ -199,8 +250,6 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator ChargedProjectileShotHandler()
     {
-        StopCoroutine(ChargedProjectileShotHandler());
-
         Debug.Log("yessir");
         weaponData.isReloading = true;
 
@@ -252,131 +301,110 @@ public class PlayerController : MonoBehaviour
     }
 
     // Visualization
-    IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit raycast, Vector3 point, Vector3 normal, float bounceCount, float bounceDistance, bool hitObj)
+    IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit raycast, Vector3 point, Vector3 normal, float bounceCount, float bounceDistance, bool hitObj, bool follow = false, GameObject positionUpdate = null)
     {
-        if (weaponData.bulletType == BulletType.Follow)
+        Vector3 startPos = trail.transform.position;
+        Vector3 dir = (follow) ? (rb.transform.position - point).normalized : (point - trail.transform.position).normalized;
+
+        float d = Vector3.Distance(trail.transform.position, point);
+        float startDist = d;
+
+        while (d > 0)
         {
-            if (GetClosestEnemy(GameObject.FindGameObjectsWithTag("Enemy")) == null)
+            if (trail == null) yield break;
+
+            trail.transform.position = (follow) ? Vector3.Slerp(startPos, point, 1 - (d / startDist)) : Vector3.Lerp(startPos, point, 1 - (d / startDist));
+            d -= Time.deltaTime * weaponData.trailSpeed;
+
+            yield return null;
+        }
+
+        trail.transform.position = point;
+
+        if (hitObj)
+        {
+            // Use Object Pooling here eventually 
+
+            GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
+            obj.transform.parent = raycast.collider.gameObject.transform;
+
+            if (raycast.collider.gameObject.tag == "Enemy")
             {
-                Vector3 startPos = trail.transform.position;
-                Vector3 dir = (point - trail.transform.position).normalized;
+                Enemy e = raycast.collider.GetComponent<Enemy>();
 
-                float d = Vector3.Distance(trail.transform.position, point);
-                float startDist = d;
+                e.Hit(weaponData.bulletDamage, rb.transform.position, new Vector3(weaponData.enemyKnockback, weaponData.enemyKnockback, weaponData.enemyKnockback));
+            }
 
-                while (d > 0)
+            Destroy(obj, 2f);
+
+            if ((weaponData.bulletType == BulletType.Bounce || weaponData.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
+            {
+                Vector3 bounceDir = Vector3.Reflect(dir, normal);
+
+                bounceCount--;
+
+                // Recursion!
+                if (Physics.Raycast(point, bounceDir, out RaycastHit h, Mathf.Infinity, layers))
                 {
-                    if (trail == null) StopCoroutine(SpawnTrail(trail, raycast, point, normal, bounceCount, bounceDistance, hitObj));
-
-                    trail.transform.position = Vector3.Lerp(startPos, point, 1 - (d / startDist));
-                    d -= Time.deltaTime * weaponData.trailSpeed;
-
-                    yield return null;
+                    yield return new WaitForEndOfFrame();
+                    yield return StartCoroutine(SpawnTrail(trail, h, h.point, h.normal, bounceCount, bounceDistance - Vector3.Distance(h.point, point), true));
                 }
-
-                trail.transform.position = point;
-
-                if (hitObj)
+                else
                 {
-                    GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
-                    if (raycast.collider != null && raycast.collider.tag == "Enemy")
-                    {
-                        obj.transform.parent = raycast.collider.gameObject.transform;
-                    }
-                    Destroy(obj, 2f);
+                    yield return new WaitForEndOfFrame();
+                    yield return StartCoroutine(SpawnTrail(trail, h, bounceDir * 1200, Vector3.zero, 0, 0, false));
                 }
             }
-            else
+            else if (bounceCount <= 0)
             {
-                Vector3 startPos = trail.transform.position;
-                Vector3 EnemyPos = GetClosestEnemy(GameObject.FindGameObjectsWithTag("Enemy")).transform.position + new Vector3(Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread));
-
-                float d = Vector3.Distance(trail.transform.position, EnemyPos);
-                float startDist = d;
-
-                while (d > 0)
+                if (weaponData.explodeOnDeath)
                 {
-                    if (trail == null) StopCoroutine(SpawnTrail(trail, raycast, point, normal, bounceCount, bounceDistance, hitObj));
-
-                    trail.transform.position = Vector3.Slerp(startPos, EnemyPos, 1 - (d / startDist));
-                    d -= Time.deltaTime * weaponData.trailSpeed;
-
-                    yield return null;
+                    Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius);
                 }
 
-                trail.transform.position = EnemyPos;
-
-                if (hitObj)
-                {
-                    GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
-
-                    if (raycast.collider != null)
-                    {
-                        obj.transform.parent = raycast.collider.gameObject.transform;
-                    }
-
-                    Destroy(obj, 2f);
-                }
-
-                Destroy(trail, .25f);
+                Destroy(trail, 1f);
             }
         }
-        else
+    }
+
+    void Explode(Vector3 pos, float knockbackValue, float explosionSize)
+    {
+        //float rad = 5f;
+
+
+        // For each possible collider, get the closest one then return if you're hitting it.
+        foreach (var collider in Physics.OverlapSphere(pos, explosionSize))
         {
+            RaycastHit hit;
 
-            Vector3 startPos = trail.transform.position;
-            Vector3 dir = (point - trail.transform.position).normalized;
-
-            float d = Vector3.Distance(trail.transform.position, point);
-            float startDist = d;
-
-            while (d > 0)
+            if (Physics.Raycast(new Ray(pos, (collider.transform.position - pos)), out hit, explosionSize))
             {
-                if (trail == null) StopCoroutine(SpawnTrail(trail, raycast, point, normal, bounceCount, bounceDistance, hitObj));
+                Rigidbody r = collider.GetComponent<Rigidbody>();
+                Enemy e = collider.GetComponent<Enemy>();
 
-                trail.transform.position = Vector3.Lerp(startPos, point, 1 - (d / startDist));
-                d -= Time.deltaTime * weaponData.trailSpeed;
-
-                yield return null;
-            }
-
-            trail.transform.position = point;
-
-            if (hitObj)
-            {
-                // Use Object Pooling here eventually 
-
-                GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
-                if (raycast.collider != null)
+                if (r != null && e != null)
                 {
-                    obj.transform.parent = raycast.collider.gameObject.transform;
-                }
-                Destroy(obj, 2f);
+                    float dist = (1 - Mathf.Clamp01(hit.distance / explosionSize)) * knockbackValue;
 
-                if ((weaponData.bulletType == BulletType.Bounce || weaponData.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
-                {
-                    Vector3 bounceDir = Vector3.Reflect(dir, normal);
+                    e.Hit(3, hit.point, Vector3.zero);
 
-                    bounceCount--;
-
-                    // Recursion!
-                    if (Physics.Raycast(point, bounceDir, out RaycastHit h, Mathf.Infinity, layers))
-                    {
-                        yield return StartCoroutine(SpawnTrail(trail, raycast, h.point, h.normal, bounceCount, bounceDistance - Vector3.Distance(h.point, point), true));
-                    }
-                    else
-                    {
-                        yield return StartCoroutine(SpawnTrail(trail, raycast, bounceDir * bounceDistance, Vector3.zero, 0, 0, false));
-                    }
-                }
-                else if (bounceCount <= 0)
-                {
-                    Debug.Log("dead!");
-                    Destroy(trail, trail.time * 2f);
+                    r.velocity = new Vector3(0f, 0f, 0f);
+                    r.AddForce((r.transform.position - pos).normalized * (dist * r.drag), ForceMode.Impulse);
                 }
             }
+        }
 
-            Destroy(trail, 1f);
+        if (weaponData.playerCanBeHit)
+        {
+            float distPlayer = Vector3.Distance(pos, rb.transform.position);
+            if (distPlayer >= explosionSize / 2) return;
+
+            RaycastHit h;
+            Physics.Raycast(new Ray(pos, (rb.transform.position - pos)), out h, explosionSize);
+
+            distPlayer = (1 - Mathf.Clamp01(h.distance / explosionSize - 1)) * knockbackValue;
+
+            rb.AddForce((rb.transform.position - pos).normalized * distPlayer, ForceMode.Impulse);
         }
     }
 

@@ -41,7 +41,7 @@ namespace Player
         public BulletType bulletType;
 
         [Header("Bullets")]
-        public float bulletDamage;
+        public int bulletDamage;
         public float timeBetweenShots;
         public float bulletCount;
         [SerializeField, Range(0, 1)]
@@ -54,17 +54,22 @@ namespace Player
         public TrailRenderer bulletTrail;
         public float trailSpeed;
 
-        [Header("Bullet Hole")]
+        [Header("Bullet Hole & Debugging")]
         public GameObject hitParticle;
+
 
         public bool isReloading,
                       isEmpty,
                       isShooting;
 
+        [Header("Explosion")]
+        public bool explodeOnDeath;
+
+        public bool playerCanBeHit;
+        public float explosionRadius;
+
         internal float currentBulletCount,
                        previousFireTime;
-
-        internal bool hasBeenEquiped;
     }
 
     public abstract class Health : MonoBehaviour
@@ -73,15 +78,27 @@ namespace Player
         [SerializeField] public int health;
         [SerializeField] public float invulnerabilitySeconds;
         [SerializeField] public bool isInvulnerable = false;
+        [SerializeField] public bool hasInvulnerability = false;
 
-        public void Hit(int damage)
+        internal Rigidbody rb;
+
+        public void Hit(int damage, Vector3 pos, Vector3 knockbackForce)
         {
             if (isInvulnerable) return;
             health = health - damage;
 
-            if (health <= 0) OnDeath();
+            if (health <= 0)
+            {
+                OnDeath();
+                isInvulnerable = true;
+                return;
+            }
 
-            StartCoroutine(Invulnerable(invulnerabilitySeconds));
+            rb = gameObject.GetComponent<Rigidbody>();
+
+            StartCoroutine(Knockback(pos, knockbackForce));
+
+            if (hasInvulnerability) StartCoroutine(Invulnerable(invulnerabilitySeconds));
         }
 
         public abstract void OnDeath();
@@ -93,6 +110,16 @@ namespace Player
             yield return new WaitForSeconds(seconds);
 
             isInvulnerable = false;
+        }
+
+        public IEnumerator Knockback(Vector3 pos, Vector3 knockbackForce)
+        {
+            pos = (pos - rb.transform.position).normalized;
+
+            rb.velocity = new Vector3(0f, 0f, 0f);
+
+            yield return new WaitForSeconds(0.05f);
+            rb.AddForce(new Vector3(-pos.x * knockbackForce.x, knockbackForce.y, -pos.z * knockbackForce.x), ForceMode.Impulse);
         }
     }
 

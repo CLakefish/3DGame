@@ -51,16 +51,19 @@ public class PlayerUI : MonoBehaviour
             }
         }*/
 
+        //Debug.Log(maxed);
+
         if ((player.weaponData.isReloading && player.weaponData.isEmpty) || (player.weaponData.currentBulletCount <= 0 && player.weaponData.isReloading))
         {
             ammoCount.text = "Reloading!";
         }
+    }
 
-        if (Vector3.Max(hudTransform.position, transform.position + Vector3.ClampMagnitude(hudTransform.position - transform.position, maxDist)) != hudTransform.position) hudTransform.position = Vector3.SmoothDamp(hudTransform.position, transform.position, ref hudVel, hudLerpTime / 10f);
-        else hudTransform.position = Vector3.SmoothDamp(hudTransform.position, transform.position, ref hudVel, hudLerpTime);
-
-        hudTransform.position = transform.position + Vector3.ClampMagnitude(hudTransform.position - transform.position, maxDist);
+    private void LateUpdate()
+    {
+        //hudTransform.position = transform.position + Vector3.ClampMagnitude(hudTransform.position - transform.position, maxDist);
+        hudTransform.position = Vector3.SmoothDamp(hudTransform.position, transform.position, ref hudVel, hudLerpTime);
         hudTransform.rotation = transform.rotation;
     }
 
-    }
+}

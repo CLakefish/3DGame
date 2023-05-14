@@ -69,7 +69,7 @@ public class PlayerCamera : MonoBehaviour
             orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
 
             // Proper Positioning
-            transform.position = new Vector3(playerObj.transform.position.x, playerObj.transform.position.y + yOffset, playerObj.transform.position.z);
+            transform.position = new Vector3(transform.position.x, playerObj.transform.position.y + yOffset, transform.position.z);
         }
     }
 
