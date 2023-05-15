@@ -123,7 +123,8 @@ public class PlayerControls : MonoBehaviour
         // Inputs
         inputs = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
-        bool inputting = (inputs != new Vector2(0f, 0f)), isCrouching = (Input.GetKey(KeyCode.LeftControl)), isRunning = Input.GetKey(KeyCode.LeftShift);
+        bool inputting = (inputs != new Vector2(0f, 0f)), isCrouching = (Input.GetKey(KeyCode.LeftControl));
+        isRunning = Input.GetKey(KeyCode.LeftShift);
 
         #endregion
 

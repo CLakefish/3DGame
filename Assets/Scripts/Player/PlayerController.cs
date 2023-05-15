@@ -60,6 +60,7 @@ public class PlayerController : MonoBehaviour
                 weaponData.isEmpty = false;
                 weaponData.isReloading = false;
 
+                StopCoroutine(ItemSwitchPause());
                 StartCoroutine(ItemSwitchPause());
             }
             else
@@ -75,6 +76,7 @@ public class PlayerController : MonoBehaviour
                 weaponData.isEmpty = false;
                 weaponData.isReloading = false;
 
+                StopCoroutine(ItemSwitchPause());
                 StartCoroutine(ItemSwitchPause());
             }
         }
@@ -93,7 +95,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // Shooting 
-        if (isFiring && weaponData.currentBulletCount > 0 && !weaponData.isReloading && canShoot) ShootObj();
+        if (isFiring && weaponData.currentBulletCount > 0 && !weaponData.isReloading) ShootObj();
         else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty) StartCoroutine(Reload());
     }
 
@@ -210,8 +212,8 @@ public class PlayerController : MonoBehaviour
             bool hit = Physics.Raycast(ray, out raycast, 1000);
 
             // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
-            if (hit) StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, true));
-            else StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, false, true));
+            if (hit) StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, weaponData.bulletDamage, weaponData.trailSpeed, true));
+            else StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, false, weaponData.bulletDamage, weaponData.trailSpeed));
         }
         else
         {
@@ -232,11 +234,11 @@ public class PlayerController : MonoBehaviour
             {
                 Debug.Log("Hit!");
 
-                StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true));
+                StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, weaponData.bulletDamage, weaponData.trailSpeed));
             }
             else
             {
-                StartCoroutine(SpawnTrail(trail, raycast, ray.direction * 690, new Vector3(0f, 0f, 0f), weaponData.bounceCount, 100, false));
+                StartCoroutine(SpawnTrail(trail, raycast, ray.direction * 4000, new Vector3(0f, 0f, 0f), weaponData.bounceCount, 100, false, weaponData.bulletDamage, weaponData.trailSpeed));
             }
         }
     }
@@ -244,7 +246,7 @@ public class PlayerController : MonoBehaviour
     IEnumerator ItemSwitchPause()
     {
         canShoot = false;
-        yield return new WaitForSeconds(0.6f);
+        yield return new WaitForSeconds(0.4f);
         canShoot = true;
     }
 
@@ -301,7 +303,7 @@ public class PlayerController : MonoBehaviour
     }
 
     // Visualization
-    IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit raycast, Vector3 point, Vector3 normal, float bounceCount, float bounceDistance, bool hitObj, bool follow = false, GameObject positionUpdate = null)
+    IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit raycast, Vector3 point, Vector3 normal, float bounceCount, float bounceDistance, bool hitObj, float damage, float speed, bool follow = false, GameObject positionUpdate = null)
     {
         Vector3 startPos = trail.transform.position;
         Vector3 dir = (follow) ? (rb.transform.position - point).normalized : (point - trail.transform.position).normalized;
@@ -314,25 +316,27 @@ public class PlayerController : MonoBehaviour
             if (trail == null) yield break;
 
             trail.transform.position = (follow) ? Vector3.Slerp(startPos, point, 1 - (d / startDist)) : Vector3.Lerp(startPos, point, 1 - (d / startDist));
-            d -= Time.deltaTime * weaponData.trailSpeed;
+            d -= Time.deltaTime * speed;
 
             yield return null;
         }
 
-        trail.transform.position = point;
+        if (trail != null) trail.transform.position = point;
 
         if (hitObj)
         {
             // Use Object Pooling here eventually 
 
             GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
+
+            if (raycast.collider == null) yield break;
+            
             obj.transform.parent = raycast.collider.gameObject.transform;
 
             if (raycast.collider.gameObject.tag == "Enemy")
             {
                 Enemy e = raycast.collider.GetComponent<Enemy>();
-
-                e.Hit(weaponData.bulletDamage, rb.transform.position, new Vector3(weaponData.enemyKnockback, weaponData.enemyKnockback, weaponData.enemyKnockback));
+                if (e != null) e.Hit(weaponData.bulletDamage, rb.transform.position, new Vector3(weaponData.enemyKnockback, weaponData.enemyKnockback, weaponData.enemyKnockback));
             }
 
             Destroy(obj, 2f);
@@ -347,15 +351,15 @@ public class PlayerController : MonoBehaviour
                 if (Physics.Raycast(point, bounceDir, out RaycastHit h, Mathf.Infinity, layers))
                 {
                     yield return new WaitForEndOfFrame();
-                    yield return StartCoroutine(SpawnTrail(trail, h, h.point, h.normal, bounceCount, bounceDistance - Vector3.Distance(h.point, point), true));
+                    yield return StartCoroutine(SpawnTrail(trail, h, h.point, h.normal, bounceCount, bounceDistance - Vector3.Distance(h.point, point), true, damage, speed));
                 }
                 else
                 {
                     yield return new WaitForEndOfFrame();
-                    yield return StartCoroutine(SpawnTrail(trail, h, bounceDir * 1200, Vector3.zero, 0, 0, false));
+                    yield return StartCoroutine(SpawnTrail(trail, h, bounceDir * 2000, Vector3.zero, 0, 0, false, damage, speed));
                 }
             }
-            else if (bounceCount <= 0)
+            else if (bounceCount <= 0 && trail != null)
             {
                 if (weaponData.explodeOnDeath)
                 {

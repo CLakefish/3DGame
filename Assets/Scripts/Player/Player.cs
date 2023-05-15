@@ -43,7 +43,7 @@ namespace Player
         [Header("Bullets")]
         public int bulletDamage;
         public float timeBetweenShots;
-        public float bulletCount;
+        public int bulletCount;
         [SerializeField, Range(0, 1)]
         public float bulletSpread;
         public float reloadTime,
@@ -74,32 +74,16 @@ namespace Player
 
     public abstract class Health : MonoBehaviour
     {
+        [Space()]
         [Header("Health")]
         [SerializeField] public int health;
         [SerializeField] public float invulnerabilitySeconds;
         [SerializeField] public bool isInvulnerable = false;
         [SerializeField] public bool hasInvulnerability = false;
 
-        internal Rigidbody rb;
+        public Rigidbody rb;
 
-        public void Hit(int damage, Vector3 pos, Vector3 knockbackForce)
-        {
-            if (isInvulnerable) return;
-            health = health - damage;
-
-            if (health <= 0)
-            {
-                OnDeath();
-                isInvulnerable = true;
-                return;
-            }
-
-            rb = gameObject.GetComponent<Rigidbody>();
-
-            StartCoroutine(Knockback(pos, knockbackForce));
-
-            if (hasInvulnerability) StartCoroutine(Invulnerable(invulnerabilitySeconds));
-        }
+        public abstract void Hit(int damage, Vector3 pos, Vector3 knockbackForce);
 
         public abstract void OnDeath();
 

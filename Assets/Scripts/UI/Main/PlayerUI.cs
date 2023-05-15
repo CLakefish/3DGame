@@ -37,21 +37,7 @@ public class PlayerUI : MonoBehaviour
     void Update()
     {
         weaponName.text = player.weaponData.Name.ToString();
-        ammoCount.text = player.weaponData.currentBulletCount.ToString() + " / " + player.weaponData.bulletCount.ToString();
-        //storedWeapons.text = "Stored Weapons: \n";
-
-        //charge.text = player.heldTime.ToString();
-
-        /*// Weapon Storage UI
-        if (player.weaponItems.Count > 0)
-        {
-            for (int i = 0; i < player.weaponItems.Count; i++)
-            {
-                storedWeapons.text += player.weaponItems[i].weaponData.Name + "\n";
-            }
-        }*/
-
-        //Debug.Log(maxed);
+        ammoCount.text = player.weaponData.currentBulletCount.ToString();
 
         if ((player.weaponData.isReloading && player.weaponData.isEmpty) || (player.weaponData.currentBulletCount <= 0 && player.weaponData.isReloading))
         {

@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 27715a93015925d48b3354dff8e3c317, type: 3}
-  m_Name: Basic
+  m_Name: minigun
   m_EditorClassIdentifier: 
   weaponData:
-    Name: The burger blaster
-    weapon: 0
-    bulletType: 0
+    Name: 
+    weapon: 1
+    bulletType: 2
     bulletDamage: 1
-    timeBetweenShots: 0.1
+    timeBetweenShots: 0
     bulletCount: 12
-    bulletSpread: 0
+    bulletSpread: 0.116
     reloadTime: 0
     bounceCount: 0
-    enemyKnockback: 2.17
-    bulletTrail: {fileID: 6727316020457667749, guid: 9fbf7d3363f565f439e53a9d8fcd7c13, type: 3}
-    trailSpeed: 150
+    enemyKnockback: 10.62
+    bulletTrail: {fileID: 6727316020457667749, guid: a68008616d67dfe4787aa2903fff66b2, type: 3}
+    trailSpeed: 9.85
     hitParticle: {fileID: 8890879366852258217, guid: b7e8e86824d5d0c4ab8dc9718f7015c9, type: 3}
     isReloading: 0
     isEmpty: 0
     isShooting: 0
-    explodeOnDeath: 1
-    playerCanBeHit: 1
-    explosionRadius: 4
+    explodeOnDeath: 0
+    playerCanBeHit: 0
+    explosionRadius: 5.12
