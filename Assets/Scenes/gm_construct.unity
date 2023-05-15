@@ -18710,7 +18710,7 @@ MonoBehaviour:
   slideJumpModifier: 1
   airModifier: 1
   crouchModifier: 1
-  fallModifier: 0.5
+  fallModifier: 0.2
   jumpTime: 0.19
   jumpSpeed: 12.65
   jumpBufferTime: 0.1
