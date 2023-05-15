@@ -25,6 +25,7 @@ public class StoreData : MonoBehaviour
     {
         SceneDataChange = GameObject.FindGameObjectsWithTag("AddData");
         SceneData = GameObject.FindGameObjectsWithTag("GameManager");
+
         if(!(SceneData.Length > 1))
         {
             DontDestroyOnLoad(gameObject);

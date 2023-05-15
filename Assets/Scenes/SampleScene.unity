@@ -325,6 +325,7 @@ GameObject:
   - component: {fileID: 53208179}
   - component: {fileID: 53208178}
   - component: {fileID: 53208182}
+  - component: {fileID: 53208183}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -431,18 +432,25 @@ MonoBehaviour:
   weaponName: {fileID: 1579547353}
   ammoCount: {fileID: 449614312}
   storedWeapons: {fileID: 374163332}
-  charge: {fileID: 153664567}
   player: {fileID: 1599680254}
   playerC: {fileID: 0}
-  points: []
-  c:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  moveTime: 0
-  index: 0
+  hudLerpTime: 0
+  hudTransform: {fileID: 0}
+  maxDist: 0.75
+--- !u!114 &53208183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 53208177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e3dccaca01b2844cbe872e24f43d12d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GameData: {fileID: 0}
+  PlayerData: []
 --- !u!1001 &103804764
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -500,11 +508,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
@@ -513,22 +521,22 @@ PrefabInstance:
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1599680256}
+      objectReference: {fileID: 53208183}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1599680256}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: CloseSettings
+      value: PressButton
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
-      value: 
+      value: CloseSettings
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PauseMenu, Assembly-CSharp
+      value: SetData, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -539,12 +547,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_BoolArgument
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606450842459, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
-      value: 
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6034790606729022056, guid: 26a70d949c33b864fb3b3a04fbf8847e, type: 3}
       propertyPath: m_Pivot.x
@@ -1857,6 +1869,7 @@ GameObject:
   m_Component:
   - component: {fileID: 705507995}
   - component: {fileID: 705507994}
+  - component: {fileID: 705507996}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1941,6 +1954,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &705507996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705507993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 1
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
 --- !u!1 &730144654
 GameObject:
   m_ObjectHideFlags: 0
@@ -2858,6 +2891,18 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 53208183}
+        m_TargetAssemblyTypeName: SetData, Assembly-CSharp
+        m_MethodName: PressButton
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
       - m_Target: {fileID: 1599680256}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
         m_MethodName: OpenSettings
@@ -3451,10 +3496,14 @@ MonoBehaviour:
     isReloading: 0
     isEmpty: 0
     isShooting: 0
+    explodeOnDeath: 0
+    playerCanBeHit: 0
+    explosionRadius: 0
   selectedIndex: 0
   layers:
     serializedVersion: 2
     m_Bits: 1
+  firePos: {fileID: 0}
   heldTime: 0
   canShoot: 1
 --- !u!114 &1599680255
@@ -3469,14 +3518,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7165b346510bffb4bab8d5eb144b7baa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  state: 0
+  prevState: 0
+  stateDur: 0
+  rb: {fileID: 0}
   viewPosition: {fileID: 918017423}
+  Camera: {fileID: 0}
+  viewTilt: {x: 0, y: 0}
+  currentCameraSpeed: {x: 0, y: 0}
   groundLayer:
-    serializedVersion: 2
     m_Bits: 1
   walkingSpeed: 12
   runningSpeed: 14
   acceleration: 0.075
   deceleration: 0.075
+  currentVel: {x: 0, y: 0, z: 0}
+  moveDir: {x: 0, y: 0, z: 0}
+  inputs: {x: 0, y: 0}
 --- !u!114 &1599680256
 MonoBehaviour:
   m_ObjectHideFlags: 0

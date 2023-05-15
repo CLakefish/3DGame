@@ -8,6 +8,7 @@ TagManager:
   - AddData
   - GameManager
   - PlayerProjectile
+  - manager
   layers:
   - Default
   - TransparentFX
