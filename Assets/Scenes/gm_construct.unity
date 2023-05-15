@@ -18710,8 +18710,9 @@ MonoBehaviour:
   slideModifier: 1
   slideJumpModifier: 1
   airModifier: 1
-  crouchModifier: 1
+  crouchModifier: 0.95
   fallModifier: 0.2
+  frictionModifier: 0.9
   jumpTime: 0.19
   jumpSpeed: 12.65
   jumpBufferTime: 0.1
@@ -27513,7 +27514,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh44898
+  m_Name: pb_Mesh66474
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -29403,7 +29404,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh45132
+  m_Name: pb_Mesh66708
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -56787,7 +56788,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh45362
+  m_Name: pb_Mesh66938
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2

@@ -42,9 +42,11 @@ public class PlayerControls : MonoBehaviour
     [Tooltip("Velocity modifier for when in the air")]
     public float airModifier = 1.0f;
     [Tooltip("Movement speed modifier for when crouching")]
-    public float crouchModifier = 1.0f;
+    public float crouchModifier = 0.99f;
     [Tooltip("Fall speed modifier")]
     public float fallModifier = 0.5f;
+    [Tooltip("Friction modifier while sliding")]
+    public float frictionModifier = 0.99f;
 
 
     [Space()]
@@ -226,7 +228,7 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Running):
 
-                if (isGrounded && isCrouching)
+                if (isCrouching)
                 {
                     ChangeState(PlayerState.Sliding);
                 }
@@ -276,6 +278,8 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Crouching):
 
+                rb.velocity = new Vector3(rb.velocity.x * crouchModifier, rb.velocity.y, rb.velocity.z * crouchModifier);
+
                 if(Input.GetKey(KeyCode.Space))
                 {
                     ChangeState(PlayerState.Jumping);
@@ -291,7 +295,9 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Sliding):
 
-                if (stateDur > 2 || (rb.velocity.x < 1 && rb.velocity.x > -1) || (rb.velocity.z < 1 && rb.velocity.z > -1))
+                rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+
+                if ((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2))
                 {
                     ChangeState(PlayerState.Crouching);
                 }
