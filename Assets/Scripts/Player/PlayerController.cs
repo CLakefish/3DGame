@@ -24,6 +24,11 @@ public class PlayerController : MonoBehaviour
     public float heldTime;
     public bool canShoot = true;
     bool isFiring;
+    [SerializeField] GameObject explosion;
+
+
+    [Header("Explosion Game Object")]
+    bool balls;
 
     #endregion
 
@@ -257,6 +262,7 @@ public class PlayerController : MonoBehaviour
 
         float bounceCount = weaponData.bounceCount;
         float tempStore = weaponData.trailSpeed;
+        float attack = weaponData.bulletDamage;
 
         while (weaponData.isReloading)
         {
@@ -276,13 +282,13 @@ public class PlayerController : MonoBehaviour
                 if (heldTime > 1f)
                 {
                     weaponData.bounceCount = bounceCount + 2;
-                    weaponData.trailSpeed = tempStore * 3f;
+                    weaponData.trailSpeed = tempStore * 2f;
                     Debug.Log("2");
                 }
                 if (heldTime > 2f)
                 {
                     weaponData.bounceCount = bounceCount + 3;
-                    weaponData.trailSpeed = tempStore * 5f;
+                    weaponData.trailSpeed = tempStore * 3f;
                     Debug.Log("3");
                     heldTime = 0f;
                     break;
@@ -341,6 +347,11 @@ public class PlayerController : MonoBehaviour
 
             Destroy(obj, 2f);
 
+            if (weaponData.explodeOnDeath && trail != null)
+            {
+                Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius);
+            }
+
             if ((weaponData.bulletType == BulletType.Bounce || weaponData.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
             {
                 Vector3 bounceDir = Vector3.Reflect(dir, normal);
@@ -356,6 +367,7 @@ public class PlayerController : MonoBehaviour
                 else
                 {
                     yield return new WaitForEndOfFrame();
+
                     yield return StartCoroutine(SpawnTrail(trail, h, bounceDir * 2000, Vector3.zero, 0, 0, false, damage, speed));
                 }
             }
@@ -365,15 +377,16 @@ public class PlayerController : MonoBehaviour
                 {
                     Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius);
                 }
-
-                Destroy(trail, 1f);
             }
+
+            Destroy(trail, 0.1f);
         }
     }
 
     void Explode(Vector3 pos, float knockbackValue, float explosionSize)
     {
         //float rad = 5f;
+
 
 
         // For each possible collider, get the closest one then return if you're hitting it.
@@ -397,6 +410,8 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+
+        Instantiate(explosion, pos, Quaternion.identity);
 
         if (weaponData.playerCanBeHit)
         {

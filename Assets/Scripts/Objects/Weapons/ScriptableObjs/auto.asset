@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: auto
   m_EditorClassIdentifier: 
   weaponData:
-    Name: 
+    Name: funny muffler
     weapon: 0
     bulletType: 2
     bulletDamage: 1
@@ -21,11 +21,14 @@ MonoBehaviour:
     bulletCount: 31
     bulletSpread: 0.004
     reloadTime: 1
-    bounceCount: 8.2
+    bounceCount: 0
     enemyKnockback: 0
     bulletTrail: {fileID: 6727316020457667749, guid: 475611f0ee901e34f8b6ff96d4c82f0f, type: 3}
-    trailSpeed: 100
+    trailSpeed: 80.7
     hitParticle: {fileID: 8890879366852258217, guid: b7e8e86824d5d0c4ab8dc9718f7015c9, type: 3}
     isReloading: 0
     isEmpty: 0
-    isShooting: 0
+    isShooting: 1
+    explodeOnDeath: 0
+    playerCanBeHit: 0
+    explosionRadius: 0
