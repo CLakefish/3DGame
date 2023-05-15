@@ -27,8 +27,10 @@ public class PlayerControls : MonoBehaviour
     public LayerMask groundLayer;
 
     [Header("Movement Variables")] // Eventually Add Gravity
-    public Vector2 walkingSpeed;
-    public Vector2 runningSpeed, acceleration, deceleration;
+    [SerializeField] Vector2 walkingSpeed;
+    [SerializeField] Vector2 runningSpeed, acceleration, deceleration;
+    [Header("Slopes")]
+    [SerializeField] float maxSlopeAngle;
 
     [Tooltip("1 is default, > 1 is a positive modifier, < 1 is a negative modifier")]
     [Header("Movement Modifiers")]
@@ -40,16 +42,18 @@ public class PlayerControls : MonoBehaviour
     [Tooltip("Velocity modifier for when in the air")]
     public float airModifier = 1.0f;
     [Tooltip("Movement speed modifier for when crouching")]
-    public float crouchModifier = 1.0f;
+    public float crouchModifier = 0.99f;
     [Tooltip("Fall speed modifier")]
     public float fallModifier = 0.5f;
+    [Tooltip("Friction modifier while sliding")]
+    public float frictionModifier = 0.99f;
 
 
     [Space()]
-    public float jumpTime;
-    public float jumpSpeed,
-                 jumpBufferTime;
-    public float jumpCoyoteTime;
+    [SerializeField] public float jumpTime;
+    [SerializeField] public float jumpSpeed,
+                                  jumpBufferTime;
+    [SerializeField] public float jumpCoyoteTime;
 
     float jumpBufferTimeTemp,
           jumpCoyoteTimeT;
@@ -59,6 +63,7 @@ public class PlayerControls : MonoBehaviour
     CapsuleCollider col;
 
     public bool isRunning;
+    RaycastHit slopeHit;
 
     [Header("VECTORS! OH YEAH!!")] // for use in velocity
     Vector3 currentVel;
@@ -111,6 +116,24 @@ public class PlayerControls : MonoBehaviour
 
             h = default;
             return false;
+        }
+
+        bool onSlope()
+        {
+            if (Physics.Raycast(rb.transform.position, Vector3.down, out slopeHit, col.height * 0.5f + 0.3f))
+            {
+                float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+                return angle < maxSlopeAngle && angle != 0;
+            }
+
+            // If the angle of the object beneath the player is more than 0, less than the maxSlopeAngle, then it implies you are on a slope.
+
+            return false;
+        }
+
+        Vector3 SlopeMoveDir()
+        {
+            return Vector3.ProjectOnPlane(moveDir, slopeHit.normal).normalized;
         }
 
         // Ground & Wall Detection
@@ -205,7 +228,7 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Running):
 
-                if (isGrounded && isCrouching)
+                if (isCrouching)
                 {
                     ChangeState(PlayerState.Sliding);
                 }
@@ -255,6 +278,8 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Crouching):
 
+                rb.velocity = new Vector3(rb.velocity.x * crouchModifier, rb.velocity.y, rb.velocity.z * crouchModifier);
+
                 if(Input.GetKey(KeyCode.Space))
                 {
                     ChangeState(PlayerState.Jumping);
@@ -270,7 +295,9 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Sliding):
 
-                if (stateDur > 2 || (rb.velocity.x < 1 && rb.velocity.x > -1) || (rb.velocity.z < 1 && rb.velocity.z > -1))
+                rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+
+                if ((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2))
                 {
                     ChangeState(PlayerState.Crouching);
                 }
@@ -304,6 +331,31 @@ public class PlayerControls : MonoBehaviour
 
         // Smooth Damp for the win
         rb.velocity = new Vector3(Mathf.SmoothDamp(rb.velocity.x, moveDir.x, ref currentVel.x, speedIncrease), rb.velocity.y, Mathf.SmoothDamp(rb.velocity.z, moveDir.z, ref currentVel.z, speedIncrease));
+
+        if (onSlope())
+        {
+            // Jumping
+            if (state == PlayerState.Jumping || Input.GetKey(KeyCode.Space))
+            {
+                rb.useGravity = true;
+                return;
+            }
+
+            // Ensure no weird sliding issues
+            rb.useGravity = false;
+
+            // Movement properly
+            rb.AddForce(SlopeMoveDir() * moveSpeed * (QualitySettings.vSyncCount == 1 ? 1 : 10), ForceMode.Force);
+
+            // Velocity Clamp
+            if (rb.velocity.magnitude > moveSpeed)
+                rb.velocity = rb.velocity.normalized * moveSpeed;
+
+            // Y vel fix
+            if (rb.velocity.y > 0 && (state != PlayerState.Jumping && Input.GetKey(KeyCode.Space)))
+                rb.AddForce(Vector3.down * 30f, ForceMode.Force);
+        }
+        else rb.useGravity = true;
 
         // Clamp the Velocity to the Move Speed
         MovementHelp.VelocityClamp(moveSpeed, rb.velocity);
