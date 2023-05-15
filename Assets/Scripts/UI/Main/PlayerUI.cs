@@ -9,7 +9,7 @@ public class PlayerUI : MonoBehaviour
 {
     public TMP_Text weaponName,
                     ammoCount,
-                    storedWeapons;
+                    chargeCount;
 
     //public TMP_Text charge;
 
@@ -23,6 +23,7 @@ public class PlayerUI : MonoBehaviour
     private Vector3 hudVel;
     private Vector3 rotVel;
     [SerializeField] float maxDist = 0.75f;
+    public Color c;
 
     // Start is called before the first frame update
     void Start()
@@ -39,9 +40,27 @@ public class PlayerUI : MonoBehaviour
         weaponName.text = player.weaponData.Name.ToString();
         ammoCount.text = player.weaponData.currentBulletCount.ToString();
 
-        if ((player.weaponData.isReloading && player.weaponData.isEmpty) || (player.weaponData.currentBulletCount <= 0 && player.weaponData.isReloading))
+        if ((player.weaponData.isReloading && player.weaponData.isEmpty) || (player.weaponData.currentBulletCount <= 0))
         {
             ammoCount.text = "Reloading!";
+        }
+        if ((player.weaponData.bulletType == Player.BulletType.Charge || player.weaponData.bulletType == Player.BulletType.ChargeBounce))
+        {
+            if (player.weaponData.isReloading && player.weaponData.isShooting)
+            {
+                chargeCount.text = (player.heldTime == 1.99f ? "Firing!" : "Charge : " + player.heldTime.ToString((player.heldTime < 1 ? "0.00" : "#.00")));
+
+                chargeCount.color = Color.Lerp(Color.white, c, (player.heldTime / 2));
+            }
+            else
+            {
+                chargeCount.text = "Charge : 0.00";
+            }
+        }
+        else 
+        {
+            chargeCount.color = Color.white;
+            chargeCount.text = player.weaponData.Name;
         }
     }
 
