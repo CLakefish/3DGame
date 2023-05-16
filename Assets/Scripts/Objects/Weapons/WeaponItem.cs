@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using Player;
 
-[CustomEditor(typeof(WeaponItem))]
+/*[CustomEditor(typeof(WeaponItem))]
 public class WeaponItemEditor : Editor
 {
     public override void OnInspectorGUI()
@@ -13,7 +13,7 @@ public class WeaponItemEditor : Editor
 
         base.OnInspectorGUI();
     }
-}
+}*/
 
 [CreateAssetMenu(fileName = "Weapon Attributes")]
 public class WeaponItem : ScriptableObject
