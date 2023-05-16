@@ -255,14 +255,13 @@ public class PlayerController : MonoBehaviour
         canShoot = true;
     }
 
+    // Fix this
     IEnumerator ChargedProjectileShotHandler()
     {
         Debug.Log("yessir");
         weaponData.isReloading = true;
 
-        float bounceCount = weaponData.bounceCount;
-        float tempStore = weaponData.trailSpeed;
-        float attack = weaponData.bulletDamage;
+        WeaponData weaponTemp = weaponData;
 
         while (weaponData.isReloading)
         {
@@ -275,20 +274,24 @@ public class PlayerController : MonoBehaviour
             {
                 if (heldTime > 0.5f)
                 {
-                    weaponData.bounceCount = bounceCount + 1;
-                    weaponData.trailSpeed = tempStore + 35f;
+                    weaponData.bounceCount = weaponTemp.bounceCount + 1;
+                    weaponData.trailSpeed = weaponTemp.trailSpeed + 35f;
+                    weaponData.enemyKnockback = weaponTemp.enemyKnockback;
+                    weaponData.bulletDamage = weaponTemp.bulletDamage;
                     Debug.Log("1");
                 }
                 if (heldTime > 1f)
                 {
-                    weaponData.bounceCount = bounceCount + 2;
-                    weaponData.trailSpeed = tempStore * 2f;
+                    weaponData.bounceCount = weaponTemp.bounceCount + 2;
+                    weaponData.trailSpeed = weaponTemp.trailSpeed * 2f;
+                    weaponData.enemyKnockback = weaponTemp.enemyKnockback * 1.25f;
                     Debug.Log("2");
                 }
                 if (heldTime > 2f)
                 {
-                    weaponData.bounceCount = bounceCount + 3;
-                    weaponData.trailSpeed = tempStore * 3f;
+                    weaponData.bounceCount = weaponTemp.bounceCount + 3;
+                    weaponData.trailSpeed = weaponTemp.trailSpeed * 3f;
+                    weaponData.enemyKnockback = weaponTemp.enemyKnockback * 1.4f;
                     Debug.Log("3");
                     heldTime = 0f;
                     break;
@@ -300,8 +303,8 @@ public class PlayerController : MonoBehaviour
 
         ProjectileShotHandler();
 
-        weaponData.bounceCount = bounceCount;
-        weaponData.trailSpeed = tempStore;
+
+        weaponData = weaponTemp;
 
         weaponData.isReloading = false;
 
@@ -403,7 +406,7 @@ public class PlayerController : MonoBehaviour
                 {
                     float dist = (1 - Mathf.Clamp01(hit.distance / explosionSize)) * knockbackValue;
 
-                    e.Hit(3, hit.point, Vector3.zero);
+                    e.Hit(weaponData.bulletDamage, hit.point, Vector3.zero);
 
                     r.velocity = new Vector3(0f, 0f, 0f);
                     r.AddForce((r.transform.position - pos).normalized * (dist * r.drag), ForceMode.Impulse);
@@ -423,7 +426,10 @@ public class PlayerController : MonoBehaviour
 
             distPlayer = (1 - Mathf.Clamp01(h.distance / explosionSize - 1)) * knockbackValue;
 
+            rb.velocity = (Input.GetKey(KeyCode.Space) ? rb.velocity : Vector3.zero);
             rb.AddForce((rb.transform.position - pos).normalized * distPlayer, ForceMode.Impulse);
+
+            rb.GetComponentInParent<PlayerHealth>().Hit(weaponData.bulletDamage / 2, pos, Vector3.one);
         }
     }
 
