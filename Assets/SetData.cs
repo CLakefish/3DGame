@@ -6,11 +6,6 @@ public class SetData : MonoBehaviour
 {
     public GameObject GameData;
     public GameObject[] PlayerData;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -26,6 +21,7 @@ public class SetData : MonoBehaviour
     {
         if(Set)
         {
+            Debug.Log("prssed!");
             GameData.GetComponent<StoreData>().SetData();
         }
         else
