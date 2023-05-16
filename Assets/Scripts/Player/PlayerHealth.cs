@@ -44,7 +44,7 @@ public class PlayerHealth : Health
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.R) || (deathScreen.activeSelf && Input.GetMouseButtonDown(0))) ResetLevel();
+        if (Input.GetKey(KeyCode.Backspace) || (deathScreen.activeSelf && Input.GetMouseButtonDown(0))) ResetLevel();
 
         healthText.text = health.ToString();
 
