@@ -22,6 +22,9 @@ public class PauseMenu : MonoBehaviour
 
     public PlayerCamera PlayerCamera;
 
+    public GameObject player;
+    public Vector3 Vel;
+
     private void Awake()
     {
         canPause = true;
@@ -42,10 +45,14 @@ public class PauseMenu : MonoBehaviour
             if (GameisPaused == true && canPause == true)
             {
                 Resume();
+                if(player != null)
+                player.GetComponent<Rigidbody>().velocity = Vel;
             }
             else if (GameisPaused == false && canPause == true)
             {
                 Pause();
+                if(player != null)
+                Vel = player.GetComponent<Rigidbody>().velocity;
             }
         }
         Debug.Log("pressed Pause");

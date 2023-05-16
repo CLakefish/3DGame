@@ -23,7 +23,6 @@ public class StoreData : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SceneDataChange = GameObject.FindGameObjectsWithTag("AddData");
         SceneData = GameObject.FindGameObjectsWithTag("GameManager");
 
         if(!(SceneData.Length > 1))
@@ -31,10 +30,10 @@ public class StoreData : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         }
 
-
     }
-public void SetData() //on a scene load set data. run script when settings is opened.
+    public void FindObjects()
     {
+        SceneDataChange = GameObject.FindGameObjectsWithTag("AddData");
         for (int i = 0; i < SceneDataChange.Length; i++)
         {
             SceneDataChange[i].GetComponent<Slider>().value = SceneDataDelete[i];

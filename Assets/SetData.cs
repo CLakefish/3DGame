@@ -11,24 +11,10 @@ public class SetData : MonoBehaviour
     void Update()
     {
       GameData = GameObject.FindGameObjectWithTag("GameManager");
-      PlayerData = GameObject.FindGameObjectsWithTag("AddData");
-
-      GameData.GetComponent<StoreData>().SceneDataChange = PlayerData;
-
     }
 
-    public void PressButton(bool Set)
+    public void PressButton()
     {
-        if(Set)
-        {
-            Debug.Log("prssed!");
-            GameData.GetComponent<StoreData>().SetData();
-        }
-        else
-        {
             GameData.GetComponent<StoreData>().GetData();
-        }
-
-
     }
 }

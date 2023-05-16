@@ -1023,6 +1023,7 @@ GameObject:
   m_Component:
   - component: {fileID: 26802760996176038}
   - component: {fileID: 3117184748495581592}
+  - component: {fileID: 6655442283457063910}
   m_Layer: 0
   m_Name: FOV (1)
   m_TagString: AddData
@@ -1117,6 +1118,19 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &6655442283457063910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7069007405422416864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 532d70f1c1b829d439d3d1fb77b9452f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SceneData: {fileID: 0}
 --- !u!1 &7493561444785017702
 GameObject:
   m_ObjectHideFlags: 0
@@ -1203,6 +1217,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7789286903968970688}
   - component: {fileID: 6669456687027122533}
+  - component: {fileID: 5029034722723489097}
   m_Layer: 0
   m_Name: FOV
   m_TagString: AddData
@@ -1284,19 +1299,20 @@ MonoBehaviour:
   m_Value: 85
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: PlayerCamera, Assembly-CSharp
-        m_MethodName: UpdateFOV
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
+--- !u!114 &5029034722723489097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7982868147216482987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 532d70f1c1b829d439d3d1fb77b9452f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SceneData: {fileID: 0}
 --- !u!1 &7989860780451834217
 GameObject:
   m_ObjectHideFlags: 0
