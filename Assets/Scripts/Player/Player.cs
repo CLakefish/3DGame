@@ -83,7 +83,7 @@ namespace Player
 
         public Rigidbody rb;
 
-        public abstract void Hit(int damage, Vector3 pos, Vector3 knockbackForce);
+        public abstract void Hit(int damage, Vector3 pos, float knockbackForce);
 
         public abstract void OnDeath();
 
@@ -96,14 +96,14 @@ namespace Player
             isInvulnerable = false;
         }
 
-        public IEnumerator Knockback(Vector3 pos, Vector3 knockbackForce)
+        public IEnumerator Knockback(Vector3 pos, float knockbackForce)
         {
             pos = (pos - rb.transform.position).normalized;
 
             rb.velocity = new Vector3(0f, 0f, 0f);
 
             yield return new WaitForSeconds(0.05f);
-            rb.AddForce(new Vector3(-pos.x * knockbackForce.x, knockbackForce.y, -pos.z * knockbackForce.x), ForceMode.Impulse);
+            rb.AddForce(-pos * knockbackForce, ForceMode.Impulse);
         }
     }
 

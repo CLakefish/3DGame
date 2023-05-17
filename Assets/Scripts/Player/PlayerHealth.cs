@@ -86,7 +86,7 @@ public class PlayerHealth : Health
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    public override void Hit(int damage, Vector3 pos, Vector3 knockbackForce)
+    public override void Hit(int damage, Vector3 pos, float knockbackForce)
     {
         if (isInvulnerable) return;
         health = health - damage;
@@ -102,7 +102,7 @@ public class PlayerHealth : Health
             return;
         }
 
-        StartCoroutine(cam.ShakeCamera(damage <= 0 ? knockbackForce.magnitude : Mathf.Clamp(damage, 0, 3), .25f));
+        StartCoroutine(cam.ShakeCamera(damage <= 0 ? knockbackForce : Mathf.Clamp(damage, 0, 3), .25f));
 
         StartCoroutine(Knockback(pos, knockbackForce));
 

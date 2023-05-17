@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Player;
+using UnityEngine.AI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -54,6 +55,8 @@ public class PlayerController : MonoBehaviour
 
             if (Mathf.Sign(Input.GetAxis("Mouse ScrollWheel")) == 1)
             {
+
+
                 weaponItems[selectedIndex].weaponData = weaponData;
 
                 if (selectedIndex < weaponItems.Count - 1) selectedIndex++;
@@ -156,20 +159,8 @@ public class PlayerController : MonoBehaviour
                     // Eventually this'll be better
                     for (int i = 0; i < (weaponData.bulletCount / 2); i++)
                     {
-                        if (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce)
-                        {
-                            if (!weaponData.isReloading)
-                            {
-                                weaponData.currentBulletCount--;
-                                StartCoroutine(ChargedProjectileShotHandler());
-
-                            }
-                        }
-                        else
-                        {
-                            weaponData.currentBulletCount--;
-                            ProjectileShotHandler();
-                        }
+                        weaponData.currentBulletCount--;
+                        ProjectileShotHandler();
                     }
 
                     break;
@@ -261,7 +252,9 @@ public class PlayerController : MonoBehaviour
         Debug.Log("yessir");
         weaponData.isReloading = true;
 
-        WeaponData weaponTemp = weaponData;
+        float bounceCount = weaponData.bounceCount;
+        float tempStore = weaponData.trailSpeed;
+        float attack = weaponData.bulletDamage;
 
         while (weaponData.isReloading)
         {
@@ -274,24 +267,20 @@ public class PlayerController : MonoBehaviour
             {
                 if (heldTime > 0.5f)
                 {
-                    weaponData.bounceCount = weaponTemp.bounceCount + 1;
-                    weaponData.trailSpeed = weaponTemp.trailSpeed + 35f;
-                    weaponData.enemyKnockback = weaponTemp.enemyKnockback;
-                    weaponData.bulletDamage = weaponTemp.bulletDamage;
+                    weaponData.bounceCount = bounceCount + 1;
+                    weaponData.trailSpeed = tempStore + 35f;
                     Debug.Log("1");
                 }
                 if (heldTime > 1f)
                 {
-                    weaponData.bounceCount = weaponTemp.bounceCount + 2;
-                    weaponData.trailSpeed = weaponTemp.trailSpeed * 2f;
-                    weaponData.enemyKnockback = weaponTemp.enemyKnockback * 1.25f;
+                    weaponData.bounceCount = bounceCount + 2;
+                    weaponData.trailSpeed = tempStore * 2f;
                     Debug.Log("2");
                 }
                 if (heldTime > 2f)
                 {
-                    weaponData.bounceCount = weaponTemp.bounceCount + 3;
-                    weaponData.trailSpeed = weaponTemp.trailSpeed * 3f;
-                    weaponData.enemyKnockback = weaponTemp.enemyKnockback * 1.4f;
+                    weaponData.bounceCount = bounceCount + 3;
+                    weaponData.trailSpeed = tempStore * 3f;
                     Debug.Log("3");
                     heldTime = 0f;
                     break;
@@ -301,10 +290,10 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
+        weaponData.bounceCount = bounceCount;
+        weaponData.trailSpeed = tempStore;
+
         ProjectileShotHandler();
-
-
-        weaponData = weaponTemp;
 
         weaponData.isReloading = false;
 
@@ -345,7 +334,7 @@ public class PlayerController : MonoBehaviour
             if (raycast.collider.gameObject.tag == "Enemy")
             {
                 Enemy e = raycast.collider.GetComponent<Enemy>();
-                if (e != null) e.Hit(weaponData.bulletDamage, rb.transform.position, new Vector3(weaponData.enemyKnockback, weaponData.enemyKnockback, weaponData.enemyKnockback));
+                if (e != null) e.Hit(weaponData.bulletDamage, rb.transform.position, weaponData.enemyKnockback);
             }
 
             Destroy(obj, 2f);
@@ -399,17 +388,13 @@ public class PlayerController : MonoBehaviour
 
             if (Physics.Raycast(new Ray(pos, (collider.transform.position - pos)), out hit, explosionSize))
             {
-                Rigidbody r = collider.GetComponent<Rigidbody>();
                 Enemy e = collider.GetComponent<Enemy>();
 
-                if (r != null && e != null)
+                if (e != null)
                 {
                     float dist = (1 - Mathf.Clamp01(hit.distance / explosionSize)) * knockbackValue;
 
-                    e.Hit(weaponData.bulletDamage, hit.point, Vector3.zero);
-
-                    r.velocity = new Vector3(0f, 0f, 0f);
-                    r.AddForce((r.transform.position - pos).normalized * (dist * r.drag), ForceMode.Impulse);
+                    e.Hit(weaponData.bulletDamage, hit.point, dist);
                 }
             }
         }
@@ -429,7 +414,7 @@ public class PlayerController : MonoBehaviour
             rb.velocity = (Input.GetKey(KeyCode.Space) ? rb.velocity : Vector3.zero);
             rb.AddForce((rb.transform.position - pos).normalized * distPlayer, ForceMode.Impulse);
 
-            rb.GetComponentInParent<PlayerHealth>().Hit(weaponData.bulletDamage / 2, pos, Vector3.one);
+            rb.GetComponentInParent<PlayerHealth>().Hit(weaponData.bulletDamage / 2, pos, 1);
         }
     }
 
