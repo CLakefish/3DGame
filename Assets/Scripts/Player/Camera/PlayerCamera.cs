@@ -6,7 +6,6 @@ using Player;
 public class PlayerCamera : MonoBehaviour
 {
     [Header("Orientation")]
-    public Transform orientation;
     public Transform playerObj;
     public PlayerControls player;
     internal Camera cam;
@@ -64,7 +63,7 @@ public class PlayerCamera : MonoBehaviour
 
         // Proper Rotation
         transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - player.viewTilt.y, mouseRotation.y, transform.rotation.z + player.viewTilt.x + shakePos));
-        orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
+        // orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
 
         // Proper Positioning
         transform.position = new Vector3(transform.position.x, playerObj.transform.position.y + yOffset, transform.position.z);

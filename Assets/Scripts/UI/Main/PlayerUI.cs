@@ -4,53 +4,73 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
+using UnityEngine.Rendering.Universal;
 
 public class PlayerUI : MonoBehaviour
 {
-    public TMP_Text weaponName,
+    [SerializeField] Camera overlayCamera;
+    [Header("Death Screen")]
+    [SerializeField] GameObject deathScreen;
+    [SerializeField] TMP_Text weaponName,
                     ammoCount,
                     chargeCount;
 
-    //public TMP_Text charge;
+    Vector3 offset;
 
-    public PlayerController player;
-    public PlayerControls playerC;
+    [Header("Health Bar")]
+    [SerializeField] TMP_Text healthText;
+    [SerializeField] Image effectBar;
+    [SerializeField] Image healthBar;
+    [SerializeField] Image hitEffect;
+    [Header("Weapon Index")]
+    [SerializeField] Image[] weapons;
+
+    PlayerController playerController;
+    PlayerControls playerControls;
+    PlayerHealth playerHealth;
 
     [SerializeField] private float hudLerpTime;
     [SerializeField] private Transform hudTransform;
     private PlayerCamera cam;
 
     private Vector3 hudVel;
+    private Vector3 hudRotVel;
     private Vector3 rotVel;
-    [SerializeField] float maxDist = 0.75f;
-    public Color c;
+    Color healthBarColor;
 
     // Start is called before the first frame update
     void Start()
     {
-        player = FindObjectOfType<PlayerController>().GetComponent<PlayerController>();
-        playerC = player.GetComponent<PlayerControls>();
+        offset = hudTransform.localPosition;
+        playerController = FindObjectOfType<PlayerController>();
+        playerControls = playerController.GetComponent<PlayerControls>();
+        playerHealth = FindObjectOfType<PlayerHealth>();
 
-        cam = FindObjectOfType<PlayerCamera>().GetComponent<PlayerCamera>();
+        cam = FindObjectOfType<PlayerCamera>();
+
+        // Bar color
+        healthBarColor = Color.Lerp(Color.red, Color.green, (float)playerHealth.health / playerHealth.maxHealth);
+
+        Camera.main.GetComponent<UniversalAdditionalCameraData>().cameraStack.Add(overlayCamera);
     }
 
     // Update is called once per frame
     void Update()
     {
-        weaponName.text = player.weaponData.Name.ToString();
-        ammoCount.text = player.weaponData.currentBulletCount.ToString();
+        weaponName.text = playerController.weaponData.Name.ToString();
+        ammoCount.text = playerController.weaponData.currentBulletCount.ToString();
 
-        if ((player.weaponData.isReloading && player.weaponData.isEmpty) || (player.weaponData.currentBulletCount <= 0))
+        if ((playerController.weaponData.isReloading && playerController.weaponData.isEmpty) || (playerController.weaponData.currentBulletCount <= 0))
         {
             ammoCount.text = "Reloading!";
         }
-        if ((player.weaponData.bulletType == Player.BulletType.Charge || player.weaponData.bulletType == Player.BulletType.ChargeBounce))
+        if ((playerController.weaponData.bulletType == Player.BulletType.Charge || playerController.weaponData.bulletType == Player.BulletType.ChargeBounce))
         {
-            if (player.weaponData.isReloading && player.weaponData.isShooting)
+            if (playerController.weaponData.isReloading && playerController.weaponData.isShooting)
             {
-                chargeCount.text = (player.heldTime == 1.99f ? "Firing!" : "Charge : " + player.heldTime.ToString((player.heldTime < 1 ? "0.00" : "#.00")));
+                chargeCount.text = (playerController.heldTime == 1.99f ? "Firing!" : "Charge : " + playerController.heldTime.ToString((playerController.heldTime < 1 ? "0.00" : "#.00")));
 
-                chargeCount.color = Color.Lerp(Color.white, c, (player.heldTime / 2));
+                chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerController.heldTime / 2));
             }
             else
             {
@@ -60,15 +80,57 @@ public class PlayerUI : MonoBehaviour
         else 
         {
             chargeCount.color = Color.white;
-            chargeCount.text = player.weaponData.Name;
+            chargeCount.text = playerController.weaponData.Name;
         }
+
+        // UI weapon show
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            weapons[i].enabled = true;
+            weapons[i].color = Color.black;
+            weapons[i].color = new Color(weapons[i].color.r, weapons[i].color.g, weapons[i].color.b, .75f);
+
+            if (i == playerController.selectedIndex) weapons[i].color = Color.cyan;
+
+            if (i > playerController.weaponItems.Count - 1) weapons[i].enabled = false;
+        }
+
+        UpdateHealthBar();
     }
 
-    private void LateUpdate()
+    void LateUpdate()
     {
-        //hudTransform.position = transform.position + Vector3.ClampMagnitude(hudTransform.position - transform.position, maxDist);
-        hudTransform.position = Vector3.SmoothDamp(hudTransform.position, transform.position, ref hudVel, hudLerpTime);
-        hudTransform.rotation = transform.rotation;
+        overlayCamera.transform.position = playerControls.rb.transform.position;
+        hudTransform.localPosition = Vector3.SmoothDamp(hudTransform.localPosition, playerControls.rb.transform.position + offset, ref hudVel, hudLerpTime);
+
+        overlayCamera.transform.rotation = Camera.main.transform.rotation;
+        /*
+        if we want the rotation smoothing, change some code. the problem is that i dont know how to recreate smooth damp for rotation
+        */
+        transform.rotation = Camera.main.transform.rotation;
+    }
+    void OnDeath()
+    {
+        deathScreen.SetActive(true);
+    }
+
+    void UpdateHealthBar()
+    {
+        // Bar fill
+        healthBar.fillAmount = (float)playerHealth.health / playerHealth.maxHealth;
+
+        healthBar.color = healthBarColor;
+
+        healthBarColor = playerHealth.isInvulnerable ? Color.cyan : Color.Lerp(Color.red, Color.green, (float)playerHealth.health / playerHealth.maxHealth);
+
+        hitEffect.color = new Color(1f, 0f, 0f, (playerHealth.health <= playerHealth.maxHealth / 4) ? 0.25f : 0.1f);
+
+        healthText.text = playerHealth.health.ToString();
+
+        hitEffect.color = new Color(1f, 0f, 0f, Mathf.Lerp(hitEffect.color.a, 0, 2f * Time.deltaTime));
+
+        // Effect bar Fill
+        effectBar.fillAmount = Mathf.Lerp(effectBar.fillAmount, (float)playerHealth.health / playerHealth.maxHealth, 5 * Time.deltaTime);
     }
 
 }

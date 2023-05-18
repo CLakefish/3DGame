@@ -8,7 +8,7 @@ public class RotateToCam : MonoBehaviour
     public bool rotateToCam;
 
     [Header("Camera")]
-    public Transform camera;
+    [SerializeField] Transform mainCamera;
     Quaternion originalRotation;
     public float currentIndex;
     float angle;
@@ -22,16 +22,16 @@ public class RotateToCam : MonoBehaviour
     {
         originalRotation = transform.rotation;
 
-        camera = GameObject.FindGameObjectWithTag("MainCamera").transform;
+        mainCamera = Camera.main.transform;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (rotateToCam) transform.rotation = camera.transform.rotation * originalRotation;
+        if (rotateToCam) transform.rotation = mainCamera.transform.rotation * originalRotation;
         else
         {
-            targetPos = new Vector3(camera.transform.position.x, transform.position.y, camera.transform.position.z);
+            targetPos = new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z);
             targetDir = targetPos - transform.position;
 
             angle = Vector3.SignedAngle(targetDir, transform.forward, Vector3.up);

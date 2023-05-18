@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Player;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 public class PlayerControls : MonoBehaviour
 {
     #region Variables
+    [SerializeField] string uiSceneName;
 
     [Header("State Handlers")] // See Player for details
     public PlayerState state = PlayerState.Grounded;
@@ -34,8 +36,6 @@ public class PlayerControls : MonoBehaviour
 
     [Tooltip("1 is default, > 1 is a positive modifier, < 1 is a negative modifier")]
     [Header("Movement Modifiers")]
-    public string README;
-    [Tooltip("Velocity modifier for when entering a slide")]
     public float slideModifier = 1.0f;
     [Tooltip("Velocity modifier for when jumping out of a slide")]
     public float slideJumpModifier = 1.0f;
@@ -47,7 +47,6 @@ public class PlayerControls : MonoBehaviour
     public float fallModifier = 0.5f;
     [Tooltip("Friction modifier while sliding")]
     public float frictionModifier = 0.99f;
-
 
     [Space()]
     [SerializeField] public float jumpTime;
@@ -62,7 +61,7 @@ public class PlayerControls : MonoBehaviour
 
     CapsuleCollider col;
 
-    public bool isRunning;
+    [HideInInspector] public bool isRunning;
     RaycastHit slopeHit;
 
     [Header("VECTORS! OH YEAH!!")] // for use in velocity
@@ -92,9 +91,10 @@ public class PlayerControls : MonoBehaviour
 
         jumpBufferTimeTemp = jumpBufferTime;
         jumpCoyoteTimeT = 0;
+
+        SceneManager.LoadScene(uiSceneName, LoadSceneMode.Additive);
     }
 
-    // Update is called once per frame
     void Update()
     {
         void ChangeState(PlayerState newState)
@@ -362,12 +362,12 @@ public class PlayerControls : MonoBehaviour
             if (rb.velocity.y > 0 && (state != PlayerState.Jumping && Input.GetKey(KeyCode.Space)))
                 rb.AddForce(Vector3.down * 30f, ForceMode.Force);
         }
-        else rb.useGravity = true;
-
+        else
+        {
+            rb.useGravity = true;
+        }
         // Clamp the Velocity to the Move Speed
         MovementHelp.VelocityClamp(moveSpeed, rb.velocity);
-
-        Debug.Log(state);
     }
 
     void CameraTilt(bool running)

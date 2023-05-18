@@ -51,6 +51,5 @@ public class DevMode : MonoBehaviour
             if (Input.GetMouseButtonDown(1)) playerHealth.Hit(Random.Range(0, 25), transform.position, 1f);
             if (Input.GetMouseButtonDown(2)) playerHealth.GainHP(3);
         }
-        else;
     }
 }
