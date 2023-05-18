@@ -40,6 +40,7 @@ public class PauseMenu : MonoBehaviour
     }
     public void onPause() //uses new input system to pause game by setting value to true or false. 
     {
+        player = GameObject.FindGameObjectWithTag("Player");
         if (canPause == true && SettingsisOpen == false)
         {
             if (GameisPaused == true && canPause == true)
