@@ -221,34 +221,16 @@ public class PlayerControls : MonoBehaviour
                     jumpCoyoteTimeT = jumpCoyoteTime;
                     ChangeState(PlayerState.Falling);
                 }
-                
-                if (isRunning)
-                {
-                    ChangeState(PlayerState.Running);
+
+                if (isRunning && isCrouching){
+
+                    ChangeState(PlayerState.Sliding);
+
                 }
 
-                if (isCrouching)
+                if (isCrouching && !isRunning)
                 {
                     ChangeState(PlayerState.Crouching);
-                }
-
-                break;
-
-            case (PlayerState.Running):
-
-                if (isCrouching)
-                {
-                    ChangeState(PlayerState.Sliding);
-                }
-
-                if (Input.GetKeyUp(KeyCode.LeftShift))
-                {
-                    ChangeState(PlayerState.Grounded);
-                }
-
-                if (Input.GetKey(KeyCode.Space))
-                {
-                    ChangeState(PlayerState.Jumping);
                 }
 
                 break;
@@ -287,10 +269,19 @@ public class PlayerControls : MonoBehaviour
             case (PlayerState.Crouching):
 
                 if (prevState != PlayerState.Sliding) {
+
                     playerCollider.height = crouchHeight;
+
+                }
+
+                if(isRunning){
+
+                    ChangeState(PlayerState.Sliding);
+                    
                 }
 
                 rb.velocity = new Vector3(rb.velocity.x * crouchModifier, rb.velocity.y, rb.velocity.z * crouchModifier);
+
 
                 if(Input.GetKey(KeyCode.Space))
                 {
@@ -310,14 +301,20 @@ public class PlayerControls : MonoBehaviour
             case (PlayerState.Sliding):
 
                 if (prevState != PlayerState.Crouching){
+
                     playerCollider.height = crouchHeight;
+
                 }
 
                 if (!onSlope()) {
+
                     rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+
                 }
                 else {
-                    rb.velocity = new Vector3(rb.velocity.x / Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z / Mathf.Pow(frictionModifier, stateDur));
+
+                    rb.velocity = new Vector3(rb.velocity.x / Mathf.Pow(frictionModifier, stateDur), rb.velocity.y - 100, rb.velocity.z / Mathf.Pow(frictionModifier, stateDur));
+
                 }
 
                 if ((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2))
@@ -333,16 +330,10 @@ public class PlayerControls : MonoBehaviour
                     ChangeState(PlayerState.Jumping);
                 }
 
-                if (Input.GetKeyUp(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.LeftShift))
-                {
-                    playerCollider.height = originalHeight;
-                    ChangeState(PlayerState.Grounded);
-                }
-
                 if (Input.GetKeyUp(KeyCode.LeftControl))
                 {
                     playerCollider.height = originalHeight;
-                    ChangeState(PlayerState.Running);
+                    ChangeState(PlayerState.Grounded);
                 }
 
                 if (Input.GetKeyUp(KeyCode.LeftShift))
