@@ -222,16 +222,11 @@ public class PlayerControls : MonoBehaviour
                     ChangeState(PlayerState.Falling);
                 }
 
-                if (isRunning && isCrouching){
+                if (isCrouching){
 
-                    ChangeState(PlayerState.Sliding);
-
-                }
-
-                if (isCrouching && !isRunning)
-                {
                     ChangeState(PlayerState.Crouching);
                 }
+
 
                 break;
 
@@ -317,7 +312,7 @@ public class PlayerControls : MonoBehaviour
 
                 }
 
-                if ((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2))
+                if (((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2)) || !Input.GetKey(KeyCode.LeftShift))
                 {
                     ChangeState(PlayerState.Crouching);
                 }
@@ -334,11 +329,6 @@ public class PlayerControls : MonoBehaviour
                 {
                     playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Grounded);
-                }
-
-                if (Input.GetKeyUp(KeyCode.LeftShift))
-                {
-                    ChangeState(PlayerState.Crouching);
                 }
 
                 break;
