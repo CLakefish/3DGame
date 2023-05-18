@@ -68,20 +68,23 @@ public class PlayerUI : MonoBehaviour
         {
             if (playerController.weaponData.isReloading && playerController.weaponData.isShooting)
             {
-                chargeCount.text = (playerController.heldTime == 1.99f ? "Firing!" : "Charge : " + playerController.heldTime.ToString((playerController.heldTime < 1 ? "0.00" : "#.00")));
+                chargeCount.text = (playerController.weaponData.currentBulletCount.ToString()) + " | " + (playerController.heldTime == 1.99f ? "Firing!" : "Charge : " + playerController.heldTime.ToString((playerController.heldTime < 1 ? "0.00" : "#.00")));
 
                 chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerController.heldTime / 2));
             }
             else
             {
-                chargeCount.text = "Charge : 0.00";
+                chargeCount.text = playerController.weaponData.currentBulletCount.ToString() + " | Charge : 0.00";
             }
         }
         else 
         {
             chargeCount.color = Color.white;
-            chargeCount.text = playerController.weaponData.Name;
         }
+
+        if (playerControls.GetComponent<PlayerHealth>().isInvulnerable) hitEffect.color = new Color(1f, 0f, 0f, (playerHealth.health <= playerHealth.maxHealth / 4) ? 0.25f : 0.1f);
+
+        hitEffect.color = new Color(1f, 0f, 0f, Mathf.Lerp(hitEffect.color.a, 0, 2f * Time.deltaTime));
 
         // UI weapon show
         for (int i = 0; i < weapons.Length; i++)
@@ -123,11 +126,7 @@ public class PlayerUI : MonoBehaviour
 
         healthBarColor = playerHealth.isInvulnerable ? Color.cyan : Color.Lerp(Color.red, Color.green, (float)playerHealth.health / playerHealth.maxHealth);
 
-        hitEffect.color = new Color(1f, 0f, 0f, (playerHealth.health <= playerHealth.maxHealth / 4) ? 0.25f : 0.1f);
-
         healthText.text = playerHealth.health.ToString();
-
-        hitEffect.color = new Color(1f, 0f, 0f, Mathf.Lerp(hitEffect.color.a, 0, 2f * Time.deltaTime));
 
         // Effect bar Fill
         effectBar.fillAmount = Mathf.Lerp(effectBar.fillAmount, (float)playerHealth.health / playerHealth.maxHealth, 5 * Time.deltaTime);

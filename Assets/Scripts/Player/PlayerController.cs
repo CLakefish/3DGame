@@ -408,7 +408,6 @@ public class PlayerController : MonoBehaviour
 
             distPlayer = (1 - Mathf.Clamp01(h.distance / explosionSize - 1)) * knockbackValue;
 
-            rb.velocity = (Input.GetKey(KeyCode.Space) ? rb.velocity : Vector3.zero);
             rb.AddForce((rb.transform.position - pos).normalized * distPlayer, ForceMode.Impulse);
 
             rb.GetComponentInParent<PlayerHealth>().Hit(weaponData.bulletDamage / 2, pos, 1);

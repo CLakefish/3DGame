@@ -281,7 +281,7 @@ MonoBehaviour:
   firePos: {fileID: 6182660524875058514}
   heldTime: 0
   canShoot: 1
-  explosion: {fileID: 0}
+  explosion: {fileID: 8890879366852258217, guid: d2cbcb3b4c85d9348b5f90dd4c4e7191, type: 3}
 --- !u!114 &6182660525145688321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -312,9 +312,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b299906eb55943844920b6f7752d0c82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  open: 27
-  spawnObj: 113
-  statusText: {fileID: 0}
 --- !u!114 &6182660525145688334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,7 +339,7 @@ MonoBehaviour:
   slideJumpModifier: 1
   airModifier: 1
   crouchModifier: 1
-  fallModifier: 0.5
+  fallModifier: 0.2
   frictionModifier: 0.99
   jumpTime: 0.19
   jumpSpeed: 12.65

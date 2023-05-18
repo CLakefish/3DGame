@@ -96,14 +96,14 @@ namespace Player
             isInvulnerable = false;
         }
 
-        public IEnumerator Knockback(Vector3 pos, float knockbackForce)
+        public IEnumerator Knockback(Vector3 pos, float knockbackForce, bool stopForce = true)
         {
             pos = (pos - rb.transform.position).normalized;
 
-            rb.velocity = new Vector3(0f, 0f, 0f);
+            rb.velocity = (!stopForce) ? rb.velocity : new Vector3(0f, 0f, 0f);
 
             yield return new WaitForSeconds(0.05f);
-            rb.AddForce(-pos * knockbackForce, ForceMode.Impulse);
+            rb.AddForce(new Vector3(-pos.x, pos.y, -pos.z) * knockbackForce, ForceMode.Impulse);
         }
     }
 
