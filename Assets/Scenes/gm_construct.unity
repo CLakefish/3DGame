@@ -19582,7 +19582,7 @@ MonoBehaviour:
   walkingSpeed: {x: 12, y: 12.2}
   runningSpeed: {x: 14, y: 14.2}
   acceleration: {x: 0.075, y: 0.095}
-  deceleration: {x: 0.075, y: 0.095}
+  deceleration: {x: 0.075, y: 1}
   maxSlopeAngle: 52.1
   README: 
   slideModifier: 1
@@ -27166,7 +27166,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh50680
+  m_Name: pb_Mesh29406
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -34760,7 +34760,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh51636
+  m_Name: pb_Mesh30362
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
