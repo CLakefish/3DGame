@@ -70,6 +70,11 @@ public class PlayerControls : MonoBehaviour
     Vector3 moveDir;
     internal Vector2 inputs;
 
+    [Header("Collider Variables")]
+    CapsuleCollider playerCollider;
+    float originalHeight;
+    float crouchHeight;
+
     #endregion
 
     // Start is called before the first frame update
@@ -78,6 +83,9 @@ public class PlayerControls : MonoBehaviour
         // Get the RB (Player tag should only be applied to the rigidbody component itself)
         rb = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        playerCollider = GetComponentInChildren<CapsuleCollider>();
+        originalHeight = playerCollider.height;
+        crouchHeight = originalHeight/2;
 
         cam = FindObjectOfType<PlayerCamera>();
         col = rb.GetComponent<CapsuleCollider>();
@@ -278,16 +286,22 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Crouching):
 
+                if (prevState != PlayerState.Sliding) {
+                    playerCollider.height = crouchHeight;
+                }
+
                 rb.velocity = new Vector3(rb.velocity.x * crouchModifier, rb.velocity.y, rb.velocity.z * crouchModifier);
 
                 if(Input.GetKey(KeyCode.Space))
                 {
+                    playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Jumping);
 
                 }
 
                 if(Input.GetKeyUp(KeyCode.LeftControl))
                 {
+                    playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Grounded);
                 }
 
@@ -295,7 +309,16 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Sliding):
 
-                rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+                if (prevState != PlayerState.Crouching){
+                    playerCollider.height = crouchHeight;
+                }
+
+                if (!onSlope()) {
+                    rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+                }
+                else {
+                    rb.velocity = new Vector3(rb.velocity.x / Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z / Mathf.Pow(frictionModifier, stateDur));
+                }
 
                 if ((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2))
                 {
@@ -304,6 +327,7 @@ public class PlayerControls : MonoBehaviour
 
                 if (Input.GetKey(KeyCode.Space))
                 {
+                    playerCollider.height = originalHeight;
                     rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
                     rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideJumpModifier, ForceMode.Impulse);
                     ChangeState(PlayerState.Jumping);
@@ -311,11 +335,13 @@ public class PlayerControls : MonoBehaviour
 
                 if (Input.GetKeyUp(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.LeftShift))
                 {
+                    playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Grounded);
                 }
 
                 if (Input.GetKeyUp(KeyCode.LeftControl))
                 {
+                    playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Running);
                 }
 
