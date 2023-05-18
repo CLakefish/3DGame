@@ -8,72 +8,30 @@ using UnityEngine.SceneManagement;
 
 public class PlayerHealth : Health
 {
-    [Header("Health Bar")]
-    [SerializeField] TMP_Text healthText;
-    [SerializeField] Image effectBar;
-    [SerializeField] Image healthBar;
-    [SerializeField] Image hitEffect;
-
-    [Header("Death Screen")]
-    [SerializeField] GameObject deathScreen;
-
-    [Header("Weapon Index")]
-    [SerializeField] Image[] weapons;
-
-    [Header("Debugging")]
-    [SerializeField] float maxHealth;
-    Color c;
+    [SerializeField] public int maxHealth;
 
     PlayerCamera cam;
-    PlayerController p;
 
     // Start is called before the first frame update
     void Start()
     {
-        cam = FindObjectOfType<PlayerCamera>().GetComponent<PlayerCamera>();
-        p = FindObjectOfType<PlayerController>().GetComponent<PlayerController>();
+        cam = FindObjectOfType<PlayerCamera>();
 
         maxHealth = health;
-
-        // Bar color
-        c = Color.Lerp(Color.red, Color.green, (health / maxHealth));
-
-        StartCoroutine(UpdateHealthBar());
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.Backspace) || (deathScreen.activeSelf && Input.GetMouseButtonDown(0))) ResetLevel();
-
-        healthText.text = health.ToString();
-
-        hitEffect.color = new Color(1f, 0f, 0f, Mathf.Lerp(hitEffect.color.a, 0, 2f * Time.deltaTime));
-
-        // Effect bar Fill
-        effectBar.fillAmount = Mathf.Lerp(effectBar.fillAmount, (health / maxHealth), 5f * Time.deltaTime);
-
-        // Bar color
-        c = (isInvulnerable) ? Color.cyan : Color.Lerp(Color.red, Color.green, (health / maxHealth));
-        
-        // UI weapon show
-        for (int i = 0; i < weapons.Length; i++)
+        if (Input.GetKey(KeyCode.R) || (health <= 0 && Input.GetMouseButtonDown(0)))
         {
-            weapons[i].enabled = true;
-            weapons[i].color = Color.black;
-            weapons[i].color = new Color(weapons[i].color.r, weapons[i].color.g, weapons[i].color.b, .75f);
-
-            if (i == p.selectedIndex) weapons[i].color = Color.cyan;
-
-            if (i > p.weaponItems.Count - 1) weapons[i].enabled = false;
+            ResetLevel();
         }
     }
 
     public override void OnDeath()
     {
         StartCoroutine(cam.ShakeCamera(4f, .25f));
-
-        deathScreen.SetActive(true);
 
         health = 0;
         Time.timeScale = 0f;
@@ -82,18 +40,17 @@ public class PlayerHealth : Health
 
     public void ResetLevel()
     {
-        Time.timeScale = 1f;
+        Time.timeScale = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public override void Hit(int damage, Vector3 pos, float knockbackForce)
     {
-        if (isInvulnerable) return;
+        if (isInvulnerable || damage == 0)
+        {
+            return;
+        } 
         health = health - damage;
-
-        StartCoroutine(UpdateHealthBar());
-
-        if (damage > 0) hitEffect.color = new Color(1f, 0f, 0f, (health <= maxHealth / 4) ? 0.25f : 0.1f);
 
         if (health <= 0)
         {
@@ -106,8 +63,10 @@ public class PlayerHealth : Health
 
         StartCoroutine(Knockback(pos, knockbackForce));
 
-        if (hasInvulnerability) StartCoroutine(Invulnerable(invulnerabilitySeconds));
-
+        if (hasInvulnerability)
+        {
+            StartCoroutine(Invulnerable(invulnerabilitySeconds));
+        }
         //throw new System.NotImplementedException();
     }
 
@@ -116,18 +75,8 @@ public class PlayerHealth : Health
         health = health + hp;
 
         if (health > maxHealth)
+        {
             health = Mathf.CeilToInt(maxHealth);
-
-        StartCoroutine(UpdateHealthBar());
-    }
-
-    IEnumerator UpdateHealthBar()
-    {
-        // Bar fill
-        healthBar.fillAmount = health / maxHealth;
-
-        healthBar.color = c;
-
-        yield return null;
+        }
     }
 }

@@ -129,8 +129,6 @@ public class PlayerController : MonoBehaviour
         // If the time is greater than the previous time + fireRate time then fire (Technically makes fireRate different but whatever)
         if (Time.time > previousFireTime + weaponData.timeBetweenShots && weaponData.currentBulletCount > 0)
         {
-            Debug.Log("gone");
-
             previousFireTime = Time.time;
             weaponData.isShooting = true;
 
@@ -249,7 +247,6 @@ public class PlayerController : MonoBehaviour
     // Fix this
     IEnumerator ChargedProjectileShotHandler()
     {
-        Debug.Log("yessir");
         weaponData.isReloading = true;
 
         float bounceCount = weaponData.bounceCount;
@@ -411,7 +408,6 @@ public class PlayerController : MonoBehaviour
 
             distPlayer = (1 - Mathf.Clamp01(h.distance / explosionSize - 1)) * knockbackValue;
 
-            rb.velocity = (Input.GetKey(KeyCode.Space) ? rb.velocity : Vector3.zero);
             rb.AddForce((rb.transform.position - pos).normalized * distPlayer, ForceMode.Impulse);
 
             rb.GetComponentInParent<PlayerHealth>().Hit(weaponData.bulletDamage / 2, pos, 1);

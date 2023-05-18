@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using Player;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 public class PlayerControls : MonoBehaviour
 {
     #region Variables
+    [SerializeField] string uiSceneName;
 
     [Header("State Handlers")] // See Player for details
     public PlayerState state = PlayerState.Grounded;
@@ -34,8 +36,6 @@ public class PlayerControls : MonoBehaviour
 
     [Tooltip("1 is default, > 1 is a positive modifier, < 1 is a negative modifier")]
     [Header("Movement Modifiers")]
-    public string README;
-    [Tooltip("Velocity modifier for when entering a slide")]
     public float slideModifier = 1.0f;
     [Tooltip("Velocity modifier for when jumping out of a slide")]
     public float slideJumpModifier = 1.0f;
@@ -47,7 +47,6 @@ public class PlayerControls : MonoBehaviour
     public float fallModifier = 0.5f;
     [Tooltip("Friction modifier while sliding")]
     public float frictionModifier = 0.99f;
-
 
     [Space()]
     [SerializeField] public float jumpTime;
@@ -62,13 +61,18 @@ public class PlayerControls : MonoBehaviour
 
     CapsuleCollider col;
 
-    public bool isRunning;
+    [HideInInspector] public bool isRunning;
     RaycastHit slopeHit;
 
     [Header("VECTORS! OH YEAH!!")] // for use in velocity
     Vector3 currentVel;
     Vector3 moveDir;
     internal Vector2 inputs;
+
+    [Header("Collider Variables")]
+    CapsuleCollider playerCollider;
+    float originalHeight;
+    float crouchHeight;
 
     #endregion
 
@@ -78,15 +82,19 @@ public class PlayerControls : MonoBehaviour
         // Get the RB (Player tag should only be applied to the rigidbody component itself)
         rb = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        playerCollider = GetComponentInChildren<CapsuleCollider>();
+        originalHeight = playerCollider.height;
+        crouchHeight = originalHeight/2;
 
         cam = FindObjectOfType<PlayerCamera>();
         col = rb.GetComponent<CapsuleCollider>();
 
         jumpBufferTimeTemp = jumpBufferTime;
         jumpCoyoteTimeT = 0;
+
+        SceneManager.LoadScene(uiSceneName, LoadSceneMode.Additive);
     }
 
-    // Update is called once per frame
     void Update()
     {
         void ChangeState(PlayerState newState)
@@ -213,35 +221,12 @@ public class PlayerControls : MonoBehaviour
                     jumpCoyoteTimeT = jumpCoyoteTime;
                     ChangeState(PlayerState.Falling);
                 }
-                
-                if (isRunning)
-                {
-                    ChangeState(PlayerState.Running);
-                }
 
-                if (isCrouching)
-                {
+                if (isCrouching){
+
                     ChangeState(PlayerState.Crouching);
                 }
 
-                break;
-
-            case (PlayerState.Running):
-
-                if (isCrouching)
-                {
-                    ChangeState(PlayerState.Sliding);
-                }
-
-                if (Input.GetKeyUp(KeyCode.LeftShift))
-                {
-                    ChangeState(PlayerState.Grounded);
-                }
-
-                if (Input.GetKey(KeyCode.Space))
-                {
-                    ChangeState(PlayerState.Jumping);
-                }
 
                 break;
 
@@ -278,16 +263,31 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Crouching):
 
+                if (prevState != PlayerState.Sliding) {
+
+                    playerCollider.height = crouchHeight;
+
+                }
+
+                if(isRunning){
+
+                    ChangeState(PlayerState.Sliding);
+                    
+                }
+
                 rb.velocity = new Vector3(rb.velocity.x * crouchModifier, rb.velocity.y, rb.velocity.z * crouchModifier);
+
 
                 if(Input.GetKey(KeyCode.Space))
                 {
+                    playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Jumping);
 
                 }
 
                 if(Input.GetKeyUp(KeyCode.LeftControl))
                 {
+                    playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Grounded);
                 }
 
@@ -295,33 +295,40 @@ public class PlayerControls : MonoBehaviour
 
             case (PlayerState.Sliding):
 
-                rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+                if (prevState != PlayerState.Crouching){
 
-                if ((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2))
+                    playerCollider.height = crouchHeight;
+
+                }
+
+                if (!onSlope()) {
+
+                    rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+
+                }
+                else {
+
+                    rb.velocity = new Vector3(rb.velocity.x / Mathf.Pow(frictionModifier, stateDur), rb.velocity.y - 100, rb.velocity.z / Mathf.Pow(frictionModifier, stateDur));
+
+                }
+
+                if (((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2)) || !Input.GetKey(KeyCode.LeftShift))
                 {
                     ChangeState(PlayerState.Crouching);
                 }
 
                 if (Input.GetKey(KeyCode.Space))
                 {
+                    playerCollider.height = originalHeight;
                     rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
                     rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideJumpModifier, ForceMode.Impulse);
                     ChangeState(PlayerState.Jumping);
                 }
 
-                if (Input.GetKeyUp(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.LeftShift))
-                {
-                    ChangeState(PlayerState.Grounded);
-                }
-
                 if (Input.GetKeyUp(KeyCode.LeftControl))
                 {
-                    ChangeState(PlayerState.Running);
-                }
-
-                if (Input.GetKeyUp(KeyCode.LeftShift))
-                {
-                    ChangeState(PlayerState.Crouching);
+                    playerCollider.height = originalHeight;
+                    ChangeState(PlayerState.Grounded);
                 }
 
                 break;
@@ -355,12 +362,12 @@ public class PlayerControls : MonoBehaviour
             if (rb.velocity.y > 0 && (state != PlayerState.Jumping && Input.GetKey(KeyCode.Space)))
                 rb.AddForce(Vector3.down * 30f, ForceMode.Force);
         }
-        else rb.useGravity = true;
-
+        else
+        {
+            rb.useGravity = true;
+        }
         // Clamp the Velocity to the Move Speed
         MovementHelp.VelocityClamp(moveSpeed, rb.velocity);
-
-        Debug.Log(state);
     }
 
     void CameraTilt(bool running)
