@@ -6,10 +6,19 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class PlayerHealth : Health
+public class PlayerHealth : MonoBehaviour, IHealth
 {
-    [SerializeField] public int maxHealth;
+    [Space()]
+    [Header("Health")]
+    [SerializeField] public float invulnerabilitySeconds;
+    [SerializeField] public bool hasInvulnerability = false;
 
+    public Rigidbody rb;
+
+    // we are changing this later once i understand interfaces better
+    public bool isInvulnerable { get; set; }
+    [SerializeField] public int health { get; set; }
+    public int maxHealth { get; set; }
     PlayerCamera cam;
 
     // Start is called before the first frame update
@@ -29,7 +38,7 @@ public class PlayerHealth : Health
         }
     }
 
-    public override void OnDeath()
+    public void OnDeath()
     {
         StartCoroutine(cam.ShakeCamera(4f, .25f));
 
@@ -44,7 +53,7 @@ public class PlayerHealth : Health
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    public override void Hit(int damage, Vector3 pos, float knockbackForce)
+    public void Hit(int damage)
     {
         if (isInvulnerable || damage == 0)
         {
@@ -59,15 +68,30 @@ public class PlayerHealth : Health
             return;
         }
 
-        StartCoroutine(cam.ShakeCamera(damage <= 0 ? knockbackForce : Mathf.Clamp(damage, 0, 3), .25f));
-
-        StartCoroutine(Knockback(pos, knockbackForce));
-
         if (hasInvulnerability)
         {
             StartCoroutine(Invulnerable(invulnerabilitySeconds));
         }
         //throw new System.NotImplementedException();
+    }
+
+    public IEnumerator Invulnerable(float seconds)
+    {
+        isInvulnerable = true;
+
+        yield return new WaitForSeconds(seconds);
+
+        isInvulnerable = false;
+    }
+
+    public IEnumerator Knockback(Vector3 pos, float knockbackForce, bool stopForce = true)
+    {
+        pos = (pos - rb.transform.position).normalized;
+
+        rb.velocity = (!stopForce) ? rb.velocity : new Vector3(0f, 0f, 0f);
+
+        yield return new WaitForSeconds(0.05f);
+        rb.AddForce(new Vector3(-pos.x, pos.y, -pos.z) * knockbackForce, ForceMode.Impulse);
     }
 
     public void GainHP(int hp)

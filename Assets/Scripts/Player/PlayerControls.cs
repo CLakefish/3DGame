@@ -10,6 +10,17 @@ public class PlayerControls : MonoBehaviour
     #region Variables
     [SerializeField] string uiSceneName;
 
+    // p: you can be running and jumping at the same time, right? this state machine just doesn't make much sense because the states are not mutually exclusive.
+    public enum PlayerState
+    {
+        Grounded,
+        Jumping,
+        Falling,
+        Crouching,
+        Sliding,
+        Running,
+    }
+
     [Header("State Handlers")] // See Player for details
     public PlayerState state = PlayerState.Grounded;
     internal PlayerState prevState;
@@ -29,8 +40,10 @@ public class PlayerControls : MonoBehaviour
     public LayerMask groundLayer;
 
     [Header("Movement Variables")] // Eventually Add Gravity
-    [SerializeField] Vector2 walkingSpeed;
-    [SerializeField] Vector2 runningSpeed, acceleration, deceleration;
+    [SerializeField] float walkingSpeed;
+    [SerializeField] float runningSpeed;
+    [SerializeField] float acceleration;
+    [SerializeField] float deceleration;
     [Header("Slopes")]
     [SerializeField] float maxSlopeAngle;
 
@@ -51,18 +64,17 @@ public class PlayerControls : MonoBehaviour
     public float slideDuration;
 
     [Space()]
-    [SerializeField] public float jumpTime;
-    [SerializeField] public float jumpSpeed,
-                                  jumpBufferTime;
-    [SerializeField] public float jumpCoyoteTime;
+    // just because variables have similar types (serializefield, float) does not mean that you should bunch them together. it makes it more confusing because sometimes variables that word in tandem with each other are far apart
+    [SerializeField] float jumpTime;
+    [SerializeField] float jumpSpeed;
+    [SerializeField] float jumpCoyoteTime;
+    [SerializeField] float jumpBufferTime;
+    float jumpBufferTimer;
+    // p: the original was: float jumpCoyoteTimeT;
+    // T? What does the t stand for carson. you cant just be saying T
+    float jumpCoyoteTimer;
 
-    float desiredMoveSpeed,
-          lastDesiredMoveSpeed;
-
-    float jumpBufferTimeTemp,
-          jumpCoyoteTimeT;
-
-     float groundRay = 0.005f;
+    float groundRay = 0.005f;
 
     CapsuleCollider col;
 
@@ -94,65 +106,13 @@ public class PlayerControls : MonoBehaviour
         cam = FindObjectOfType<PlayerCamera>();
         col = rb.GetComponent<CapsuleCollider>();
 
-        jumpBufferTimeTemp = jumpBufferTime;
-        jumpCoyoteTimeT = 0;
-
         SceneManager.LoadScene(uiSceneName, LoadSceneMode.Additive);
     }
 
     void Update()
     {
-        void ChangeState(PlayerState newState)
-        {
-            prevState = state;
-
-            state = newState;
-
-            stateDur = 0f;
-        }
-
-        // Handles wall and ground collisions
-        #region Collision Detection
-
-        bool checkCollider(Vector3 pos, out RaycastHit h)
-        {
-            float rad = col.radius * .7f;
-
-            // For each possible collider, get the closest one then return if you're hitting it.
-            foreach (var collider in Physics.OverlapSphere(pos, rad, groundLayer))
-            {
-                if (Physics.Raycast(new(rb.transform.position, (collider is MeshCollider ? (((MeshCollider)collider).ClosestPointMesh(rb.transform.position)) : collider.ClosestPoint(rb.transform.position)) - rb.transform.position), out h, Mathf.Infinity, groundLayer))
-                {
-                    return true;
-                }
-            }
-
-            h = default;
-            return false;
-        }
-
-        bool onSlope()
-        {
-            if (Physics.Raycast(rb.transform.position, Vector3.down, out slopeHit, col.height * 0.5f + 0.3f))
-            {
-                float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-                return angle < maxSlopeAngle && angle != 0;
-            }
-
-            // If the angle of the object beneath the player is more than 0, less than the maxSlopeAngle, then it implies you are on a slope.
-
-            return false;
-        }
-
-        Vector3 SlopeMoveDir(Vector3 dir)
-        {
-            return Vector3.ProjectOnPlane(dir, slopeHit.normal).normalized;
-        }
-
         // Ground & Wall Detection
-        bool isGrounded = checkCollider(rb.transform.position + ((col.height / 2) + groundRay) * Vector3.down, out RaycastHit ground);
-
-        #endregion
+        bool isGrounded = CheckCollider(rb.transform.position + ((col.height / 2) + groundRay) * Vector3.down, out RaycastHit ground);
 
         #region Inputs
 
@@ -168,8 +128,9 @@ public class PlayerControls : MonoBehaviour
         #region Movement 
 
         // Speed
-        float moveSpeed = isRunning ? ( state == PlayerState.Falling ? runningSpeed.x : runningSpeed.y) : ( state == PlayerState.Falling ? walkingSpeed.x : walkingSpeed.y),
-              speedIncrease = inputting ? (isGrounded ? acceleration.x : acceleration.y) : (isGrounded ? deceleration.x : deceleration.y);
+
+        float moveSpeed = OnSlope() && state == PlayerState.Sliding ? slideSpeed :
+                            isRunning ? runningSpeed : walkingSpeed;
 
         // Camera Tilting
         CameraTilt(Input.GetKey(KeyCode.LeftShift));
@@ -200,27 +161,28 @@ public class PlayerControls : MonoBehaviour
 
         stateDur += Time.deltaTime;
 
-        jumpBufferTimeTemp = Mathf.MoveTowards(jumpBufferTimeTemp, 0, Time.deltaTime);
-        jumpCoyoteTimeT = Mathf.MoveTowards(jumpCoyoteTimeT, 0, Time.deltaTime);
+        jumpBufferTimer = Mathf.MoveTowards(jumpBufferTimer, 0, Time.deltaTime);
+        jumpCoyoteTimer = Mathf.MoveTowards(jumpCoyoteTimer, 0, Time.deltaTime);
 
         switch (state)
         {
             case (PlayerState.Grounded):
 
+                // jump
                 if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
                 {
                     ChangeState(PlayerState.Jumping);
                 }
 
-                if (jumpBufferTimeTemp > 0)
+                if (jumpBufferTimer > 0)
                 {
-                    jumpBufferTimeTemp = 0f;
+                    jumpBufferTimer = 0f;
                     ChangeState(PlayerState.Jumping);
                 }
 
+                jumpCoyoteTimer = jumpCoyoteTime;
                 if (!isGrounded && !Input.GetKey(KeyCode.Space))
                 {
-                    jumpCoyoteTimeT = jumpCoyoteTime;
                     ChangeState(PlayerState.Falling);
                 }
 
@@ -252,20 +214,16 @@ public class PlayerControls : MonoBehaviour
 
                 if(Input.GetKeyDown(KeyCode.Space))
                 {
-                    if (prevState == PlayerState.Grounded && jumpCoyoteTimeT > 0)
+                    if (prevState == PlayerState.Grounded || jumpCoyoteTimer > 0)
                     {
-                        jumpCoyoteTimeT = 0;
+                        jumpCoyoteTimer = 0;
                         ChangeState(PlayerState.Jumping);
 
                         break;
                     }
 
-                    rb.velocity = new Vector3(rb.velocity.x * airModifier, rb.velocity.y, rb.velocity.z * airModifier);
-
-                    jumpBufferTimeTemp = jumpBufferTime;
+                    jumpBufferTimer = jumpBufferTime;
                 }
-
-                rb.AddForce(Vector3.down * stateDur * fallModifier, ForceMode.Impulse);
 
                 if (isGrounded) ChangeState(PlayerState.Grounded);
 
@@ -276,7 +234,6 @@ public class PlayerControls : MonoBehaviour
                 if (prevState != PlayerState.Sliding) {
 
                     playerCollider.height = crouchHeight;
-
                 }
 
                 rb.velocity = new Vector3(rb.velocity.x * crouchModifier, rb.velocity.y, rb.velocity.z * crouchModifier);
@@ -308,15 +265,13 @@ public class PlayerControls : MonoBehaviour
                 Vector3 inputDir = viewPosition.forward * inputs.y + viewPosition.right * inputs.x;
                 inputDir = new Vector3(inputDir.x, 0f, inputDir.z);
 
-                if (!onSlope() || rb.velocity.y > -.1f) {
+                if (!OnSlope() || rb.velocity.y > -.1f) {
 
-                    //rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
                     rb.AddForce(inputDir.normalized * (slideModifier - stateDur), ForceMode.VelocityChange);
 
                 }
-                else {
-
-                    //rb.velocity = new Vector3(rb.velocity.x / Mathf.Pow(frictionModifier, stateDur), rb.velocity.y - 100, rb.velocity.z / Mathf.Pow(frictionModifier, stateDur));
+                else
+                {
                     rb.AddForce(SlopeMoveDir(inputDir) * (slideModifier - stateDur), ForceMode.VelocityChange);
                 }
 
@@ -344,25 +299,15 @@ public class PlayerControls : MonoBehaviour
 
         #endregion
 
-        if (onSlope() && state == PlayerState.Sliding) moveSpeed = slideSpeed;
-
-        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
-        {
-            StopCoroutine(MovementHelp.MoveSpeedLerp(moveSpeed, desiredMoveSpeed, onSlope(), slopeHit));
-
-            StartCoroutine(MovementHelp.MoveSpeedLerp(moveSpeed, desiredMoveSpeed, onSlope(), slopeHit));
-        }
-        else desiredMoveSpeed = moveSpeed;
-
         // Get the move direction of the viewPosition multiplied by the move speed
-        moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x) * desiredMoveSpeed;
+        moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x).normalized;
+        Vector3 goalVelocity = moveDir * moveSpeed;
+        goalVelocity.y = rb.velocity.y;
 
-        lastDesiredMoveSpeed = desiredMoveSpeed;
+        // We are now using Vector3.MoveTowards for the accelerating
+        rb.velocity = Vector3.MoveTowards(rb.velocity, goalVelocity, acceleration * Time.deltaTime);
 
-        // Smooth Damp for the win
-        rb.velocity = new Vector3(Mathf.SmoothDamp(rb.velocity.x, (state == PlayerState.Crouching ? moveDir.x / 2 : moveDir.x), ref currentVel.x, speedIncrease), rb.velocity.y, Mathf.SmoothDamp(rb.velocity.z, state == PlayerState.Crouching ? moveDir.z / 2 : moveDir.z, ref currentVel.z, speedIncrease));
-
-        if (onSlope())
+        if (OnSlope())
         {
             // Jumping
             if (state == PlayerState.Jumping || Input.GetKey(KeyCode.Space))
@@ -377,19 +322,23 @@ public class PlayerControls : MonoBehaviour
                 return;
             }
 
+            // p: what issue does this fix?
             // Ensure no weird sliding issues
             rb.useGravity = false;
 
-            // Movement properly
-            rb.AddForce(SlopeMoveDir(moveDir) * desiredMoveSpeed * (QualitySettings.vSyncCount == 1 ? 1 : 10), ForceMode.Force);
-
             // Velocity Clamp
+
+            // p: can you please use a consistent formatting? it makes it harder to read if its not consistent. please do the extra line break and curly braces after all if-statements. 
             if (rb.velocity.magnitude > moveSpeed)
+            {
                 rb.velocity = rb.velocity.normalized * moveSpeed;
+            }
 
             // Y vel fix
             if (rb.velocity.y > 0 && (state != PlayerState.Jumping && Input.GetKey(KeyCode.Space)))
+            {
                 rb.AddForce(Vector3.down * (QualitySettings.vSyncCount == 1 ? 100 : 150), ForceMode.Force);
+            }
         }
         else
         {
@@ -397,8 +346,59 @@ public class PlayerControls : MonoBehaviour
         }
 
         // Clamp the Velocity to the Move Speed
-        MovementHelp.VelocityClamp(moveSpeed, rb.velocity);
+        Vector3.ClampMagnitude(rb.velocity, moveSpeed);
     }
+
+    void ChangeState(PlayerState newState)
+    {
+        prevState = state;
+
+        state = newState;
+
+        stateDur = 0f;
+    }
+
+    // Handles wall and ground collisions
+    #region Collision Detection
+
+    bool CheckCollider(Vector3 pos, out RaycastHit h)
+    {
+        // p: why is this the equation we are using??
+        float rad = col.radius * 0.7f;
+
+        // For each possible collider, get the closest one then return if you're hitting it.
+        Collider[] overlapColliders = Physics.OverlapSphere(pos, rad, groundLayer);
+        foreach (var collider in overlapColliders)
+        {
+            if (Physics.Raycast(new(rb.transform.position, (collider is MeshCollider ? (((MeshCollider)collider).ClosestPointMesh(rb.transform.position)) : collider.ClosestPoint(rb.transform.position)) - rb.transform.position), out h, Mathf.Infinity, groundLayer))
+            {
+                return true;
+            }
+        }
+
+        h = default;
+        return false;
+    }
+
+    bool OnSlope()
+    {
+        if (Physics.Raycast(rb.transform.position, Vector3.down, out slopeHit, col.height * 0.5f + 0.3f))
+        {
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle < maxSlopeAngle && angle != 0;
+        }
+
+        // If the angle of the object beneath the player is more than 0, less than the maxSlopeAngle, then it implies you are on a slope.
+
+        return false;
+    }
+
+    Vector3 SlopeMoveDir(Vector3 dir)
+    {
+        return Vector3.ProjectOnPlane(dir, slopeHit.normal).normalized;
+    }
+
+    #endregion
 
     void CameraTilt(bool running)
     {

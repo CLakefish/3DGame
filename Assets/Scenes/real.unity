@@ -982,7 +982,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh57814
+  m_Name: pb_Mesh64432
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1178,6 +1178,12 @@ MonoBehaviour:
   isInvulnerable: 0
   hasInvulnerability: 0
   rb: {fileID: 0}
+  navigation: {fileID: 0}
+  player: {fileID: 0}
+  playerPos: {x: 0, y: 0, z: 0}
+  knockBackTime: 0
+  knockBack: 0
+  grounded: 0
 --- !u!54 &163240706
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1279,7 +1285,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh57918
+  m_Name: pb_Mesh64550
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -1471,7 +1477,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotateToCam: 1
-  camera: {fileID: 0}
+  mainCamera: {fileID: 0}
   currentIndex: 0
 --- !u!114 &196333677
 MonoBehaviour:
@@ -2333,6 +2339,12 @@ MonoBehaviour:
   isInvulnerable: 0
   hasInvulnerability: 0
   rb: {fileID: 0}
+  navigation: {fileID: 0}
+  player: {fileID: 0}
+  playerPos: {x: 0, y: 0, z: 0}
+  knockBackTime: 0
+  knockBack: 0
+  grounded: 0
 --- !u!136 &276120229
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2817,7 +2829,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh57834
+  m_Name: pb_Mesh64464
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3325,7 +3337,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh57790
+  m_Name: pb_Mesh64408
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3489,7 +3501,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh57956
+  m_Name: pb_Mesh64588
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -3653,7 +3665,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh58016
+  m_Name: pb_Mesh64648
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -5465,7 +5477,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh-29820
+  m_Name: pb_Mesh64346
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -5798,15 +5810,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 934369dcb2514744a896f5b45b3d1866, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  overlayCamera: {fileID: 0}
+  deathScreen: {fileID: 0}
   weaponName: {fileID: 1659972524}
   ammoCount: {fileID: 1659972524}
   chargeCount: {fileID: 0}
-  player: {fileID: 0}
-  playerC: {fileID: 0}
+  healthText: {fileID: 0}
+  effectBar: {fileID: 0}
+  healthBar: {fileID: 0}
+  hitEffect: {fileID: 0}
+  weapons: []
   hudLerpTime: 0.012
   hudTransform: {fileID: 45781317}
-  maxDist: 0.08
-  c: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1205805342
 GameObject:
   m_ObjectHideFlags: 0
@@ -5948,6 +5963,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 586b158f01dc8d541acf2b29ea4c5874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiSceneName: 
   state: 0
   viewPosition: {fileID: 875067102}
   groundLayer:
@@ -5958,7 +5974,6 @@ MonoBehaviour:
   acceleration: {x: 0.075, y: 0.095}
   deceleration: {x: 0.075, y: 0.095}
   maxSlopeAngle: 45
-  README: 
   slideModifier: 1
   slideJumpModifier: 1
   airModifier: 1
@@ -6048,17 +6063,6 @@ MonoBehaviour:
   isInvulnerable: 0
   hasInvulnerability: 1
   rb: {fileID: 1294334338}
-  healthText: {fileID: 3575506}
-  effectBar: {fileID: 1506894742}
-  healthBar: {fileID: 158981990}
-  hitEffect: {fileID: 0}
-  deathScreen: {fileID: 0}
-  weapons:
-  - {fileID: 1729489923}
-  - {fileID: 212966563}
-  - {fileID: 1427616952}
-  - {fileID: 419356464}
-  - {fileID: 274687225}
   maxHealth: 100
 --- !u!114 &1264464330
 MonoBehaviour:
@@ -6072,9 +6076,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b299906eb55943844920b6f7752d0c82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  open: 27
-  spawnObj: 113
-  statusText: {fileID: 132439290}
 --- !u!1 &1294334336
 GameObject:
   m_ObjectHideFlags: 0
@@ -6636,7 +6637,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotateToCam: 1
-  camera: {fileID: 0}
+  mainCamera: {fileID: 0}
   currentIndex: 0
 --- !u!114 &1333993511
 MonoBehaviour:
@@ -7105,7 +7106,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3649c72f33a02a74ba8e2ce68d50bfcc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  orientation: {fileID: 875067102}
   playerObj: {fileID: 1294334337}
   player: {fileID: 1264464326}
   sensX: 3
@@ -9069,7 +9069,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotateToCam: 1
-  camera: {fileID: 0}
+  mainCamera: {fileID: 0}
   currentIndex: 0
 --- !u!23 &7899100269418260586
 MeshRenderer:

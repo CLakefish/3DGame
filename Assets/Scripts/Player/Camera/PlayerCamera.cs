@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Player;
 
 public class PlayerCamera : MonoBehaviour
 {
@@ -45,7 +44,7 @@ public class PlayerCamera : MonoBehaviour
     {
         #region FOV
 
-        if (player.state == PlayerState.Sliding || (player.state == PlayerState.Jumping && player.prevState == PlayerState.Sliding))
+        if (player.state == PlayerControls.PlayerState.Sliding || (player.state == PlayerControls.PlayerState.Jumping && player.prevState == PlayerControls.PlayerState.Sliding))
         {
             newFOV = Mathf.Lerp(newFOV, slidingFOV, 8 * Time.deltaTime);
         }

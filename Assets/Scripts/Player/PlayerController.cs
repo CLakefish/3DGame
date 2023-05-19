@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     [Header("Assignables")]
     internal Rigidbody rb;
     internal PlayerCamera Camera;
+    [SerializeField] float explosionStrength = 1;
 
     [Header("Weapon Information")]
     public List<WeaponItem> weaponItems;
@@ -25,11 +26,8 @@ public class PlayerController : MonoBehaviour
     public float heldTime;
     public bool canShoot = true;
     bool isFiring;
+    [Header("Explosion Prefab")]
     [SerializeField] GameObject explosion;
-
-
-    [Header("Explosion Game Object")]
-    bool balls;
 
     #endregion
 
@@ -331,7 +329,8 @@ public class PlayerController : MonoBehaviour
             if (raycast.collider.gameObject.tag == "Enemy")
             {
                 Enemy e = raycast.collider.GetComponent<Enemy>();
-                if (e != null) e.Hit(weaponData.bulletDamage, rb.transform.position, weaponData.enemyKnockback);
+                if (e != null) e.Hit(weaponData.bulletDamage);
+                // todo: add knockback here
             }
 
             Destroy(obj, 2f);
@@ -385,33 +384,17 @@ public class PlayerController : MonoBehaviour
 
             if (Physics.Raycast(new Ray(pos, (collider.transform.position - pos)), out hit, explosionSize))
             {
-                Enemy e = collider.GetComponent<Enemy>();
-
-                if (e != null)
+                if (collider.TryGetComponent(out Enemy currentEnemy))
                 {
-                    float dist = (1 - Mathf.Clamp01(hit.distance / explosionSize)) * knockbackValue;
+                    float proximity = -hit.distance + explosionSize;
 
-                    e.Hit(weaponData.bulletDamage, hit.point, dist);
+                    currentEnemy.Hit(weaponData.bulletDamage);
+                    // todo: add knockback here with (hit.point, proximity * knockbackValue)
                 }
             }
         }
 
         Instantiate(explosion, pos, Quaternion.identity);
-
-        if (weaponData.playerCanBeHit)
-        {
-            float distPlayer = Vector3.Distance(pos, rb.transform.position);
-            if (distPlayer >= explosionSize / 2) return;
-
-            RaycastHit h;
-            Physics.Raycast(new Ray(pos, (rb.transform.position - pos)), out h, explosionSize);
-
-            distPlayer = (1 - Mathf.Clamp01(h.distance / explosionSize - 1)) * knockbackValue;
-
-            rb.AddForce((rb.transform.position - pos).normalized * distPlayer, ForceMode.Impulse);
-
-            rb.GetComponentInParent<PlayerHealth>().Hit(weaponData.bulletDamage / 2, pos, 1);
-        }
     }
 
     #endregion

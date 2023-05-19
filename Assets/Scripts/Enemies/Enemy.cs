@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine; using UnityEngine.AI;
-using Player;
 
 // The class can be found in the player script/namespace
 // It contains 2 coroutines which handle invulnerability and knockback, both with slight delay and slight timing delay
@@ -12,47 +11,58 @@ public enum EnemyType
     Melee,
 }
 
-public class Enemy : Health
+public class Enemy : MonoBehaviour, IHealth
 {
+    public bool isInvulnerable { get; set; }
+    public int health { get; set; }
+    public int maxHealth { get; set; }
     public NavMeshAgent navigation;
-    public PlayerControls player;
+    public PlayerControls playerControls;
     public Vector3 playerPos;
     public float knockBackTime;
     public bool knockBack = false;
     public bool grounded = false;
+    Rigidbody rb;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
-        player = FindObjectOfType<PlayerControls>();
+        playerControls = FindObjectOfType<PlayerControls>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, player.groundLayer);
+        grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, playerControls.groundLayer);
 
         if (!knockBack && grounded) FindObj();
         if (!knockBack && grounded && navigation.isOnNavMesh) navigation.SetDestination(playerPos);
 
-        if (!navigation.pathPending && navigation.remainingDistance <= navigation.stoppingDistance && (!navigation.hasPath || navigation.velocity.sqrMagnitude == 0f) && Vector3.Distance(rb.transform.position, player.rb.transform.position) <= 3.5f) player.GetComponent<PlayerHealth>().Hit(Random.Range(1, 5), rb.transform.position, 10f);
+        if (!navigation.pathPending && navigation.remainingDistance <= navigation.stoppingDistance && (!navigation.hasPath || navigation.velocity.sqrMagnitude == 0f) && Vector3.Distance(rb.transform.position, playerControls.rb.transform.position) <= 3.5f)
+        {
+            playerControls.GetComponent<PlayerHealth>().Hit(Random.Range(1, 5));
+            // todo: add knockback here using rb.transform.position, 10f
+        }
 
         Debug.Log(knockBack);
     }
 
     // This is the death effect, which can be altered later
-    public override void OnDeath()
+    public void OnDeath()
     {
         Destroy(gameObject);
         //throw new System.NotImplementedException();
     }
 
     // When the enemy is hit it will do this
-    public override void Hit(int damage, Vector3 pos, float knockbackForce)
+    public void Hit(int damage)
     {
-        if (isInvulnerable) return;
-        health = health - damage;
+        if (isInvulnerable)
+        {
+            return;
+        }
+        health -= damage;
 
         if (health <= 0)
         {
@@ -61,20 +71,24 @@ public class Enemy : Health
             return;
         }
 
-        if (!knockBack)
-        {
-            StartCoroutine(Knockback(pos, knockbackForce));
-            StartCoroutine(NavKnockback());
-        }
-
-        if (hasInvulnerability) StartCoroutine(Invulnerable(invulnerabilitySeconds));
+        // if (hasInvulnerability) StartCoroutine(Invulnerable(invulnerabilitySeconds));
 
         //throw new System.NotImplementedException();
     }
 
+    void Knockback(float knockbackForce, Vector3 hitPoint)
+    {
+        if (!knockBack)
+        {
+            return;
+        }
+        // StartCoroutine(Knockback(pos, knockbackForce));
+        StartCoroutine(NavKnockback());
+    }
+
     void FindObj()
     {
-        playerPos = player.rb.transform.position;
+        playerPos = playerControls.rb.transform.position;
     }
 
     IEnumerator NavKnockback()
