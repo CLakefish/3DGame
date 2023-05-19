@@ -37,6 +37,7 @@ public class PlayerControls : MonoBehaviour
     [Tooltip("1 is default, > 1 is a positive modifier, < 1 is a negative modifier")]
     [Header("Movement Modifiers")]
     public float slideModifier = 1.0f;
+    public float slideSpeed;
     [Tooltip("Velocity modifier for when jumping out of a slide")]
     public float slideJumpModifier = 1.0f;
     [Tooltip("Velocity modifier for when in the air")]
@@ -47,12 +48,16 @@ public class PlayerControls : MonoBehaviour
     public float fallModifier = 0.5f;
     [Tooltip("Friction modifier while sliding")]
     public float frictionModifier = 0.99f;
+    public float slideDuration;
 
     [Space()]
     [SerializeField] public float jumpTime;
     [SerializeField] public float jumpSpeed,
                                   jumpBufferTime;
     [SerializeField] public float jumpCoyoteTime;
+
+    float desiredMoveSpeed,
+          lastDesiredMoveSpeed;
 
     float jumpBufferTimeTemp,
           jumpCoyoteTimeT;
@@ -139,9 +144,9 @@ public class PlayerControls : MonoBehaviour
             return false;
         }
 
-        Vector3 SlopeMoveDir()
+        Vector3 SlopeMoveDir(Vector3 dir)
         {
-            return Vector3.ProjectOnPlane(moveDir, slopeHit.normal).normalized;
+            return Vector3.ProjectOnPlane(dir, slopeHit.normal).normalized;
         }
 
         // Ground & Wall Detection
@@ -166,9 +171,6 @@ public class PlayerControls : MonoBehaviour
         float moveSpeed = isRunning ? ( state == PlayerState.Falling ? runningSpeed.x : runningSpeed.y) : ( state == PlayerState.Falling ? walkingSpeed.x : walkingSpeed.y),
               speedIncrease = inputting ? (isGrounded ? acceleration.x : acceleration.y) : (isGrounded ? deceleration.x : deceleration.y);
 
-        // Get the move direction of the viewPosition multiplied by the move speed
-        moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x) * moveSpeed;
-
         // Camera Tilting
         CameraTilt(Input.GetKey(KeyCode.LeftShift));
 
@@ -190,7 +192,7 @@ public class PlayerControls : MonoBehaviour
 
                 case (PlayerState.Sliding):
 
-                    rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideModifier, ForceMode.Impulse);
+                    //rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideModifier, ForceMode.Impulse);
 
                     break;
             }
@@ -222,7 +224,15 @@ public class PlayerControls : MonoBehaviour
                     ChangeState(PlayerState.Falling);
                 }
 
-                if (isCrouching){
+                if (isCrouching && isRunning)
+                {
+                    float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+                    if (angle >= maxSlopeAngle) break;
+
+                    ChangeState(PlayerState.Sliding);
+                }
+                else if (isCrouching)
+                {
 
                     ChangeState(PlayerState.Crouching);
                 }
@@ -269,12 +279,6 @@ public class PlayerControls : MonoBehaviour
 
                 }
 
-                if(isRunning){
-
-                    ChangeState(PlayerState.Sliding);
-                    
-                }
-
                 rb.velocity = new Vector3(rb.velocity.x * crouchModifier, rb.velocity.y, rb.velocity.z * crouchModifier);
 
 
@@ -285,7 +289,7 @@ public class PlayerControls : MonoBehaviour
 
                 }
 
-                if(Input.GetKeyUp(KeyCode.LeftControl))
+                if(!Input.GetKey(KeyCode.LeftControl))
                 {
                     playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Grounded);
@@ -301,18 +305,22 @@ public class PlayerControls : MonoBehaviour
 
                 }
 
-                if (!onSlope()) {
+                Vector3 inputDir = viewPosition.forward * inputs.y + viewPosition.right * inputs.x;
+                inputDir = new Vector3(inputDir.x, 0f, inputDir.z);
 
-                    rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+                if (!onSlope() || rb.velocity.y > -.1f) {
+
+                    //rb.velocity = new Vector3(rb.velocity.x * Mathf.Pow(frictionModifier, stateDur), rb.velocity.y, rb.velocity.z * Mathf.Pow(frictionModifier, stateDur));
+                    rb.AddForce(inputDir.normalized * (slideModifier - stateDur), ForceMode.VelocityChange);
 
                 }
                 else {
 
-                    rb.velocity = new Vector3(rb.velocity.x / Mathf.Pow(frictionModifier, stateDur), rb.velocity.y - 100, rb.velocity.z / Mathf.Pow(frictionModifier, stateDur));
-
+                    //rb.velocity = new Vector3(rb.velocity.x / Mathf.Pow(frictionModifier, stateDur), rb.velocity.y - 100, rb.velocity.z / Mathf.Pow(frictionModifier, stateDur));
+                    rb.AddForce(SlopeMoveDir(inputDir) * (slideModifier - stateDur), ForceMode.VelocityChange);
                 }
 
-                if (((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2)) || !Input.GetKey(KeyCode.LeftShift))
+                if (((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2)) || !Input.GetKey(KeyCode.LeftShift) || stateDur > slideDuration)
                 {
                     ChangeState(PlayerState.Crouching);
                 }
@@ -325,7 +333,7 @@ public class PlayerControls : MonoBehaviour
                     ChangeState(PlayerState.Jumping);
                 }
 
-                if (Input.GetKeyUp(KeyCode.LeftControl))
+                if (!Input.GetKey(KeyCode.LeftControl))
                 {
                     playerCollider.height = originalHeight;
                     ChangeState(PlayerState.Grounded);
@@ -336,8 +344,23 @@ public class PlayerControls : MonoBehaviour
 
         #endregion
 
+        if (onSlope() && state == PlayerState.Sliding) moveSpeed = slideSpeed;
+
+        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > 4f && moveSpeed != 0)
+        {
+            StopCoroutine(MovementHelp.MoveSpeedLerp(moveSpeed, desiredMoveSpeed, onSlope(), slopeHit));
+
+            StartCoroutine(MovementHelp.MoveSpeedLerp(moveSpeed, desiredMoveSpeed, onSlope(), slopeHit));
+        }
+        else desiredMoveSpeed = moveSpeed;
+
+        // Get the move direction of the viewPosition multiplied by the move speed
+        moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x) * desiredMoveSpeed;
+
+        lastDesiredMoveSpeed = desiredMoveSpeed;
+
         // Smooth Damp for the win
-        rb.velocity = new Vector3(Mathf.SmoothDamp(rb.velocity.x, moveDir.x, ref currentVel.x, speedIncrease), rb.velocity.y, Mathf.SmoothDamp(rb.velocity.z, moveDir.z, ref currentVel.z, speedIncrease));
+        rb.velocity = new Vector3(Mathf.SmoothDamp(rb.velocity.x, (state == PlayerState.Crouching ? moveDir.x / 2 : moveDir.x), ref currentVel.x, speedIncrease), rb.velocity.y, Mathf.SmoothDamp(rb.velocity.z, state == PlayerState.Crouching ? moveDir.z / 2 : moveDir.z, ref currentVel.z, speedIncrease));
 
         if (onSlope())
         {
@@ -348,11 +371,17 @@ public class PlayerControls : MonoBehaviour
                 return;
             }
 
+            if (rb.velocity.y > 0 && (inputs.x == 0 || inputs.y == 0))
+            {
+                rb.useGravity = true;
+                return;
+            }
+
             // Ensure no weird sliding issues
             rb.useGravity = false;
 
             // Movement properly
-            rb.AddForce(SlopeMoveDir() * moveSpeed * (QualitySettings.vSyncCount == 1 ? 1 : 10), ForceMode.Force);
+            rb.AddForce(SlopeMoveDir(moveDir) * desiredMoveSpeed * (QualitySettings.vSyncCount == 1 ? 1 : 10), ForceMode.Force);
 
             // Velocity Clamp
             if (rb.velocity.magnitude > moveSpeed)
@@ -360,12 +389,13 @@ public class PlayerControls : MonoBehaviour
 
             // Y vel fix
             if (rb.velocity.y > 0 && (state != PlayerState.Jumping && Input.GetKey(KeyCode.Space)))
-                rb.AddForce(Vector3.down * 30f, ForceMode.Force);
+                rb.AddForce(Vector3.down * (QualitySettings.vSyncCount == 1 ? 100 : 150), ForceMode.Force);
         }
         else
         {
             rb.useGravity = true;
         }
+
         // Clamp the Velocity to the Move Speed
         MovementHelp.VelocityClamp(moveSpeed, rb.velocity);
     }

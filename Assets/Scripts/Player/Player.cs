@@ -144,6 +144,31 @@ namespace Player
 
             return sirSplinkle;
         }
+
+        public static IEnumerator MoveSpeedLerp(float moveSpeed, float desiredMoveSpeed, bool onSlope, RaycastHit s)
+        {
+            float time = 0,
+                  difference = Mathf.Abs(desiredMoveSpeed - moveSpeed),
+                  start = moveSpeed;
+
+            while (time < difference)
+            {
+                moveSpeed = Mathf.Lerp(start, desiredMoveSpeed, time / difference);
+                if (onSlope)
+                {
+                    float angle = Vector3.Angle(Vector3.up, s.normal);
+                    float angleChange = 1 + (angle / 90);
+
+                    time += Time.deltaTime * 1.5f * 2.5f * angleChange;
+                }
+                else
+                    time += Time.deltaTime * 1.5f;
+
+                yield return null;
+            }
+
+            moveSpeed = desiredMoveSpeed;
+        }
     }
 }
 

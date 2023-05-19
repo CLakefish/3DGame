@@ -17,7 +17,8 @@ public class PlayerCamera : MonoBehaviour
                  FOV = 75;
     float newFOV,
           newWalkingFOV,
-          newRunningFOV;
+          newRunningFOV,
+          slidingFOV;
 
     float shakePos;
     public bool invertY;
@@ -36,6 +37,7 @@ public class PlayerCamera : MonoBehaviour
         newFOV = FOV;
         newWalkingFOV = FOV;
         newRunningFOV = FOV * 1.25f;
+        slidingFOV = FOV * 1.4f;
     }
 
     // Update is called once per frame
@@ -43,8 +45,17 @@ public class PlayerCamera : MonoBehaviour
     {
         #region FOV
 
-        // Change FOV in game
-        newFOV = (player.isRunning) ? newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) : newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
+        if (player.state == PlayerState.Sliding || (player.state == PlayerState.Jumping && player.prevState == PlayerState.Sliding))
+        {
+            newFOV = Mathf.Lerp(newFOV, slidingFOV, 8 * Time.deltaTime);
+        }
+        else
+        {
+            // Change FOV in game
+            newFOV = (player.isRunning) ?
+                newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) :
+                newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
+        }
 
         // FOV Change based on FOV 
         cam.fieldOfView = newFOV;
@@ -71,6 +82,7 @@ public class PlayerCamera : MonoBehaviour
 
     public void UpdateFOV(float FOV)
     {
+        slidingFOV = FOV * 1.4f;
         newFOV = FOV;
         newWalkingFOV = FOV;
         newRunningFOV = FOV * 1.25f;

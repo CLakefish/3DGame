@@ -1473,7 +1473,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh87672
+  m_Name: pb_Mesh29380
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -31826,7 +31826,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh88390
+  m_Name: pb_Mesh30098
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -49247,6 +49247,14 @@ PrefabInstance:
     - target: {fileID: 6182660525145688333, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 6182660525145688334, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
+      propertyPath: slideSpeed
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 6182660525145688334, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
+      propertyPath: slideDuration
+      value: 142.19
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
