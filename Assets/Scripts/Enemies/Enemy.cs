@@ -36,7 +36,10 @@ public class Enemy : Health
         if (!knockBack && grounded) FindObj();
         if (!knockBack && grounded && navigation.isOnNavMesh) navigation.SetDestination(playerPos);
 
-        if (!navigation.pathPending && navigation.remainingDistance <= navigation.stoppingDistance && (!navigation.hasPath || navigation.velocity.sqrMagnitude == 0f) && Vector3.Distance(rb.transform.position, player.rb.transform.position) <= 3.5f) player.GetComponent<PlayerHealth>().Hit(Random.Range(1, 5), rb.transform.position, 10f);
+        if (Vector3.Distance(rb.transform.position, player.rb.transform.position) <= 2)
+        {
+            player.GetComponent<PlayerHealth>().Hit(Random.Range(1, 5), rb.transform.position, 10f);
+        }
 
         Debug.Log(knockBack);
     }

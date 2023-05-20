@@ -150,7 +150,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 1000
   field of view: 60
   orthographic: 0
@@ -336,11 +336,13 @@ MonoBehaviour:
   deceleration: {x: 0.075, y: 0.095}
   maxSlopeAngle: 45
   slideModifier: 1
+  slideSpeed: 0
   slideJumpModifier: 1
   airModifier: 1
   crouchModifier: 1
   fallModifier: 0.2
   frictionModifier: 0.99
+  slideDuration: 0
   jumpTime: 0.19
   jumpSpeed: 12.65
   jumpBufferTime: 0.1
