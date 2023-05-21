@@ -13,14 +13,16 @@ public class WeaponObject : MonoBehaviour
         {
             Debug.Log("Picked up!");
 
-            PlayerController player = other.gameObject.GetComponentInParent<PlayerController>();
+            PlayerWeaponController playerWeaponController = other.gameObject.GetComponentInParent<PlayerWeaponController>();
+            if (playerWeaponController == null)
+            {
+                return;
+            }
 
-            if (player == null) return;
-
-            player.weaponItems.Add(weapon);
-            player.selectedIndex++;
+            playerWeaponController.weaponItems.Add(weapon);
+            playerWeaponController.selectedIndex++;
             weapon.weaponData.isEmpty = false;
-            player.weaponData = player.weaponItems[player.selectedIndex].weaponData;
+            playerWeaponController.weaponData = playerWeaponController.weaponItems[playerWeaponController.selectedIndex].weaponData;
 
             Destroy(gameObject);
         }

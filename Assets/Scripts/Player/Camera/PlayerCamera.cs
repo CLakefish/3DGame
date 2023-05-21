@@ -6,7 +6,7 @@ public class PlayerCamera : MonoBehaviour
 {
     [Header("Orientation")]
     public Transform playerObj;
-    public PlayerControls player;
+    PlayerMovementController playerMovementController;
     internal Camera cam;
 
     [Header("Mouse Stuff")]
@@ -31,6 +31,7 @@ public class PlayerCamera : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
 
+        playerMovementController = FindObjectOfType<PlayerMovementController>();
         cam = GetComponent<Camera>();
 
         newFOV = FOV;
@@ -44,14 +45,14 @@ public class PlayerCamera : MonoBehaviour
     {
         #region FOV
 
-        if (player.state == PlayerControls.PlayerState.Sliding || (player.state == PlayerControls.PlayerState.Jumping && player.prevState == PlayerControls.PlayerState.Sliding))
+        if (playerMovementController.state == PlayerMovementController.PlayerState.Sliding || (playerMovementController.state == PlayerMovementController.PlayerState.Jumping && playerMovementController.prevState == PlayerMovementController.PlayerState.Sliding))
         {
             newFOV = Mathf.Lerp(newFOV, slidingFOV, 8 * Time.deltaTime);
         }
         else
         {
             // Change FOV in game
-            newFOV = (player.isRunning) ?
+            newFOV = (playerMovementController.isRunning) ?
                 newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) :
                 newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
         }
@@ -72,7 +73,7 @@ public class PlayerCamera : MonoBehaviour
         mouseRotation.x = Mathf.Clamp(mouseRotation.x, -90f, 90f);
 
         // Proper Rotation
-        transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - player.viewTilt.y, mouseRotation.y, transform.rotation.z + player.viewTilt.x + shakePos));
+        transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - playerMovementController.viewTilt.y, mouseRotation.y, transform.rotation.z + playerMovementController.viewTilt.x + shakePos));
         // orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
 
         // Proper Positioning

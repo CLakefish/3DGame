@@ -5,7 +5,7 @@ using Player;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 
-public class PlayerControls : MonoBehaviour
+public class PlayerMovementController : MonoBehaviour
 {
     #region Variables
     [SerializeField] string uiSceneName;

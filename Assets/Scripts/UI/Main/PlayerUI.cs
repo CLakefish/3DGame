@@ -25,9 +25,9 @@ public class PlayerUI : MonoBehaviour
     [Header("Weapon Index")]
     [SerializeField] Image[] weapons;
 
-    PlayerController playerController;
-    PlayerControls playerControls;
-    PlayerHealth playerHealth;
+    PlayerWeaponController playerWeaponController;
+    PlayerMovementController playerMovementController;
+    HealthController healthController;
 
     [SerializeField] private float hudLerpTime;
     [SerializeField] private Transform hudTransform;
@@ -42,14 +42,14 @@ public class PlayerUI : MonoBehaviour
     void Start()
     {
         offset = hudTransform.localPosition;
-        playerController = FindObjectOfType<PlayerController>();
-        playerControls = playerController.GetComponent<PlayerControls>();
-        playerHealth = FindObjectOfType<PlayerHealth>();
+        playerWeaponController = FindObjectOfType<PlayerWeaponController>();
+        playerMovementController = playerWeaponController.GetComponent<PlayerMovementController>();
+        healthController = playerWeaponController.GetComponent<HealthController>();
 
         cam = FindObjectOfType<PlayerCamera>();
 
         // Bar color
-        healthBarColor = Color.Lerp(Color.red, Color.green, (float)playerHealth.health / playerHealth.maxHealth);
+        healthBarColor = Color.Lerp(Color.red, Color.green, (float)healthController.health / healthController.maxHealth);
 
         Camera.main.GetComponent<UniversalAdditionalCameraData>().cameraStack.Add(overlayCamera);
     }
@@ -57,24 +57,25 @@ public class PlayerUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        weaponName.text = playerController.weaponData.Name.ToString();
-        ammoCount.text = playerController.weaponData.currentBulletCount.ToString();
+        weaponName.text = playerWeaponController.weaponData.Name.ToString();
+        ammoCount.text = playerWeaponController.weaponData.currentBulletCount.ToString();
 
-        if ((playerController.weaponData.isReloading && playerController.weaponData.isEmpty) || (playerController.weaponData.currentBulletCount <= 0))
+        // TODO: fix this if-statement hell
+        if ((playerWeaponController.weaponData.isReloading && playerWeaponController.weaponData.isEmpty) || (playerWeaponController.weaponData.currentBulletCount <= 0))
         {
             ammoCount.text = "Reloading!";
         }
-        if ((playerController.weaponData.bulletType == Player.BulletType.Charge || playerController.weaponData.bulletType == Player.BulletType.ChargeBounce))
+        if ((playerWeaponController.weaponData.bulletType == Player.BulletType.Charge || playerWeaponController.weaponData.bulletType == Player.BulletType.ChargeBounce))
         {
-            if (playerController.weaponData.isReloading && playerController.weaponData.isShooting)
+            if (playerWeaponController.weaponData.isReloading && playerWeaponController.weaponData.isShooting)
             {
-                chargeCount.text = (playerController.weaponData.currentBulletCount.ToString()) + " | " + (playerController.heldTime == 1.99f ? "Firing!" : "Charge : " + playerController.heldTime.ToString((playerController.heldTime < 1 ? "0.00" : "#.00")));
+                chargeCount.text = (playerWeaponController.weaponData.currentBulletCount.ToString()) + " | " + (playerWeaponController.heldTime == 1.99f ? "Firing!" : "Charge : " + playerWeaponController.heldTime.ToString((playerWeaponController.heldTime < 1 ? "0.00" : "#.00")));
 
-                chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerController.heldTime / 2));
+                chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerWeaponController.heldTime / 2));
             }
             else
             {
-                chargeCount.text = playerController.weaponData.currentBulletCount.ToString() + " | Charge : 0.00";
+                chargeCount.text = playerWeaponController.weaponData.currentBulletCount.ToString() + " | Charge : 0.00";
             }
         }
         else 
@@ -82,8 +83,10 @@ public class PlayerUI : MonoBehaviour
             chargeCount.color = Color.white;
         }
 
-        if (playerControls.GetComponent<PlayerHealth>().isInvulnerable) hitEffect.color = new Color(1f, 0f, 0f, (playerHealth.health <= playerHealth.maxHealth / 4) ? 0.25f : 0.1f);
-
+        if (healthController.isInvulnerable)
+        {
+            hitEffect.color = new Color(1f, 0f, 0f, (healthController.health <= healthController.maxHealth / 4) ? 0.25f : 0.1f);
+        }
         hitEffect.color = new Color(1f, 0f, 0f, Mathf.Lerp(hitEffect.color.a, 0, 2f * Time.deltaTime));
 
         // UI weapon show
@@ -93,9 +96,15 @@ public class PlayerUI : MonoBehaviour
             weapons[i].color = Color.black;
             weapons[i].color = new Color(weapons[i].color.r, weapons[i].color.g, weapons[i].color.b, .75f);
 
-            if (i == playerController.selectedIndex) weapons[i].color = Color.cyan;
+            if (i == playerWeaponController.selectedIndex)
+            {
+                weapons[i].color = Color.cyan;
+            }
 
-            if (i > playerController.weaponItems.Count - 1) weapons[i].enabled = false;
+            if (i > playerWeaponController.weaponItems.Count - 1)
+            {
+                weapons[i].enabled = false;
+            }
         }
 
         UpdateHealthBar();
@@ -103,8 +112,8 @@ public class PlayerUI : MonoBehaviour
 
     void LateUpdate()
     {
-        overlayCamera.transform.position = playerControls.rb.transform.position;
-        hudTransform.localPosition = Vector3.SmoothDamp(hudTransform.localPosition, playerControls.rb.transform.position + offset, ref hudVel, hudLerpTime);
+        overlayCamera.transform.position = playerMovementController.rb.transform.position;
+        hudTransform.localPosition = Vector3.SmoothDamp(hudTransform.localPosition, playerMovementController.rb.transform.position + offset, ref hudVel, hudLerpTime);
 
         overlayCamera.transform.rotation = Camera.main.transform.rotation;
         /*
@@ -120,16 +129,16 @@ public class PlayerUI : MonoBehaviour
     void UpdateHealthBar()
     {
         // Bar fill
-        healthBar.fillAmount = (float)playerHealth.health / playerHealth.maxHealth;
+        healthBar.fillAmount = (float)healthController.health / healthController.maxHealth;
 
         healthBar.color = healthBarColor;
 
-        healthBarColor = playerHealth.isInvulnerable ? Color.cyan : Color.Lerp(Color.red, Color.green, (float)playerHealth.health / playerHealth.maxHealth);
+        healthBarColor = healthController.isInvulnerable ? Color.cyan : Color.Lerp(Color.red, Color.green, (float)healthController.health / healthController.maxHealth);
 
-        healthText.text = playerHealth.health.ToString();
+        healthText.text = healthController.health.ToString();
 
         // Effect bar Fill
-        effectBar.fillAmount = Mathf.Lerp(effectBar.fillAmount, (float)playerHealth.health / playerHealth.maxHealth, 5 * Time.deltaTime);
+        effectBar.fillAmount = Mathf.Lerp(effectBar.fillAmount, (float)healthController.health / healthController.maxHealth, 5 * Time.deltaTime);
     }
 
 }

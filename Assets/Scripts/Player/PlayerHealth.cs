@@ -6,44 +6,45 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class PlayerHealth : MonoBehaviour, IHealth
+public class PlayerHealth : MonoBehaviour
 {
     [Space()]
     [Header("Health")]
     [SerializeField] public float invulnerabilitySeconds;
     [SerializeField] public bool hasInvulnerability = false;
 
-    public Rigidbody rb;
-
-    // we are changing this later once i understand interfaces better
-    public bool isInvulnerable { get; set; }
-    [SerializeField] public int health { get; set; }
-    public int maxHealth { get; set; }
+    [HideInInspector] public Rigidbody rb;
+    [HideInInspector] public HealthController healthController;
     PlayerCamera cam;
 
-    // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
+        healthController = GetComponent<HealthController>();
+        rb = GetComponent<Rigidbody>();
         cam = FindObjectOfType<PlayerCamera>();
 
-        maxHealth = health;
+        healthController.onDeath += OnDeath;
+    }
+    void OnDisable()
+    {
+        healthController.onDeath -= OnDeath;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.R) || (health <= 0 && Input.GetMouseButtonDown(0)))
+        if (Input.GetKey(KeyCode.R) || (healthController.health <= 0 && Input.GetMouseButtonDown(0)))
         {
             ResetLevel();
         }
     }
 
-    public void OnDeath()
+    void OnDeath()
     {
         StartCoroutine(cam.ShakeCamera(4f, .25f));
 
-        health = 0;
-        Time.timeScale = 0f;
+        healthController.health = 0;
+        Time.timeScale = 0;
         //throw new System.NotImplementedException();
     }
 
@@ -51,37 +52,6 @@ public class PlayerHealth : MonoBehaviour, IHealth
     {
         Time.timeScale = 1;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
-    public void Hit(int damage)
-    {
-        if (isInvulnerable || damage == 0)
-        {
-            return;
-        } 
-        health = health - damage;
-
-        if (health <= 0)
-        {
-            OnDeath();
-            isInvulnerable = true;
-            return;
-        }
-
-        if (hasInvulnerability)
-        {
-            StartCoroutine(Invulnerable(invulnerabilitySeconds));
-        }
-        //throw new System.NotImplementedException();
-    }
-
-    public IEnumerator Invulnerable(float seconds)
-    {
-        isInvulnerable = true;
-
-        yield return new WaitForSeconds(seconds);
-
-        isInvulnerable = false;
     }
 
     public IEnumerator Knockback(Vector3 pos, float knockbackForce, bool stopForce = true)
@@ -92,15 +62,5 @@ public class PlayerHealth : MonoBehaviour, IHealth
 
         yield return new WaitForSeconds(0.05f);
         rb.AddForce(new Vector3(-pos.x, pos.y, -pos.z) * knockbackForce, ForceMode.Impulse);
-    }
-
-    public void GainHP(int hp)
-    {
-        health = health + hp;
-
-        if (health > maxHealth)
-        {
-            health = Mathf.CeilToInt(maxHealth);
-        }
     }
 }

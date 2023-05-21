@@ -4,13 +4,13 @@ using UnityEngine;
 using Player;
 using UnityEngine.AI;
 
-public class PlayerController : MonoBehaviour
+public class PlayerWeaponController : MonoBehaviour
 {
     #region Parameters
 
     [Header("Assignables")]
     internal Rigidbody rb;
-    internal PlayerCamera Camera;
+    internal PlayerCamera playerCamera;
     [SerializeField] float explosionStrength = 1;
 
     [Header("Weapon Information")]
@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
-        Camera = FindObjectOfType<PlayerCamera>();
+        playerCamera = FindObjectOfType<PlayerCamera>();
 
         weaponData = weaponItems[0].weaponData;
         weaponData.currentBulletCount = weaponData.bulletCount;
@@ -185,7 +185,7 @@ public class PlayerController : MonoBehaviour
             Ray ray = new Ray(rb.transform.position, (obj.transform.position - rb.transform.position).normalized); 
 
             // Trail rendering
-            TrailRenderer trail = Instantiate(weaponData.bulletTrail, rb.transform.position, Camera.transform.rotation);
+            TrailRenderer trail = Instantiate(weaponData.bulletTrail, rb.transform.position, playerCamera.transform.rotation);
 
             // Raycast Hit reference
             RaycastHit raycast;
@@ -204,8 +204,14 @@ public class PlayerController : MonoBehaviour
             bool hit = Physics.Raycast(ray, out raycast, 1000);
 
             // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
-            if (hit) StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, weaponData.bulletDamage, weaponData.trailSpeed, true));
-            else StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, false, weaponData.bulletDamage, weaponData.trailSpeed));
+            if (hit)
+            {
+                StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, weaponData.bulletDamage, weaponData.trailSpeed, true));
+            }
+            else
+            {
+                StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, false, weaponData.bulletDamage, weaponData.trailSpeed));
+            }
         }
         else
         {
@@ -213,7 +219,7 @@ public class PlayerController : MonoBehaviour
             Ray ray = new Ray(firePos.transform.position, firePos.transform.rotation * Vector3.forward);
 
             // Trail rendering
-            TrailRenderer trail = Instantiate(weaponData.bulletTrail, firePos.transform.position, Camera.transform.rotation);
+            TrailRenderer trail = Instantiate(weaponData.bulletTrail, firePos.transform.position, playerCamera.transform.rotation);
 
             // Raycast Hit reference
             RaycastHit raycast;
@@ -224,8 +230,6 @@ public class PlayerController : MonoBehaviour
             // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
             if (Physics.Raycast(ray, out raycast, 10000, layers))
             {
-                Debug.Log("Hit!");
-
                 StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, weaponData.bulletDamage, weaponData.trailSpeed));
             }
             else
@@ -255,28 +259,27 @@ public class PlayerController : MonoBehaviour
         {
             if (!isFiring)
             {
-                heldTime = 0f;
+                heldTime = 0;
                 break;
             }
             else
             {
+                // ?????????????????
+                // todo: fix this garbage
                 if (heldTime > 0.5f)
                 {
                     weaponData.bounceCount = bounceCount + 1;
                     weaponData.trailSpeed = tempStore + 35f;
-                    Debug.Log("1");
                 }
                 if (heldTime > 1f)
                 {
                     weaponData.bounceCount = bounceCount + 2;
                     weaponData.trailSpeed = tempStore * 2f;
-                    Debug.Log("2");
                 }
                 if (heldTime > 2f)
                 {
                     weaponData.bounceCount = bounceCount + 3;
                     weaponData.trailSpeed = tempStore * 3f;
-                    Debug.Log("3");
                     heldTime = 0f;
                     break;
                 }
@@ -371,26 +374,25 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Explode(Vector3 pos, float knockbackValue, float explosionSize)
+    void Explode(Vector3 explosionPos, float knockbackValue, float explosionSize)
     {
-        //float rad = 5f;
-
-
-
         // For each possible collider, get the closest one then return if you're hitting it.
-        foreach (var collider in Physics.OverlapSphere(pos, explosionSize))
+        foreach (var collider in Physics.OverlapSphere(explosionPos, explosionSize))
         {
-            RaycastHit hit;
+            Vector2 difference = collider.transform.position - explosionPos;
 
-            if (Physics.Raycast(new Ray(pos, (collider.transform.position - pos)), out hit, explosionSize))
+            if (collider.TryGetComponent(out Health currentHealth))
             {
-                if (collider.TryGetComponent(out Enemy currentEnemy))
+                if (currentHealth.transform != transform)
                 {
-                    float proximity = -hit.distance + explosionSize;
-
-                    currentEnemy.Hit(weaponData.bulletDamage);
-                    // todo: add knockback here with (hit.point, proximity * knockbackValue)
+                    currentHealth.Hit(weaponData.bulletDamage);
                 }
+            }
+            if (collider.TryGetComponent(out Rigidbody currentRigidbody))
+            {
+                float proximity = -difference.magnitude + explosionSize;
+                // todo: add knockback here with (hit.point, proximity * knockbackValue)
+                currentRigidbody.velocity += ;
             }
         }
 

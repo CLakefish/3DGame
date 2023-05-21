@@ -120,7 +120,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerObj: {fileID: 6182660525249806665}
-  player: {fileID: 6182660525145688334}
   sensX: 3
   sensY: 3
   yOffset: 0.5
@@ -216,6 +215,7 @@ GameObject:
   - component: {fileID: 6182660525145688321}
   - component: {fileID: 6182660525145688322}
   - component: {fileID: 6182660525145688334}
+  - component: {fileID: 4540968967703131144}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -252,6 +252,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 440215be28c41f74691f786c8bebac90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  explosionStrength: 1
   weaponItems:
   - {fileID: 11400000, guid: b53589c6ab9894d43a4a5c5ef2dc8dad, type: 2}
   weaponData:
@@ -294,12 +295,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 701360d91d6aba542b9ef7587fb933e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 100
   invulnerabilitySeconds: 0.3
-  isInvulnerable: 0
   hasInvulnerability: 1
   rb: {fileID: 6182660525249806666}
-  maxHealth: 100
 --- !u!114 &6182660525145688322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,9 +343,24 @@ MonoBehaviour:
   slideDuration: 0
   jumpTime: 0.19
   jumpSpeed: 12.65
-  jumpBufferTime: 0.1
   jumpCoyoteTime: 0.1
+  jumpBufferTime: 0.1
   isRunning: 0
+--- !u!114 &4540968967703131144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6182660525145688333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a657c0b05c83294a9dec2a152eda7ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  health: 50
+  maxHealth: 50
+  isInvulnerable: 0
 --- !u!1 &6182660525249806664
 GameObject:
   m_ObjectHideFlags: 0
