@@ -23,13 +23,13 @@ public class RotateToCam : MonoBehaviour
         float signedAngle = Vector3.SignedAngle(Sprite.transform.forward, camForward, Vector3.up);
         float angle = Mathf.Abs(signedAngle);
 
-        if (angle < backAngle) moveDir = new Vector2(0f, -1f);
+        if (angle < backAngle) moveDir = new Vector2(0f, 1f);
         else if (angle < sideAngle)
         {
             if (signedAngle < 0) moveDir = new Vector2(-1f, 0f);
             else moveDir = new Vector2(1f, 0f);
         }
-        else moveDir = new Vector2(0f, 1f);
+        else moveDir = new Vector2(0f, -1f);
 
         //if (spriteAnim == null) return;
 

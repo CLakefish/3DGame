@@ -9,17 +9,33 @@ using Player;
 
 public enum EnemyType
 {
-    Melee,
+    Punch,
+    Shoot,
 }
 
 public class Enemy : Health
 {
+    [Header("Get Components")]
     public NavMeshAgent navigation;
     public PlayerControls player;
+
+    [Header("Finding")]
     public Vector3 playerPos;
     public float knockBackTime;
     public bool knockBack = false;
     public bool grounded = false;
+
+    [Header("Attack Type")]
+    [SerializeField] EnemyType attackType;
+    [SerializeField] int damage;
+    [SerializeField] float shootInbetweenTime;
+    float prevShootTime;
+
+    [Header("Trails")]
+    [SerializeField] TrailRenderer TrailRenderer;
+    [SerializeField] float trailSpeed;
+    [SerializeField] float bulletSpread;
+    [SerializeField] int pierce;
 
     // Start is called before the first frame update
     void Start()
@@ -34,11 +50,20 @@ public class Enemy : Health
         grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, player.groundLayer);
 
         if (!knockBack && grounded) FindObj();
-        if (!knockBack && grounded && navigation.isOnNavMesh) navigation.SetDestination(playerPos);
+        if (!knockBack && grounded) navigation.SetDestination(playerPos);
 
-        if (Vector3.Distance(rb.transform.position, player.rb.transform.position) <= 2)
+        if (Vector3.Distance(rb.transform.position, player.rb.transform.position) <= 2 || attackType == EnemyType.Shoot)
         {
-            player.GetComponent<PlayerHealth>().Hit(Random.Range(1, 5), rb.transform.position, 10f);
+            switch (attackType)
+            {
+                case (EnemyType.Punch):
+                    player.GetComponent<PlayerHealth>().Hit(damage, rb.transform.position, 10f);
+                    break;
+
+                case (EnemyType.Shoot):
+                    ShootProjectile();
+                    break;
+            }
         }
 
         Debug.Log(knockBack);
@@ -78,6 +103,32 @@ public class Enemy : Health
     void FindObj()
     {
         playerPos = player.rb.transform.position;
+    }
+    void ShootProjectile()
+    {
+        if (Time.time > shootInbetweenTime + prevShootTime + Random.Range(-0.1f, 0.1f))
+        {
+            prevShootTime = Time.time;
+
+            ProjectileCast();
+        }
+        else return;
+    }
+
+    void ProjectileCast()
+    {
+        // Trail rendering
+        Rigidbody trail = Instantiate(TrailRenderer, rb.transform.position, player.cam.transform.rotation).GetComponent<Rigidbody>();
+        EnemyProjectile p = trail.GetComponent<EnemyProjectile>();
+
+        p.pierce = pierce;
+        p.damage = damage;
+
+        while (trail != null)
+        {
+            trail.AddForce((player.rb.transform.position - rb.transform.position).normalized * trailSpeed, ForceMode.VelocityChange);
+            return;
+        }
     }
 
     IEnumerator NavKnockback()
