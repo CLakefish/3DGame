@@ -58,18 +58,10 @@ namespace Player
 
         public bool playerCanBeHit;
         public float explosionRadius;
+        public float explosionStrength;
 
         internal float currentBulletCount,
                        previousFireTime;
-    }
-
-    public abstract class Health : MonoBehaviour
-    {
-
-        public abstract void Hit(int damage, Vector3 pos, float knockbackForce);
-
-        public abstract void OnDeath();
-
     }
 
     public static class MovementHelp

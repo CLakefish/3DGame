@@ -8,11 +8,6 @@ using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [Space()]
-    [Header("Health")]
-    [SerializeField] public float invulnerabilitySeconds;
-    [SerializeField] public bool hasInvulnerability = false;
-
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public HealthController healthController;
     PlayerCamera cam;
@@ -42,10 +37,7 @@ public class PlayerHealth : MonoBehaviour
     void OnDeath()
     {
         StartCoroutine(cam.ShakeCamera(4f, .25f));
-
-        healthController.health = 0;
         Time.timeScale = 0;
-        //throw new System.NotImplementedException();
     }
 
     public void ResetLevel()
@@ -54,6 +46,7 @@ public class PlayerHealth : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    /*
     public IEnumerator Knockback(Vector3 pos, float knockbackForce, bool stopForce = true)
     {
         pos = (pos - rb.transform.position).normalized;
@@ -63,4 +56,5 @@ public class PlayerHealth : MonoBehaviour
         yield return new WaitForSeconds(0.05f);
         rb.AddForce(new Vector3(-pos.x, pos.y, -pos.z) * knockbackForce, ForceMode.Impulse);
     }
+    */
 }

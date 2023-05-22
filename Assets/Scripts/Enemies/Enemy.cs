@@ -13,9 +13,6 @@ public enum EnemyType
 
 public class Enemy : MonoBehaviour
 {
-    public bool isInvulnerable { get; set; }
-    public int health { get; set; }
-    public int maxHealth { get; set; }
     public NavMeshAgent navigation;
     PlayerMovementController playerMovementController;
     PlayerHealth playerHealth;
@@ -43,13 +40,21 @@ public class Enemy : MonoBehaviour
     {
         grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, playerMovementController.groundLayer);
 
-        if (!knockBack && grounded) FindObj();
-        if (!knockBack && grounded && navigation.isOnNavMesh) navigation.SetDestination(playerPos);
-
-        if (!navigation.pathPending && navigation.remainingDistance <= navigation.stoppingDistance && (!navigation.hasPath || navigation.velocity.sqrMagnitude == 0f) && Vector3.Distance(rb.transform.position, playerMovementController.rb.transform.position) <= 3.5f)
+        if (!knockBack && grounded)
         {
+            FindObj();
+        }
+        if (!knockBack && grounded && navigation.isOnNavMesh)
+        {
+            navigation.SetDestination(playerPos);
+        }
+
+        // maybe turn this into some sort of collision event?
+        if (navigation.enabled && !navigation.pathPending && navigation.remainingDistance <= navigation.stoppingDistance && (!navigation.hasPath || navigation.velocity.sqrMagnitude == 0f) && Vector3.Distance(rb.transform.position, playerMovementController.rb.transform.position) <= 3.5f)
+        {
+            // player is hit
             playerHealth.healthController.ChangeHealth(-Random.Range(1, 5));
-            // todo: add knockback here using rb.transform.position, 10f
+            Knockback(10, rb.transform.position);
         }
     }
 
@@ -59,34 +64,13 @@ public class Enemy : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // When the enemy is hit it will do this
-    public void Hit(int damage)
-    {
-        if (isInvulnerable)
-        {
-            return;
-        }
-        health -= damage;
-
-        if (health <= 0)
-        {
-            OnDeath();
-            isInvulnerable = true;
-            return;
-        }
-
-        // if (hasInvulnerability) StartCoroutine(Invulnerable(invulnerabilitySeconds));
-
-        //throw new System.NotImplementedException();
-    }
-
     void Knockback(float knockbackForce, Vector3 hitPoint)
     {
         if (!knockBack)
         {
             return;
         }
-        // StartCoroutine(Knockback(pos, knockbackForce));
+        StartCoroutine(KnockbackEnemy(knockbackForce, hitPoint));
         StartCoroutine(NavKnockback());
     }
 
@@ -95,11 +79,22 @@ public class Enemy : MonoBehaviour
         playerPos = playerMovementController.rb.transform.position;
     }
 
-    IEnumerator NavKnockback()
+    public IEnumerator KnockbackEnemy(float knockbackForce, Vector3 position)
+    {
+        Vector3 direction = (position - rb.transform.position).normalized;
+
+        rb.velocity = new Vector3(0f, 0f, 0f);
+
+        yield return new WaitForSeconds(0.0001f);
+
+        rb.AddForce(new Vector3(-direction.x, direction.y, -direction.z) * knockbackForce, ForceMode.Impulse);
+    }
+
+    public IEnumerator NavKnockback()
     {
         navigation.enabled = false;
         knockBack = true;
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(1f);
 
         while (knockBack == true)
         {

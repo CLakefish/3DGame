@@ -9,19 +9,39 @@ public class HealthController : MonoBehaviour
     
     public int health;
     public int maxHealth;
+    float invulnerabilityTimer;
+    public float invulnerabilitySeconds;
     public bool isInvulnerable;
-    public void Start()
+    void Start()
     {
         maxHealth = health;
+    }
+    void Update()
+    {
+        invulnerabilityTimer = Mathf.MoveTowards(invulnerabilityTimer, 0, Time.deltaTime);
     }
 
     public void ChangeHealth(int healthChange)
     {
+        if (invulnerabilityTimer > 0)
+        {
+            return;
+        }
         health += healthChange;
+
+        if (healthChange < 0)
+        {
+            invulnerabilityTimer = invulnerabilitySeconds;
+        }
 
         if (health > maxHealth)
         {
             health = Mathf.CeilToInt(maxHealth);
+        }
+        if (health <= 0)
+        {
+            health = 0;
+            onDeath.Invoke();
         }
     }
 

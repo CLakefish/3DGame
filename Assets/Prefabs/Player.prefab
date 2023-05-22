@@ -252,7 +252,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 440215be28c41f74691f786c8bebac90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionStrength: 1
   weaponItems:
   - {fileID: 11400000, guid: b53589c6ab9894d43a4a5c5ef2dc8dad, type: 2}
   weaponData:
@@ -275,6 +274,7 @@ MonoBehaviour:
     explodeOnDeath: 0
     playerCanBeHit: 0
     explosionRadius: 0
+    explosionStrength: 0
   selectedIndex: 0
   layers:
     serializedVersion: 2
@@ -298,6 +298,7 @@ MonoBehaviour:
   invulnerabilitySeconds: 0.3
   hasInvulnerability: 1
   rb: {fileID: 6182660525249806666}
+  healthController: {fileID: 0}
 --- !u!114 &6182660525145688322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -358,8 +359,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a657c0b05c83294a9dec2a152eda7ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 50
-  maxHealth: 50
+  health: 100
+  maxHealth: 100
+  invulnerabilitySeconds: 0.3
   isInvulnerable: 0
 --- !u!1 &6182660525249806664
 GameObject:

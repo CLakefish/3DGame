@@ -11,7 +11,6 @@ public class PlayerWeaponController : MonoBehaviour
     [Header("Assignables")]
     internal Rigidbody rb;
     internal PlayerCamera playerCamera;
-    [SerializeField] float explosionStrength = 1;
 
     [Header("Weapon Information")]
     public List<WeaponItem> weaponItems;
@@ -265,7 +264,7 @@ public class PlayerWeaponController : MonoBehaviour
             else
             {
                 // ?????????????????
-                // todo: fix this garbage
+                // todo: fix this
                 if (heldTime > 0.5f)
                 {
                     weaponData.bounceCount = bounceCount + 1;
@@ -331,16 +330,21 @@ public class PlayerWeaponController : MonoBehaviour
 
             if (raycast.collider.gameObject.tag == "Enemy")
             {
-                Enemy e = raycast.collider.GetComponent<Enemy>();
-                if (e != null) e.Hit(weaponData.bulletDamage);
-                // todo: add knockback here
+                if (raycast.collider.TryGetComponent(out HealthController currentHealth))
+                {
+                    currentHealth.ChangeHealth(-weaponData.bulletDamage);
+                }
+                if (raycast.rigidbody)
+                {
+                    raycast.rigidbody.velocity += dir * weaponData.enemyKnockback;
+                }
             }
 
             Destroy(obj, 2f);
 
             if (weaponData.explodeOnDeath && trail != null)
             {
-                Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius);
+                Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
             }
 
             if ((weaponData.bulletType == BulletType.Bounce || weaponData.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
@@ -366,7 +370,7 @@ public class PlayerWeaponController : MonoBehaviour
             {
                 if (weaponData.explodeOnDeath)
                 {
-                    Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius);
+                    Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
                 }
             }
 
@@ -374,29 +378,32 @@ public class PlayerWeaponController : MonoBehaviour
         }
     }
 
-    void Explode(Vector3 explosionPos, float knockbackValue, float explosionSize)
+    void Explode(Vector3 explosionPos, float knockbackValue, float explosionSize, float explosionStrength)
     {
         // For each possible collider, get the closest one then return if you're hitting it.
         foreach (var collider in Physics.OverlapSphere(explosionPos, explosionSize))
         {
-            Vector2 difference = collider.transform.position - explosionPos;
-
-            if (collider.TryGetComponent(out Health currentHealth))
+            Vector3 difference = collider.transform.position - explosionPos;
+            
+            if (collider.TryGetComponent(out HealthController currentHealth))
             {
                 if (currentHealth.transform != transform)
                 {
-                    currentHealth.Hit(weaponData.bulletDamage);
+                    currentHealth.ChangeHealth(-weaponData.bulletDamage);
                 }
             }
             if (collider.TryGetComponent(out Rigidbody currentRigidbody))
             {
-                float proximity = -difference.magnitude + explosionSize;
-                // todo: add knockback here with (hit.point, proximity * knockbackValue)
-                currentRigidbody.velocity += ;
+                float proximity = -((difference.magnitude / explosionSize) - 1);
+                currentRigidbody.velocity += difference.normalized * proximity * explosionStrength;
+                if (collider.TryGetComponent(out Enemy currentEnemy))
+                {
+                    currentEnemy.StartCoroutine(currentEnemy.NavKnockback());
+                }
             }
         }
 
-        Instantiate(explosion, pos, Quaternion.identity);
+        Instantiate(explosion, explosionPos, Quaternion.identity);
     }
 
     #endregion

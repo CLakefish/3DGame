@@ -32,3 +32,4 @@ MonoBehaviour:
     explodeOnDeath: 0
     playerCanBeHit: 0
     explosionRadius: 5.12
+    explosionStrength: 3
