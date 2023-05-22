@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 
-[CanEditMultipleObjects]
+//[CanEditMultipleObjects]
 public class OpenObj : MonoBehaviour
 {
     [Header("Positions")]
@@ -59,6 +59,7 @@ public class OpenObj : MonoBehaviour
     }
 }
 
+/*
 [CanEditMultipleObjects]
 [CustomEditor(typeof(OpenObj))]
 public class OpenObjEditor : Editor
@@ -94,7 +95,7 @@ public class OpenObjEditor : Editor
         base.OnInspectorGUI();
     }
 }
-
+*/
 public enum Type
 {
     Shut,
@@ -103,7 +104,7 @@ public enum Type
 }
 
 [Serializable]
-[CanEditMultipleObjects]
+//[CanEditMultipleObjects]
 public struct DData
 {
     public string Name;

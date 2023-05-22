@@ -49,22 +49,27 @@ public class Enemy : Health
     {
         grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, player.groundLayer);
 
-        if (!knockBack && grounded) FindObj();
-        if (!knockBack && grounded) navigation.SetDestination(playerPos);
+        float distance = Vector3.Distance(rb.transform.position, player.rb.transform.position);
+        bool run = false;
 
-        if (Vector3.Distance(rb.transform.position, player.rb.transform.position) <= 2 || attackType == EnemyType.Shoot)
+        if (distance <= navigation.stoppingDistance || attackType == EnemyType.Shoot)
         {
             switch (attackType)
             {
                 case (EnemyType.Punch):
                     player.GetComponent<PlayerHealth>().Hit(damage, rb.transform.position, 10f);
+
                     break;
 
                 case (EnemyType.Shoot):
-                    ShootProjectile();
+                    if (distance >= navigation.stoppingDistance) ShootProjectile();
+                    else run = true;
                     break;
             }
         }
+
+        if (!knockBack && grounded) FindObj();
+        if (!knockBack && grounded) navigation.SetDestination((run) ? -playerPos : playerPos);
 
         Debug.Log(knockBack);
     }

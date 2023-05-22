@@ -392,6 +392,7 @@ public class PlayerController : MonoBehaviour
                     float dist = (1 - Mathf.Clamp01(hit.distance / explosionSize)) * knockbackValue;
 
                     e.Hit(weaponData.bulletDamage, hit.point, dist);
+                    e.rb.AddForce((e.rb.transform.position - hit.point).normalized + Vector3.up * dist, ForceMode.Impulse);
                 }
             }
         }
