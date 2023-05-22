@@ -48,7 +48,7 @@ public class Enemy : Health
     void Update()
     {
         grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, player.groundLayer);
-
+            
         float distance = Vector3.Distance(rb.transform.position, player.rb.transform.position);
         bool run = false;
 
@@ -107,6 +107,7 @@ public class Enemy : Health
 
     void FindObj()
     {
+        if (Vector3.Distance(rb.transform.position, player.rb.transform.position) >= 10 || Vector3.Distance(rb.transform.position, player.rb.transform.position) == navigation.stoppingDistance) playerPos = rb.transform.position;
         playerPos = player.rb.transform.position;
     }
     void ShootProjectile()
