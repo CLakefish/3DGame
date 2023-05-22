@@ -262,7 +262,7 @@ public class PlayerMovementController : MonoBehaviour
 
                 }
 
-                Vector3 inputDir = viewPosition.forward * inputs.y + viewPosition.right * inputs.x;
+                Vector3 inputDir = cam.lookRotation.forward * inputs.y + viewPosition.right * inputs.x;
                 inputDir = new Vector3(inputDir.x, 0f, inputDir.z);
 
                 if (!OnSlope() || rb.velocity.y > -.1f) {
@@ -300,7 +300,7 @@ public class PlayerMovementController : MonoBehaviour
         #endregion
 
         // Get the move direction of the viewPosition multiplied by the move speed
-        moveDir = (viewPosition.forward * inputs.y + viewPosition.right * inputs.x).normalized;
+        moveDir = (cam.lookRotation.forward * inputs.y + viewPosition.right * inputs.x).normalized;
         Vector3 goalVelocity = moveDir * moveSpeed;
         goalVelocity.y = rb.velocity.y;
 

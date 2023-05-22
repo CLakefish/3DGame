@@ -25,6 +25,7 @@ public class PlayerCamera : MonoBehaviour
     public bool CanRotate = true;
     Vector2 mouseRotation;
     internal Vector2 mousePos;
+    [SerializeField] public Transform lookRotation;
 
     // Start is called before the first frame update
     void Start()
@@ -73,7 +74,11 @@ public class PlayerCamera : MonoBehaviour
         mouseRotation.x = Mathf.Clamp(mouseRotation.x, -90f, 90f);
 
         // Proper Rotation
-        transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - playerMovementController.viewTilt.y, mouseRotation.y, transform.rotation.z + playerMovementController.viewTilt.x + shakePos));
+        Vector3 direction = new Vector3(mouseRotation.x - playerMovementController.viewTilt.y, mouseRotation.y, transform.rotation.z + playerMovementController.viewTilt.x + shakePos);
+        
+        transform.rotation = Quaternion.Euler(direction);
+        lookRotation.rotation = Quaternion.Euler(new Vector3(0, direction.y, direction.z));
+
         // orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
 
         // Proper Positioning
