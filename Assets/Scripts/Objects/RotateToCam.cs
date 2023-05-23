@@ -7,59 +7,35 @@ public class RotateToCam : MonoBehaviour
     [Header("Follow Type")]
     public bool rotateToCam;
 
-    [Header("Camera")]
-    [SerializeField] Transform mainCamera;
-    Quaternion originalRotation;
-    public float currentIndex;
-    float angle;
-
-    [Header("Object Refernces")]
-    Vector3 targetPos;
-    Vector3 targetDir;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        originalRotation = transform.rotation;
-
-        mainCamera = Camera.main.transform;
-    }
+    [Header("Sprites and Angles")]
+    [SerializeField] Transform Sprite;
+    [SerializeField] Animator spriteAnim;
+    [SerializeField]
+    public float backAngle,
+                                  sideAngle;
+    Vector2 moveDir;
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (rotateToCam) transform.rotation = mainCamera.transform.rotation * originalRotation;
-        else
+        Vector3 camForward = new Vector3(Camera.main.transform.forward.x, 0f, Camera.main.transform.forward.z);
+        Debug.DrawRay(Camera.main.transform.position, camForward * 5f, Color.green);
+
+        float signedAngle = Vector3.SignedAngle(Sprite.transform.forward, camForward, Vector3.up);
+        float angle = Mathf.Abs(signedAngle);
+
+        if (angle < backAngle) moveDir = new Vector2(0f, 1f);
+        else if (angle < sideAngle)
         {
-            targetPos = new Vector3(mainCamera.transform.position.x, transform.position.y, mainCamera.transform.position.z);
-            targetDir = targetPos - transform.position;
-
-            angle = Vector3.SignedAngle(targetDir, transform.forward, Vector3.up);
-
-            currentIndex = GetPos(angle);
+            if (signedAngle < 0) moveDir = new Vector2(-1f, 0f);
+            else moveDir = new Vector2(1f, 0f);
         }
-    }
+        else moveDir = new Vector2(0f, -1f);
 
-    float GetPos(float angle)
-    {
-        if (angle > -22.5f && angle < 22.6f)
-            return 0;
-        if (angle >= 22.5f && angle < 67.5f)
-            return 7;
-        if (angle >= 67.5f && angle < 112.5f)
-            return 6;
-        if (angle >= 112.5f && angle < 157.5f)
-            return 5;
+        //if (spriteAnim == null) return;
 
-        if (angle <= -157.5 || angle >= 157.5f)
-            return 4;
-        if (angle >= -157.4f && angle < -112.5f)
-            return 3;
-        if (angle >= -112.5f && angle < -67.5f)
-            return 2;
-        if (angle >= -67.5f && angle <= -22.5f)
-            return 1;
-
-        return angle;
+        return;
+        spriteAnim.SetFloat("Position X", moveDir.x);
+        spriteAnim.SetFloat("Position Y", moveDir.y);
     }
 }
