@@ -65,7 +65,7 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
         Time.timeScale = 1;
         Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false;
-        PlayerCamera.CanRotate = true;
+        //PlayerCamera.CanRotate = true;
     }
     void Pause()
     {
@@ -74,7 +74,7 @@ public class PauseMenu : MonoBehaviour
         isPaused = true;
         Time.timeScale = 0;
         Cursor.lockState = CursorLockMode.None; Cursor.visible = true;
-        PlayerCamera.CanRotate = false;
+        //PlayerCamera.CanRotate = false;
     }
     public void OpenSettings()
     {
