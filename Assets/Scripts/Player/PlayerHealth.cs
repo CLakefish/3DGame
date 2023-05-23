@@ -28,7 +28,7 @@ public class PlayerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.R) || (healthController.health <= 0 && Input.GetMouseButtonDown(0)))
+        if (Input.GetKey(KeyCode.Backspace) || (healthController.health <= 0 && Input.GetMouseButtonDown(0)))
         {
             ResetLevel();
         }

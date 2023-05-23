@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 1972184660938667090}
   - component: {fileID: 5407210002054650977}
   - component: {fileID: 8963626903975928264}
+  - component: {fileID: 1773904580029089122}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -147,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc9ca679d89676e4398b7de8fedef466, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  navigation: {fileID: 0}
+  navigation: {fileID: 1773904580029089122}
   playerPos: {x: 0, y: 0, z: 0}
   knockBackTime: 2
   knockBack: 0
@@ -182,6 +183,28 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: -0.012134194, y: 0, z: 0}
+--- !u!195 &1773904580029089122
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1972184660938667091}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 10
+  m_Acceleration: 300
+  avoidancePriority: 1
+  m_AngularSpeed: 300
+  m_StoppingDistance: 2.25
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 0
+  m_AutoRepath: 0
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 2
 --- !u!1 &6354568033290878373
 GameObject:
   m_ObjectHideFlags: 0

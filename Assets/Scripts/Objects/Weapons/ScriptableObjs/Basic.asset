@@ -15,21 +15,21 @@ MonoBehaviour:
   weaponData:
     Name: The burger blaster
     weapon: 0
-    bulletType: 3
+    bulletType: 0
     bulletDamage: 1
     timeBetweenShots: 0.1
     bulletCount: 12
-    bulletSpread: 0
+    bulletSpread: 0.035
     reloadTime: 0
-    bounceCount: 1
+    bounceCount: 0
     enemyKnockback: 34.3
     bulletTrail: {fileID: 6727316020457667749, guid: 9fbf7d3363f565f439e53a9d8fcd7c13, type: 3}
     trailSpeed: 95.29
     hitParticle: {fileID: 8890879366852258217, guid: b7e8e86824d5d0c4ab8dc9718f7015c9, type: 3}
     isReloading: 0
     isEmpty: 0
-    isShooting: 1
-    explodeOnDeath: 1
-    playerCanBeHit: 1
+    isShooting: 0
+    explodeOnDeath: 0
+    playerCanBeHit: 0
     explosionRadius: 10.63
     explosionStrength: 25

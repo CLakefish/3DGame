@@ -35,11 +35,15 @@ public class PlayerWeaponController : MonoBehaviour
         rb = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
         playerCamera = FindObjectOfType<PlayerCamera>();
 
-        weaponData = weaponItems[0].weaponData;
-        weaponData.currentBulletCount = weaponData.bulletCount;
+        if (weaponItems == null) return;
+        else
+        {
+            weaponData = weaponItems[0].weaponData;
+            weaponData.currentBulletCount = weaponData.bulletCount;
 
-        weaponData.isReloading = false;
-        weaponData.isEmpty = false;
+            weaponData.isReloading = false;
+            weaponData.isEmpty = false;
+        }
     }
 
     void Update()

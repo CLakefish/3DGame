@@ -8856,37 +8856,11 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &279385563
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 279385564}
-  m_Layer: 0
-  m_Name: LookRotation
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &279385564
+--- !u!4 &279385564 stripped
 Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 755574872392105841, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
+  m_PrefabInstance: {fileID: 1818900358}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 279385563}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1331943315}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!43 &290932735
 Mesh:
   m_ObjectHideFlags: 0
@@ -15215,7 +15189,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh99904
+  m_Name: pb_Mesh46022
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -23235,7 +23209,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh99450
+  m_Name: pb_Mesh37560
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -30110,11 +30084,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!4 &1331943315 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6182660525249806665, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
-  m_PrefabInstance: {fileID: 1818900358}
-  m_PrefabAsset: {fileID: 0}
 --- !u!43 &1340416391
 Mesh:
   m_ObjectHideFlags: 0
@@ -31869,7 +31838,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh100410
+  m_Name: pb_Mesh38522
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -34387,33 +34356,6 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &1632106583 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1972184660938667091, guid: a8d31a2d045193546bce5f79f23d9545, type: 3}
-  m_PrefabInstance: {fileID: 1757111352}
-  m_PrefabAsset: {fileID: 0}
---- !u!195 &1632106584
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1632106583}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.5
-  m_Speed: 10
-  m_Acceleration: 300
-  avoidancePriority: 1
-  m_AngularSpeed: 300
-  m_StoppingDistance: 2.25
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 0
-  m_AutoRepath: 0
-  m_Height: 2
-  m_BaseOffset: 1
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 2
 --- !u!1 &1640787573
 GameObject:
   m_ObjectHideFlags: 0
@@ -48031,10 +47973,6 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 80
       objectReference: {fileID: 0}
-    - target: {fileID: 1972184660938667090, guid: a8d31a2d045193546bce5f79f23d9545, type: 3}
-      propertyPath: navigation
-      value: 
-      objectReference: {fileID: 1632106584}
     - target: {fileID: 1972184660938667091, guid: a8d31a2d045193546bce5f79f23d9545, type: 3}
       propertyPath: m_Name
       value: Enemy
@@ -49394,18 +49332,6 @@ PrefabInstance:
     - target: {fileID: 6182660525145688333, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
       propertyPath: m_Name
       value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 6182660525145688334, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
-      propertyPath: slideSpeed
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 6182660525145688334, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
-      propertyPath: acceleration
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 6182660525145688334, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
-      propertyPath: slideDuration
-      value: 142.19
       objectReference: {fileID: 0}
     - target: {fileID: 6182660525145688335, guid: 198d92828d475be478ce1d770fd9b06b, type: 3}
       propertyPath: explosionStrength

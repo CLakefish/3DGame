@@ -31,6 +31,37 @@ Transform:
   m_Father: {fileID: 6182660525142115584}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4992740321654320392
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 755574872392105841}
+  m_Layer: 0
+  m_Name: LookRotation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &755574872392105841
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4992740321654320392}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6182660525249806665}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6182660524875058514
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,6 +157,7 @@ MonoBehaviour:
   FOV: 85
   invertY: 0
   CanRotate: 1
+  lookRotation: {fileID: 0}
 --- !u!20 &1505319491978645948
 Camera:
   m_ObjectHideFlags: 0
@@ -295,8 +327,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 701360d91d6aba542b9ef7587fb933e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  invulnerabilitySeconds: 0.3
-  hasInvulnerability: 1
   rb: {fileID: 6182660525249806666}
   healthController: {fileID: 0}
 --- !u!114 &6182660525145688322
@@ -331,17 +361,17 @@ MonoBehaviour:
     m_Bits: 1
   walkingSpeed: 12
   runningSpeed: 14
-  acceleration: 2
+  acceleration: 50
   deceleration: 2
   maxSlopeAngle: 45
   slideModifier: 1
-  slideSpeed: 0
+  slideSpeed: 30
   slideJumpModifier: 1
   airModifier: 1
   crouchModifier: 1
   fallModifier: 0.2
   frictionModifier: 0.99
-  slideDuration: 0
+  slideDuration: 142.19
   jumpTime: 0.19
   jumpSpeed: 12.65
   jumpCoyoteTime: 0.1
@@ -396,6 +426,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6182660525142115584}
+  - {fileID: 755574872392105841}
   m_Father: {fileID: 6182660525145688320}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
