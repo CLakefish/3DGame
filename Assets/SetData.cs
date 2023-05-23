@@ -10,7 +10,7 @@ public class SetData : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-      GameData = GameObject.FindGameObjectWithTag("GameManager");
+            GameData = GameObject.FindGameObjectWithTag("GameManager");
     }
 
     public void PressButton()
