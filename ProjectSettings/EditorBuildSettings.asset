@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/TestPause.unity
     guid: 73c5f6b3ccdb8ac468ae0683b8b54e91
   - enabled: 1
+    path: Assets/Scenes/Tutorial.unity
+    guid: e626cd1301b8b4c4daf5193674d62368
+  - enabled: 1
     path: Assets/Scenes/gm_construct.unity
     guid: 4f561e854c5ff9a47bee110e67f52836
   - enabled: 1
