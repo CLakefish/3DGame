@@ -149,10 +149,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   navigation: {fileID: 1773904580029089122}
+  sp: {fileID: 8758395013994998941}
   playerPos: {x: 0, y: 0, z: 0}
   knockBackTime: 2
   knockBack: 0
   grounded: 0
+  openOnDeath: 0
+  index: 0
 --- !u!114 &5407210002054650977
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,10 +17,13 @@ public class Enemy : MonoBehaviour
     PlayerMovementController playerMovementController;
     PlayerHealth playerHealth;
     HealthController healthController;
+    public SpriteRenderer sp;
     public Vector3 playerPos;
     public float knockBackTime;
     public bool knockBack = false;
     public bool grounded = false;
+    public bool openOnDeath = false;
+    public int index;
     Rigidbody rb;
 
     void OnEnable()
@@ -39,6 +42,8 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, playerMovementController.groundLayer);
+
+        if (!knockBack) sp.color = Color.Lerp(sp.color, Color.white, 5f * Time.deltaTime);
 
         if (!knockBack && grounded)
         {
@@ -61,6 +66,7 @@ public class Enemy : MonoBehaviour
     // This is the death effect, which can be altered later
     public void OnDeath()
     {
+        if (openOnDeath) FindObjectOfType<DoorHandler>().Open(index);
         Destroy(gameObject);
     }
 
