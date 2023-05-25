@@ -70,8 +70,6 @@ public class PlayerMovementController : MonoBehaviour
     [SerializeField] float jumpCoyoteTime;
     [SerializeField] float jumpBufferTime;
     float jumpBufferTimer;
-    // p: the original was: float jumpCoyoteTimeT;
-    // T? What does the t stand for carson. you cant just be saying T
     float jumpCoyoteTimer;
 
     float groundRay = 0.005f;
@@ -152,9 +150,7 @@ public class PlayerMovementController : MonoBehaviour
                     break;
 
                 case (PlayerState.Sliding):
-
-                    //rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideModifier, ForceMode.Impulse);
-
+                    
                     break;
             }
         }
@@ -195,7 +191,6 @@ public class PlayerMovementController : MonoBehaviour
                 }
                 else if (isCrouching)
                 {
-
                     ChangeState(PlayerState.Crouching);
                 }
 
@@ -225,14 +220,17 @@ public class PlayerMovementController : MonoBehaviour
                     jumpBufferTimer = jumpBufferTime;
                 }
 
-                if (isGrounded) ChangeState(PlayerState.Grounded);
+                if (isGrounded)
+                {
+                    ChangeState(PlayerState.Grounded);
+                }
 
                 break;
 
             case (PlayerState.Crouching):
 
-                if (prevState != PlayerState.Sliding) {
-
+                if (prevState != PlayerState.Sliding)
+                {
                     playerCollider.height = crouchHeight;
                 }
 

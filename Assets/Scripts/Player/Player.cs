@@ -2,6 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
+public class WeaponData
+{
+    public bool isReloading = false;
+    public bool isEmpty = false;
+    public bool isShooting = false;
+    public int currentBulletCount = 0;
+    public float previousFireTime;
+    public WeaponItem weaponItem;
+}
+
 namespace Player
 {
     // p: i really do not understand this namespace thing
@@ -19,49 +30,6 @@ namespace Player
         Bounce,
         Charge,
         ChargeBounce,
-    }
-
-    [System.Serializable]
-    public struct WeaponData
-    {
-        [Header("Name")]
-        public string Name;
-
-        [Header("Weapon Type")]
-        public WeaponType weapon;
-        public BulletType bulletType;
-
-        [Header("Bullets")]
-        public int bulletDamage;
-        public float timeBetweenShots;
-        public int bulletCount;
-        [SerializeField, Range(0, 1)]
-        public float bulletSpread;
-        public float reloadTime,
-                     bounceCount,
-                     enemyKnockback;
-
-        [Header("Trail Rendering")]
-        public TrailRenderer bulletTrail;
-        public float trailSpeed;
-
-        [Header("Bullet Hole & Debugging")]
-        public GameObject hitParticle;
-
-
-        public bool isReloading,
-                      isEmpty,
-                      isShooting;
-
-        [Header("Explosion")]
-        public bool explodeOnDeath;
-
-        public bool playerCanBeHit;
-        public float explosionRadius;
-        public float explosionStrength;
-
-        internal float currentBulletCount,
-                       previousFireTime;
     }
 
     public static class MovementHelp

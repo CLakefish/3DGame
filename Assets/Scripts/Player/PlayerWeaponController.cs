@@ -10,13 +10,14 @@ public class PlayerWeaponController : MonoBehaviour
 
     [Header("Assignables")]
     internal Rigidbody rb;
+    Collider coll;
     internal PlayerCamera playerCamera;
 
     [Header("Weapon Information")]
     public List<WeaponItem> weaponItems;
-    [Header("Debugging")]
-    public WeaponData weaponData;
+    [HideInInspector] public List<WeaponData> weapons;
     public int selectedIndex = 0;
+    [Header("Debugging")]
 
     [Header("Shootable Layers")]
     public LayerMask layers;
@@ -25,7 +26,8 @@ public class PlayerWeaponController : MonoBehaviour
     public float heldTime;
     public bool canShoot = true;
     bool isFiring;
-    [Header("Explosion Prefab")]
+    [Header("Prefabs")]
+    [SerializeField] GameObject bulletPrefab;
     [SerializeField] GameObject explosion;
 
     #endregion
@@ -33,68 +35,37 @@ public class PlayerWeaponController : MonoBehaviour
     void Start()
     {
         rb = GameObject.FindGameObjectWithTag("Player").GetComponent<Rigidbody>();
+        coll = GetComponentInChildren<Collider>();
         playerCamera = FindObjectOfType<PlayerCamera>();
 
-        if (weaponItems == null) return;
-        else
+        foreach(WeaponItem currentWeapon in weaponItems)
         {
-            weaponData = weaponItems[0].weaponData;
-            weaponData.currentBulletCount = weaponData.bulletCount;
-
-            weaponData.isReloading = false;
-            weaponData.isEmpty = false;
+            AddWeapon(currentWeapon);
         }
     }
 
     void Update()
     {
-
-        // Weapon Change 
-        if (Input.GetAxis("Mouse ScrollWheel") != 0)
+        // Weapon Change
+        int mouseWheelDelta = Input.GetAxis("Mouse ScrollWheel") != 0 ? (int)Mathf.Sign(Input.GetAxis("Mouse ScrollWheel")) : 0;
+        if (mouseWheelDelta != 0 && weaponItems.Count > 1)
         {
-            if (weaponItems.Count <= 1) return;
 
-            if (Mathf.Sign(Input.GetAxis("Mouse ScrollWheel")) == 1)
-            {
+            selectedIndex += mouseWheelDelta;
+            selectedIndex = Mathf.Clamp(selectedIndex, 0, weapons.Count - 1);
 
+            heldTime = 0;
 
-                weaponItems[selectedIndex].weaponData = weaponData;
-
-                if (selectedIndex < weaponItems.Count - 1) selectedIndex++;
-                else selectedIndex = 0;
-
-                heldTime = 0f;
-
-                weaponData = weaponItems[selectedIndex].weaponData;
-                weaponData.isEmpty = false;
-                weaponData.isReloading = false;
-
-                StopCoroutine(ItemSwitchPause());
-                StartCoroutine(ItemSwitchPause());
-            }
-            else
-            {
-                weaponItems[selectedIndex].weaponData = weaponData;
-
-                if (selectedIndex > 0) selectedIndex--;
-                else selectedIndex = weaponItems.Count - 1;
-
-                heldTime = 0f;
-
-                weaponData = weaponItems[selectedIndex].weaponData;
-                weaponData.isEmpty = false;
-                weaponData.isReloading = false;
-
-                StopCoroutine(ItemSwitchPause());
-                StartCoroutine(ItemSwitchPause());
-            }
+            StopCoroutine(ItemSwitchPause());
+            StartCoroutine(ItemSwitchPause());
         }
 
-        isFiring = Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0);
+        if (Input.GetKeyDown(KeyCode.R) && !isFiring)
+        {
+            StartCoroutine(Reload());
+        }
 
-        if (Input.GetKeyDown(KeyCode.R) && !isFiring) StartCoroutine(Reload());
-
-        if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) && (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce) && canShoot)
+        if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) && (weapons[selectedIndex].weaponItem.bulletType == BulletType.Charge || weapons[selectedIndex].weaponItem.bulletType == BulletType.ChargeBounce) && canShoot)
         {
             heldTime += Time.deltaTime;
         }
@@ -104,23 +75,37 @@ public class PlayerWeaponController : MonoBehaviour
         }
 
         // Shooting 
-        if (isFiring && weaponData.currentBulletCount > 0 && !weaponData.isReloading) ShootObj();
-        else if (weaponData.currentBulletCount <= 0 && !weaponData.isEmpty) StartCoroutine(Reload());
+        if (Input.GetMouseButtonDown(0))
+        {
+            Shoot();
+        }
+        else if (weapons[selectedIndex].currentBulletCount <= 0 && !weapons[selectedIndex].isEmpty)
+        {
+            StartCoroutine(Reload());
+        }
+    }
+
+    public void AddWeapon(WeaponItem weaponItem)
+    {
+        WeaponData weaponData = new();
+        weaponData.weaponItem = weaponItem;
+        weaponData.currentBulletCount = weaponItem.bulletCount;
+        weapons.Add(weaponData);
     }
 
 
     #region Projectile Firing 
     IEnumerator Reload()
     {
-        weaponData.isEmpty = true;
-        weaponData.isReloading = true;
+        weapons[selectedIndex].isEmpty = true;
+        weapons[selectedIndex].isReloading = true;
 
-        yield return new WaitForSeconds(weaponData.reloadTime);
+        yield return new WaitForSeconds(weapons[selectedIndex].weaponItem.reloadTime);
 
-        weaponData.currentBulletCount = weaponData.bulletCount;
+        weapons[selectedIndex].currentBulletCount = weapons[selectedIndex].weaponItem.bulletCount;
 
-        weaponData.isReloading = false;
-        weaponData.isEmpty = false;
+        weapons[selectedIndex].isReloading = false;
+        weapons[selectedIndex].isEmpty = false;
     }
 
     public void ShootObj()
@@ -128,38 +113,38 @@ public class PlayerWeaponController : MonoBehaviour
         if (!canShoot) return;
 
         // If the time is greater than the previous time + fireRate time then fire (Technically makes fireRate different but whatever)
-        if (Time.time > previousFireTime + weaponData.timeBetweenShots && weaponData.currentBulletCount > 0)
+        if (Time.time > previousFireTime + weapons[selectedIndex].weaponItem.timeBetweenShots && weapons[selectedIndex].currentBulletCount > 0)
         {
             previousFireTime = Time.time;
-            weaponData.isShooting = true;
+            weapons[selectedIndex].isShooting = true;
 
             // For different weapon types
-            switch (weaponData.weapon)
+            switch (weapons[selectedIndex].weaponItem.weaponType)
             {
                 case (Player.WeaponType.Single):
 
-                    if (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce)
+                    if (weapons[selectedIndex].weaponItem.bulletType == BulletType.Charge || weapons[selectedIndex].weaponItem.bulletType == BulletType.ChargeBounce)
                     {
-                        if (!weaponData.isReloading)
+                        if (!weapons[selectedIndex].isReloading)
                         {
-                            weaponData.currentBulletCount--;
+                            weapons[selectedIndex].currentBulletCount--;
                             StopCoroutine(ChargedProjectileShotHandler());
                             StartCoroutine(ChargedProjectileShotHandler());
                         }
                         break;
                     }
 
-                    weaponData.currentBulletCount--;
-                    ProjectileShotHandler();
+                    weapons[selectedIndex].currentBulletCount--;
+                    Shoot();
                     break;
 
                 case (Player.WeaponType.Multi):
 
                     // Eventually this'll be better
-                    for (int i = 0; i < (weaponData.bulletCount / 2); i++)
+                    for (int i = 0; i < (weapons[selectedIndex].weaponItem.bulletCount / 2); i++)
                     {
-                        weaponData.currentBulletCount--;
-                        ProjectileShotHandler();
+                        weapons[selectedIndex].currentBulletCount--;
+                        Shoot();
                     }
 
                     break;
@@ -170,77 +155,11 @@ public class PlayerWeaponController : MonoBehaviour
         // Return
         else
         {
-            weaponData.isShooting = false;
+            weapons[selectedIndex].isShooting = false;
             return;
         }
     }
 
-    // Projectile Fire
-    void ProjectileShotHandler()
-    {
-        if (weaponData.bulletType == BulletType.Follow)
-        {
-            GameObject obj = GetClosestEnemy(GameObject.FindGameObjectsWithTag("Enemy"));
-
-            if (obj == null) return;
-
-            // Raycast to Mouse Input Position in world
-            Ray ray = new Ray(rb.transform.position, (obj.transform.position - rb.transform.position).normalized); 
-
-            // Trail rendering
-            TrailRenderer trail = Instantiate(weaponData.bulletTrail, rb.transform.position, playerCamera.transform.rotation);
-
-            // Raycast Hit reference
-            RaycastHit raycast;
-
-            Debug.Log(ray.direction);
-
-            float r1 = Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread);
-            float r2 = Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread);
-            float r3 = Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread);
-
-            // Randomization to the bullet direction
-            ray.direction = new Vector3((r1 == 0 ? ray.direction.x : ray.direction.x + r1), (r2 == 0 ? ray.direction.y : ray.direction.y + r2), r3 == 0 ? ray.direction.z : ray.direction.z + r3);
-
-            Debug.Log(ray.direction);
-
-            bool hit = Physics.Raycast(ray, out raycast, 1000);
-
-            // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
-            if (hit)
-            {
-                StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, weaponData.bulletDamage, weaponData.trailSpeed, true));
-            }
-            else
-            {
-                StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, false, weaponData.bulletDamage, weaponData.trailSpeed));
-            }
-        }
-        else
-        {
-            // Raycast to Mouse Input Position in world
-            Ray ray = new Ray(firePos.transform.position, firePos.transform.rotation * Vector3.forward);
-
-            // Trail rendering
-            TrailRenderer trail = Instantiate(weaponData.bulletTrail, firePos.transform.position, playerCamera.transform.rotation);
-
-            // Raycast Hit reference
-            RaycastHit raycast;
-
-            // Randomization to the bullet direction
-            ray.direction += new Vector3(Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread), Random.Range(-weaponData.bulletSpread, weaponData.bulletSpread));
-
-            // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
-            if (Physics.Raycast(ray, out raycast, 10000, layers))
-            {
-                StartCoroutine(SpawnTrail(trail, raycast, raycast.point, raycast.normal, weaponData.bounceCount, 100, true, weaponData.bulletDamage, weaponData.trailSpeed));
-            }
-            else
-            {
-                StartCoroutine(SpawnTrail(trail, raycast, ray.direction * 4000, new Vector3(0f, 0f, 0f), weaponData.bounceCount, 100, false, weaponData.bulletDamage, weaponData.trailSpeed));
-            }
-        }
-    }
 
     IEnumerator ItemSwitchPause()
     {
@@ -252,13 +171,13 @@ public class PlayerWeaponController : MonoBehaviour
     // Fix this
     IEnumerator ChargedProjectileShotHandler()
     {
-        weaponData.isReloading = true;
+        weapons[selectedIndex].isReloading = true;
 
-        float bounceCount = weaponData.bounceCount;
-        float tempStore = weaponData.trailSpeed;
-        float attack = weaponData.bulletDamage;
+        float bounceCount = weapons[selectedIndex].weaponItem.bounceCount;
+        float tempStore = weapons[selectedIndex].weaponItem.trailSpeed;
+        float attack = weapons[selectedIndex].weaponItem.bulletDamage;
 
-        while (weaponData.isReloading)
+        while (weapons[selectedIndex].isReloading)
         {
             if (!isFiring)
             {
@@ -269,39 +188,34 @@ public class PlayerWeaponController : MonoBehaviour
             {
                 // ?????????????????
                 // todo: fix this
+                /*
                 if (heldTime > 0.5f)
                 {
-                    weaponData.bounceCount = bounceCount + 1;
-                    weaponData.trailSpeed = tempStore + 35f;
+                    weapons[selectedIndex].weaponItem.bounceCount = bounceCount + 1;
+                    weapons[selectedIndex].weaponItem.trailSpeed = tempStore + 35f;
                 }
                 if (heldTime > 1f)
                 {
-                    weaponData.bounceCount = bounceCount + 2;
-                    weaponData.trailSpeed = tempStore * 2f;
+                    weapons[selectedIndex].weaponItem.bounceCount = bounceCount + 2;
+                    weapons[selectedIndex].weaponItem.trailSpeed = tempStore * 2f;
                 }
                 if (heldTime > 2f)
                 {
-                    weaponData.bounceCount = bounceCount + 3;
-                    weaponData.trailSpeed = tempStore * 3f;
+                    weapons[selectedIndex].weaponItem.bounceCount = bounceCount + 3;
+                    weapons[selectedIndex].weaponItem.trailSpeed = tempStore * 3f;
                     heldTime = 0f;
                     break;
                 }
+                */
             }
 
             yield return new WaitForEndOfFrame();
         }
 
-        weaponData.bounceCount = bounceCount;
-        weaponData.trailSpeed = tempStore;
-
-        ProjectileShotHandler();
-
-        weaponData.isReloading = false;
-
         yield return null;
     }
 
-    // Visualization
+/*
     IEnumerator SpawnTrail(TrailRenderer trail, RaycastHit raycast, Vector3 point, Vector3 normal, float bounceCount, float bounceDistance, bool hitObj, float damage, float speed, bool follow = false, GameObject positionUpdate = null)
     {
         Vector3 startPos = trail.transform.position;
@@ -320,13 +234,15 @@ public class PlayerWeaponController : MonoBehaviour
             yield return null;
         }
 
-        if (trail != null) trail.transform.position = point;
-
+        if (trail != null)
+        {
+            trail.transform.position = point;
+        }
         if (hitObj)
         {
             // Use Object Pooling here eventually 
 
-            GameObject obj = Instantiate(weaponData.hitParticle, point, Quaternion.LookRotation(normal));
+            GameObject obj = Instantiate(weapons[selectedIndex].weaponItem.hitParticle, point, Quaternion.LookRotation(normal));
 
             if (raycast.collider == null) yield break;
             
@@ -336,22 +252,22 @@ public class PlayerWeaponController : MonoBehaviour
             {
                 if (raycast.collider.TryGetComponent(out HealthController currentHealth))
                 {
-                    currentHealth.ChangeHealth(-weaponData.bulletDamage);
+                    currentHealth.ChangeHealth(-weapons[selectedIndex].weaponItem.bulletDamage);
                 }
                 if (raycast.rigidbody)
                 {
-                    raycast.rigidbody.velocity += dir * weaponData.enemyKnockback;
+                    raycast.rigidbody.velocity += dir * weapons[selectedIndex].weaponItem.enemyKnockback;
                 }
             }
 
             Destroy(obj, 2f);
 
-            if (weaponData.explodeOnDeath && trail != null)
+            if (weapons[selectedIndex].weaponItem.explodeOnDeath && trail != null)
             {
-                Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
+                Explode(trail.transform.position, weapons[selectedIndex].weaponItem.enemyKnockback, weapons[selectedIndex].weaponItem.explosionRadius, weapons[selectedIndex].weaponItem.explosionStrength);
             }
 
-            if ((weaponData.bulletType == BulletType.Bounce || weaponData.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
+            if ((weapons[selectedIndex].weaponItem.bulletType == BulletType.Bounce || weapons[selectedIndex].weaponItem.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
             {
                 Vector3 bounceDir = Vector3.Reflect(dir, normal);
 
@@ -372,14 +288,35 @@ public class PlayerWeaponController : MonoBehaviour
             }
             else if (bounceCount <= 0 && trail != null)
             {
-                if (weaponData.explodeOnDeath)
+                if (weapons[selectedIndex].weaponItem.explodeOnDeath)
                 {
-                    Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
+                    Explode(trail.transform.position, weapons[selectedIndex].weaponItem.enemyKnockback, weapons[selectedIndex].weaponItem.explosionRadius, weapons[selectedIndex].weaponItem.explosionStrength);
                 }
             }
 
             Destroy(trail, 0.1f);
-        }
+        }  
+    }
+*/
+
+    // Visualization
+    void Shoot()
+    {
+        Vector3 direction = playerCamera.cam.transform.forward;
+        // Trail rendering
+        TrailRenderer trail = Instantiate(weapons[selectedIndex].weaponItem.bulletTrail, rb.transform.position, playerCamera.transform.rotation);
+
+        float r1 = Random.Range(-weapons[selectedIndex].weaponItem.bulletSpread, weapons[selectedIndex].weaponItem.bulletSpread);
+        float r2 = Random.Range(-weapons[selectedIndex].weaponItem.bulletSpread, weapons[selectedIndex].weaponItem.bulletSpread);
+        float r3 = Random.Range(-weapons[selectedIndex].weaponItem.bulletSpread, weapons[selectedIndex].weaponItem.bulletSpread);
+
+        // Randomization to the bullet direction
+        Vector3 newDirection = direction + new Vector3(r1, r2, r3);
+
+        Bullet bullet = Instantiate(bulletPrefab, playerCamera.transform.position, Quaternion.identity).GetComponent<Bullet>();
+        Physics.IgnoreCollision(coll, bullet.GetComponent<Collider>(), true);
+        bullet.direction = newDirection;
+        bullet.weaponItem = weapons[selectedIndex].weaponItem;
     }
 
     void Explode(Vector3 explosionPos, float knockbackValue, float explosionSize, float explosionStrength)
@@ -393,7 +330,7 @@ public class PlayerWeaponController : MonoBehaviour
             {
                 if (currentHealth.transform != transform)
                 {
-                    currentHealth.ChangeHealth(-weaponData.bulletDamage);
+                    currentHealth.ChangeHealth(-weapons[selectedIndex].weaponItem.bulletDamage);
                 }
             }
             if (collider.TryGetComponent(out Rigidbody currentRigidbody))
@@ -432,5 +369,10 @@ public class PlayerWeaponController : MonoBehaviour
         }
 
         return bestTarget;
+    }
+
+    public WeaponData GetCurrentWeapon()
+    {
+        return weapons[selectedIndex];
     }
 }

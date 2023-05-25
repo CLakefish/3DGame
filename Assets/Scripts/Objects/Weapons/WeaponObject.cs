@@ -18,11 +18,7 @@ public class WeaponObject : MonoBehaviour
             {
                 return;
             }
-
-            playerWeaponController.weaponItems.Add(weapon);
-            playerWeaponController.selectedIndex++;
-            weapon.weaponData.isEmpty = false;
-            playerWeaponController.weaponData = playerWeaponController.weaponItems[playerWeaponController.selectedIndex].weaponData;
+            playerWeaponController.AddWeapon(weapon);
 
             Destroy(gameObject);
         }

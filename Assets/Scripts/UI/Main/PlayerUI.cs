@@ -57,25 +57,26 @@ public class PlayerUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        weaponName.text = playerWeaponController.weaponData.Name.ToString();
-        ammoCount.text = playerWeaponController.weaponData.currentBulletCount.ToString();
+        WeaponData currentWeapon = playerWeaponController.GetCurrentWeapon();
+        weaponName.text = currentWeapon.weaponItem.Name.ToString();
+        ammoCount.text = currentWeapon.currentBulletCount.ToString();
 
         // TODO: fix this if-statement hell
-        if ((playerWeaponController.weaponData.isReloading && playerWeaponController.weaponData.isEmpty) || (playerWeaponController.weaponData.currentBulletCount <= 0))
+        if ((currentWeapon.isReloading && currentWeapon.isEmpty) || (currentWeapon.currentBulletCount <= 0))
         {
             ammoCount.text = "Reloading!";
         }
-        if ((playerWeaponController.weaponData.bulletType == Player.BulletType.Charge || playerWeaponController.weaponData.bulletType == Player.BulletType.ChargeBounce))
+        if ((currentWeapon.weaponItem.bulletType == Player.BulletType.Charge || currentWeapon.weaponItem.bulletType == Player.BulletType.ChargeBounce))
         {
-            if (playerWeaponController.weaponData.isReloading && playerWeaponController.weaponData.isShooting)
+            if (currentWeapon.isReloading && currentWeapon.isShooting)
             {
-                chargeCount.text = (playerWeaponController.weaponData.currentBulletCount.ToString()) + " | " + (playerWeaponController.heldTime == 1.99f ? "Firing!" : "Charge : " + playerWeaponController.heldTime.ToString((playerWeaponController.heldTime < 1 ? "0.00" : "#.00")));
+                chargeCount.text = (currentWeapon.currentBulletCount.ToString()) + " | " + (playerWeaponController.heldTime == 1.99f ? "Firing!" : "Charge : " + playerWeaponController.heldTime.ToString((playerWeaponController.heldTime < 1 ? "0.00" : "#.00")));
 
                 chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerWeaponController.heldTime / 2));
             }
             else
             {
-                chargeCount.text = playerWeaponController.weaponData.currentBulletCount.ToString() + " | Charge : 0.00";
+                chargeCount.text = currentWeapon.currentBulletCount.ToString() + " | Charge : 0.00";
             }
         }
         else 

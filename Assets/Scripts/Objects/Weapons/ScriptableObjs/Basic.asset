@@ -12,24 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27715a93015925d48b3354dff8e3c317, type: 3}
   m_Name: Basic
   m_EditorClassIdentifier: 
-  weaponData:
-    Name: The burger blaster
-    weapon: 0
-    bulletType: 0
-    bulletDamage: 1
-    timeBetweenShots: 0.1
-    bulletCount: 12
-    bulletSpread: 0.035
-    reloadTime: 0
-    bounceCount: 0
-    enemyKnockback: 34.3
-    bulletTrail: {fileID: 6727316020457667749, guid: 9fbf7d3363f565f439e53a9d8fcd7c13, type: 3}
-    trailSpeed: 95.29
-    hitParticle: {fileID: 8890879366852258217, guid: b7e8e86824d5d0c4ab8dc9718f7015c9, type: 3}
-    isReloading: 0
-    isEmpty: 0
-    isShooting: 0
-    explodeOnDeath: 0
-    playerCanBeHit: 0
-    explosionRadius: 10.63
-    explosionStrength: 25
+  Name: Basic
+  weaponType: 0
+  bulletType: 0
+  bulletDamage: 2
+  timeBetweenShots: 0.1
+  bulletCount: 10
+  bulletSpread: 0.2
+  reloadTime: 1
+  bounceCount: 1
+  enemyKnockback: 1
+  bulletTrail: {fileID: 6727316020457667749, guid: 475611f0ee901e34f8b6ff96d4c82f0f, type: 3}
+  trailSpeed: 20
+  hitParticle: {fileID: 0}
+  explodeOnDeath: 0
+  playerCanBeHit: 0
+  explosionRadius: 0
+  explosionStrength: 0

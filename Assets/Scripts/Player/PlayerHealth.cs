@@ -28,16 +28,14 @@ public class PlayerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.Backspace) || (healthController.health <= 0 && Input.GetMouseButtonDown(0)))
-        {
-            ResetLevel();
-        }
+        
     }
 
     void OnDeath()
     {
         StartCoroutine(cam.ShakeCamera(4f, .25f));
         Time.timeScale = 0;
+        ResetLevel();
     }
 
     public void ResetLevel()

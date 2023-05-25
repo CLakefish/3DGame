@@ -35,7 +35,7 @@ public class RotateToCam : MonoBehaviour
         //if (spriteAnim == null) return;
 
         return;
-        spriteAnim.SetFloat("Position X", moveDir.x);
-        spriteAnim.SetFloat("Position Y", moveDir.y);
+        // spriteAnim.SetFloat("Position X", moveDir.x);
+        // spriteAnim.SetFloat("Position Y", moveDir.y);
     }
 }
