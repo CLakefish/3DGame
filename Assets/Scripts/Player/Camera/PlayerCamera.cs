@@ -46,7 +46,7 @@ public class PlayerCamera : MonoBehaviour
     {
         #region FOV
 
-        if (playerMovementController.state == PlayerMovementController.PlayerState.Sliding || (playerMovementController.state == PlayerMovementController.PlayerState.Jumping && playerMovementController.prevState == PlayerMovementController.PlayerState.Sliding))
+        if (playerMovementController.isRunning && playerMovementController.isCrouching)
         {
             newFOV = Mathf.Lerp(newFOV, slidingFOV, 8 * Time.deltaTime);
         }

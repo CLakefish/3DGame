@@ -10,20 +10,7 @@ public class PlayerMovementController : MonoBehaviour
     #region Variables
     [SerializeField] string uiSceneName;
 
-    // p: you can be running and jumping at the same time, right? this state machine just doesn't make much sense because the states are not mutually exclusive.
-    public enum PlayerState
-    {
-        Grounded,
-        Jumping,
-        Falling,
-        Crouching,
-        Sliding,
-        Running,
-    }
-
     [Header("State Handlers")] // See Player for details
-    public PlayerState state = PlayerState.Grounded;
-    internal PlayerState prevState;
     internal float stateDur;
 
     [Header("Rigidbody")]
@@ -50,6 +37,7 @@ public class PlayerMovementController : MonoBehaviour
     [Tooltip("1 is default, > 1 is a positive modifier, < 1 is a negative modifier")]
     [Header("Movement Modifiers")]
     public float slideModifier = 1.0f;
+    public float crouchSpeed;
     public float slideSpeed;
     [Tooltip("Velocity modifier for when jumping out of a slide")]
     public float slideJumpModifier = 1.0f;
@@ -62,6 +50,7 @@ public class PlayerMovementController : MonoBehaviour
     [Tooltip("Friction modifier while sliding")]
     public float frictionModifier = 0.99f;
     public float slideDuration;
+    Vector3 moveDirection;
 
     [Space()]
     // just because variables have similar types (serializefield, float) does not mean that you should bunch them together. it makes it more confusing because sometimes variables that word in tandem with each other are far apart
@@ -78,7 +67,10 @@ public class PlayerMovementController : MonoBehaviour
 
     CapsuleCollider col;
 
+    [HideInInspector] public bool isSliding;
     [HideInInspector] public bool isRunning;
+    [HideInInspector] public bool isCrouching;
+    [HideInInspector] public bool isGrounded;
     RaycastHit slopeHit;
 
     [Header("VECTORS! OH YEAH!!")] // for use in velocity
@@ -112,14 +104,18 @@ public class PlayerMovementController : MonoBehaviour
     void Update()
     {
         // Ground & Wall Detection
-        bool isGrounded = CheckCollider(rb.transform.position + ((col.height / 2) + groundRay) * Vector3.down, out RaycastHit ground);
+        isGrounded = CheckCollider(rb.transform.position + ((col.height / 2) + groundRay) * Vector3.down, out RaycastHit ground);
 
         #region Inputs
 
         // Inputs
         inputs = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
-        bool inputting = (inputs != new Vector2(0f, 0f)), isCrouching = (Input.GetKey(KeyCode.LeftControl));
+        bool inputting = (inputs != new Vector2(0f, 0f));
+        if (!isSliding)
+        {
+            isCrouching = (Input.GetKey(KeyCode.LeftControl));
+        }
         isRunning = Input.GetKey(KeyCode.LeftShift);
 
         #endregion
@@ -129,8 +125,10 @@ public class PlayerMovementController : MonoBehaviour
 
         // Speed
 
-        float moveSpeed = OnSlope() && state == PlayerState.Sliding ? slideSpeed :
-                            isRunning ? runningSpeed : walkingSpeed;
+        moveDirection = cam.lookRotation.forward * inputs.y + viewPosition.right * inputs.x;
+                moveDirection = new Vector3(moveDirection.x, 0f, moveDirection.z);
+
+        Move();
 
         // Camera Tilting
         CameraTilt(Input.GetKey(KeyCode.LeftShift));
@@ -139,165 +137,58 @@ public class PlayerMovementController : MonoBehaviour
 
         #region states
 
-        if (stateDur == 0)
-        {
-            switch (state)
-            {
-
-                case (PlayerState.Jumping):
-
-                    rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
-                    rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
-
-                    break;
-
-                case (PlayerState.Sliding):
-
-                    //rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideModifier, ForceMode.Impulse);
-
-                    break;
-            }
-        }
-
-        stateDur += Time.deltaTime;
-
         jumpBufferTimer = Mathf.MoveTowards(jumpBufferTimer, 0, Time.deltaTime);
         jumpCoyoteTimer = Mathf.MoveTowards(jumpCoyoteTimer, 0, Time.deltaTime);
 
-        switch (state)
+        if (isGrounded)
         {
-            case (PlayerState.Grounded):
+            jumpCoyoteTimer = jumpCoyoteTime;
+        }
 
-                // jump
-                if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-                {
-                    ChangeState(PlayerState.Jumping);
-                }
+        // jump
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpBufferTimer = jumpBufferTime;
+        }
 
-                if (jumpBufferTimer > 0)
-                {
-                    jumpBufferTimer = 0f;
-                    ChangeState(PlayerState.Jumping);
-                }
+        if (jumpBufferTimer > 0 && (isGrounded || jumpCoyoteTimer > 0))
+        {
+            Jump();
+        }
 
-                jumpCoyoteTimer = jumpCoyoteTime;
-                if (!isGrounded && !Input.GetKey(KeyCode.Space))
-                {
-                    ChangeState(PlayerState.Falling);
-                }
-
-                if (isCrouching && isRunning)
-                {
-                    float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-                    if (angle >= maxSlopeAngle) break;
-
-                    ChangeState(PlayerState.Sliding);
-                }
-                else if (isCrouching)
-                {
-
-                    ChangeState(PlayerState.Crouching);
-                }
-
-
-                break;
-
-            case (PlayerState.Jumping):
-
-                if ((stateDur > jumpTime) || (rb.velocity.y < 0) || (!Input.GetKey(KeyCode.Space))) ChangeState(PlayerState.Falling);
-
-                rb.velocity = new Vector3((rb.velocity.x * airModifier), rb.velocity.y, (rb.velocity.z * airModifier));
-
-                break;
-
-            case (PlayerState.Falling):
-
-                if(Input.GetKeyDown(KeyCode.Space))
-                {
-                    if (prevState == PlayerState.Grounded || jumpCoyoteTimer > 0)
-                    {
-                        jumpCoyoteTimer = 0;
-                        ChangeState(PlayerState.Jumping);
-
-                        break;
-                    }
-
-                    jumpBufferTimer = jumpBufferTime;
-                }
-
-                if (isGrounded) ChangeState(PlayerState.Grounded);
-
-                break;
-
-            case (PlayerState.Crouching):
-
-                if (prevState != PlayerState.Sliding) {
-
-                    playerCollider.height = crouchHeight;
-                }
-
-                rb.velocity = new Vector3(rb.velocity.x * crouchModifier, rb.velocity.y, rb.velocity.z * crouchModifier);
-
-
-                if(Input.GetKey(KeyCode.Space))
-                {
-                    playerCollider.height = originalHeight;
-                    ChangeState(PlayerState.Jumping);
-
-                }
-
-                if(!Input.GetKey(KeyCode.LeftControl))
-                {
-                    playerCollider.height = originalHeight;
-                    ChangeState(PlayerState.Grounded);
-                }
-
-                break;
-
-            case (PlayerState.Sliding):
-
-                if (prevState != PlayerState.Crouching){
-
-                    playerCollider.height = crouchHeight;
-
-                }
-
-                Vector3 inputDir = cam.lookRotation.forward * inputs.y + viewPosition.right * inputs.x;
-                inputDir = new Vector3(inputDir.x, 0f, inputDir.z);
-
-                if (!OnSlope() || rb.velocity.y > -.1f) {
-
-                    rb.AddForce(inputDir.normalized * (slideModifier - stateDur), ForceMode.VelocityChange);
-
-                }
-                else
-                {
-                    rb.AddForce(SlopeMoveDir(inputDir) * (slideModifier - stateDur), ForceMode.VelocityChange);
-                }
-
-                if (((rb.velocity.x < 2 && rb.velocity.x > -2) && (rb.velocity.z < 2 && rb.velocity.z > -2)) || !Input.GetKey(KeyCode.LeftShift) || stateDur > slideDuration)
-                {
-                    ChangeState(PlayerState.Crouching);
-                }
-
-                if (Input.GetKey(KeyCode.Space))
-                {
-                    playerCollider.height = originalHeight;
-                    rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
-                    rb.AddForce(new Vector3(inputs.x, 0f, inputs.y) * slideJumpModifier, ForceMode.Impulse);
-                    ChangeState(PlayerState.Jumping);
-                }
-
-                if (!Input.GetKey(KeyCode.LeftControl))
-                {
-                    playerCollider.height = originalHeight;
-                    ChangeState(PlayerState.Grounded);
-                }
-
-                break;
+        if (isCrouching)
+        {
+            playerCollider.height = crouchHeight;
+            if (isRunning && !isSliding)
+            {
+                StartCoroutine(Slide());
+            }
+        }
+        else
+        {
+            playerCollider.height = originalHeight;
         }
 
         #endregion
+    }
+
+    void Jump()
+    {
+        jumpBufferTimer = 0;
+        rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        rb.AddForce(Vector3.up * jumpSpeed, ForceMode.Impulse);
+    }
+
+    void Move()
+    {
+        if (isSliding)
+        {
+            return;
+        }
+
+        float moveSpeed = isCrouching && isRunning ? slideSpeed :
+                            isCrouching ? crouchSpeed :
+                            isRunning ? runningSpeed : walkingSpeed;
 
         // Get the move direction of the viewPosition multiplied by the move speed
         moveDir = (cam.lookRotation.forward * inputs.y + viewPosition.right * inputs.x).normalized;
@@ -306,56 +197,17 @@ public class PlayerMovementController : MonoBehaviour
 
         // We are now using Vector3.MoveTowards for the accelerating
         rb.velocity = Vector3.MoveTowards(rb.velocity, goalVelocity, acceleration * Time.deltaTime);
-
-        if (OnSlope())
-        {
-            // Jumping
-            if (state == PlayerState.Jumping || Input.GetKey(KeyCode.Space))
-            {
-                rb.useGravity = true;
-                return;
-            }
-
-            if (rb.velocity.y > 0 && (inputs.x == 0 || inputs.y == 0))
-            {
-                rb.useGravity = true;
-                return;
-            }
-
-            // p: what issue does this fix?
-            // Ensure no weird sliding issues
-            rb.useGravity = false;
-
-            // Velocity Clamp
-
-            // p: can you please use a consistent formatting? it makes it harder to read if its not consistent. please do the extra line break and curly braces after all if-statements. 
-            if (rb.velocity.magnitude > moveSpeed)
-            {
-                rb.velocity = rb.velocity.normalized * moveSpeed;
-            }
-
-            // Y vel fix
-            if (rb.velocity.y > 0 && (state != PlayerState.Jumping && Input.GetKey(KeyCode.Space)))
-            {
-                rb.AddForce(Vector3.down * (QualitySettings.vSyncCount == 1 ? 100 : 150), ForceMode.Force);
-            }
-        }
-        else
-        {
-            rb.useGravity = true;
-        }
-
+        
         // Clamp the Velocity to the Move Speed
         Vector3.ClampMagnitude(rb.velocity, moveSpeed);
     }
 
-    void ChangeState(PlayerState newState)
+    IEnumerator Slide()
     {
-        prevState = state;
-
-        state = newState;
-
-        stateDur = 0f;
+        isSliding = true;
+        rb.AddForce(moveDirection * 10, ForceMode.Force);
+        yield return new WaitForSeconds(slideDuration);
+        isSliding = false;
     }
 
     // Handles wall and ground collisions

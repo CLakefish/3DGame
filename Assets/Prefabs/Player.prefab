@@ -354,7 +354,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiSceneName: UIScene
-  state: 0
   viewPosition: {fileID: 3554230991059021840}
   groundLayer:
     serializedVersion: 2
@@ -365,18 +364,22 @@ MonoBehaviour:
   deceleration: 2
   maxSlopeAngle: 45
   slideModifier: 1
+  crouchSpeed: 8
   slideSpeed: 30
   slideJumpModifier: 1
   airModifier: 1
   crouchModifier: 1
   fallModifier: 0.2
   frictionModifier: 0.99
-  slideDuration: 142.19
+  slideDuration: 1.5
   jumpTime: 0.19
   jumpSpeed: 12.65
   jumpCoyoteTime: 0.1
   jumpBufferTime: 0.1
+  isSliding: 0
   isRunning: 0
+  isCrouching: 0
+  isGrounded: 0
 --- !u!114 &4540968967703131144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -505,7 +508,7 @@ Rigidbody:
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 80
