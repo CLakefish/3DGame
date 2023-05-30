@@ -26,4 +26,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/UIScene.unity
     guid: f9b876c64b1eb1241804904ae8f26ad1
+  - enabled: 1
+    path: Assets/Scenes/Level1.unity
+    guid: 88cd7e9ee7004bd4e89c13585220a3b6
   m_configObjects: {}

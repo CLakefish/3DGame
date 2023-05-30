@@ -645,7 +645,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28954c99f39b0e648a7d0b1e4941b5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: DataStore
+  sceneName: Level1
   GameName: GameEnded
   GameTwo: GameEndedPlayerTwo
   VolumeSlider: {fileID: 0}
@@ -2226,7 +2226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28954c99f39b0e648a7d0b1e4941b5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneName: DataStore
+  sceneName: Tutorial
   GameName: GameEnded
   GameTwo: GameEndedPlayerTwo
   VolumeSlider: {fileID: 0}
