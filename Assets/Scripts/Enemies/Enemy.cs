@@ -58,7 +58,7 @@ public class Enemy : MonoBehaviour
         if (navigation.enabled && !navigation.pathPending && navigation.remainingDistance <= navigation.stoppingDistance && (!navigation.hasPath || navigation.velocity.sqrMagnitude == 0f) && Vector3.Distance(rb.transform.position, playerMovementController.rb.transform.position) <= 3.5f)
         {
             // player is hit
-            playerHealth.healthController.ChangeHealth(-Random.Range(1, 5));
+            playerHealth.healthController.ChangeHealth(-Random.Range(2, 5));
             Knockback(10, rb.transform.position);
         }
     }

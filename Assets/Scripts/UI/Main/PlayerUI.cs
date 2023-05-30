@@ -69,9 +69,9 @@ public class PlayerUI : MonoBehaviour
         {
             if (playerWeaponController.weaponData.isReloading && playerWeaponController.weaponData.isShooting)
             {
-                chargeCount.text = (playerWeaponController.weaponData.currentBulletCount.ToString()) + " | " + (playerWeaponController.heldTime == 1.99f ? "Firing!" : "Charge : " + playerWeaponController.heldTime.ToString((playerWeaponController.heldTime < 1 ? "0.00" : "#.00")));
+                chargeCount.text = (playerWeaponController.weaponData.currentBulletCount.ToString()) + " | " + (playerWeaponController.chargeTime == 1.99f ? "Firing!" : "Charge : " + playerWeaponController.chargeTime.ToString((playerWeaponController.chargeTime < 1 ? "0.00" : "#.00")));
 
-                chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerWeaponController.heldTime / 2));
+                chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerWeaponController.chargeTime / 2));
             }
             else
             {

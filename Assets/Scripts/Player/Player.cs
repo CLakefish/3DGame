@@ -33,17 +33,22 @@ namespace Player
 
         [Header("Bullets")]
         public int bulletDamage;
+        public int bulletDamageChargeBonus;
+
         public float timeBetweenShots;
         public int bulletCount;
         [SerializeField, Range(0, 1)]
         public float bulletSpread;
         public float reloadTime,
-                     bounceCount,
                      enemyKnockback;
+        
+        public int bounceCount;
+        public int bounceCountChargeBonus;
 
         [Header("Trail Rendering")]
         public TrailRenderer bulletTrail;
         public float trailSpeed;
+        public float trailSpeedChargeBonus;
 
         [Header("Bullet Hole & Debugging")]
         public GameObject hitParticle;

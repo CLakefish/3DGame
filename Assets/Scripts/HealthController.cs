@@ -27,6 +27,7 @@ public class HealthController : MonoBehaviour
         {
             return;
         }
+        
         health += healthChange;
 
         if (healthChange < 0)

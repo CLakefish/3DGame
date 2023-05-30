@@ -19,4 +19,7 @@ public class WeaponItemEditor : Editor
 public class WeaponItem : ScriptableObject
 {
     public WeaponData weaponData;
+    internal int currentDamage;
+    internal float currentTrailSpeed;
+    internal int currentBounceCount;
 }
