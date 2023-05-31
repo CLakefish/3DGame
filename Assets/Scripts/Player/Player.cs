@@ -39,8 +39,10 @@ namespace Player
         public int bulletCount;
         [SerializeField, Range(0, 1)]
         public float bulletSpread;
-        public float reloadTime,
-                     enemyKnockback;
+        public float reloadTime;
+        
+        public float enemyKnockback;
+        public float enemyKnockbackChargeBonus;
         
         public int bounceCount;
         public int bounceCountChargeBonus;

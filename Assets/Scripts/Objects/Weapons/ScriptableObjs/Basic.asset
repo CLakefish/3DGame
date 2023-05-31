@@ -17,12 +17,13 @@ MonoBehaviour:
     weapon: 0
     bulletType: 4
     bulletDamage: 1
-    bulletDamageChargeBonus: 3
+    bulletDamageChargeBonus: 2
     timeBetweenShots: 0.3
     bulletCount: 12
     bulletSpread: 0
     reloadTime: 0
-    enemyKnockback: 34.3
+    enemyKnockback: 20
+    enemyKnockbackChargeBonus: 20
     bounceCount: 0
     bounceCountChargeBonus: 0
     bulletTrail: {fileID: 6727316020457667749, guid: 9fbf7d3363f565f439e53a9d8fcd7c13, type: 3}
@@ -35,4 +36,4 @@ MonoBehaviour:
     explodeOnDeath: 1
     playerCanBeHit: 1
     explosionRadius: 1.5
-    explosionStrength: 1.4
+    explosionStrength: 10

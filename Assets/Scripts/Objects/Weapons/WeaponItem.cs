@@ -20,6 +20,7 @@ public class WeaponItem : ScriptableObject
 {
     public WeaponData weaponData;
     internal int currentDamage;
+    internal float currentKnockback;
     internal float currentTrailSpeed;
     internal int currentBounceCount;
 }

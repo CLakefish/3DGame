@@ -269,6 +269,8 @@ public class PlayerWeaponController : MonoBehaviour
 
                 weaponItems[selectedIndex].currentBounceCount = (int)Mathf.Lerp(weaponData.bounceCount, weaponData.bounceCount + weaponData.bounceCountChargeBonus, charge);
 
+                weaponItems[selectedIndex].currentKnockback = Mathf.Lerp(weaponData.enemyKnockback, weaponData.enemyKnockback + weaponData.enemyKnockbackChargeBonus, charge);
+
                 if (chargeTime > maxChargeTime)
                 {
                     chargeTime = 0;
@@ -328,7 +330,7 @@ public class PlayerWeaponController : MonoBehaviour
                 }
                 if (raycast.rigidbody)
                 {
-                    raycast.rigidbody.velocity += dir * weaponData.enemyKnockback;
+                    raycast.rigidbody.velocity += dir * weaponItems[selectedIndex].currentKnockback;
                 }
             }
 
@@ -336,7 +338,7 @@ public class PlayerWeaponController : MonoBehaviour
 
             if (weaponData.explodeOnDeath && trail != null)
             {
-                Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
+                Explode(trail.transform.position, weaponItems[selectedIndex].currentKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
             }
 
             if ((weaponData.bulletType == BulletType.Bounce || weaponData.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
@@ -362,7 +364,7 @@ public class PlayerWeaponController : MonoBehaviour
             {
                 if (weaponData.explodeOnDeath)
                 {
-                    Explode(trail.transform.position, weaponData.enemyKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
+                    Explode(trail.transform.position, weaponItems[selectedIndex].currentKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
                 }
             }
 
@@ -375,7 +377,7 @@ public class PlayerWeaponController : MonoBehaviour
         // For each possible collider, get the closest one then return if you're hitting it.
         foreach (var collider in Physics.OverlapSphere(explosionPos, explosionSize))
         {
-            Vector3 difference = collider.transform.position - explosionPos;
+            Vector3 difference = collider.ClosestPoint(explosionPos) - explosionPos;
             
             if (collider.TryGetComponent(out HealthController currentHealth))
             {
@@ -386,7 +388,8 @@ public class PlayerWeaponController : MonoBehaviour
             }
             if (collider.TryGetComponent(out Rigidbody currentRigidbody))
             {
-                float proximity = -((difference.magnitude / explosionSize) - 1);
+                float explosionDistance = difference.magnitude / explosionSize;
+                float proximity = -(explosionDistance - 1);
                 currentRigidbody.velocity += difference.normalized * proximity * explosionStrength;
                 if (collider.TryGetComponent(out Enemy currentEnemy))
                 {

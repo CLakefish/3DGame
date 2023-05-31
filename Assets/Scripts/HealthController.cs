@@ -42,7 +42,10 @@ public class HealthController : MonoBehaviour
         if (health <= 0)
         {
             health = 0;
-            onDeath.Invoke();
+            if (onDeath != null)
+            {
+                onDeath.Invoke();
+            }
         }
     }
 
