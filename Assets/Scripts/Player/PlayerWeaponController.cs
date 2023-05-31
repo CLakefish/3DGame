@@ -271,6 +271,8 @@ public class PlayerWeaponController : MonoBehaviour
 
                 weaponItems[selectedIndex].currentKnockback = Mathf.Lerp(weaponData.enemyKnockback, weaponData.enemyKnockback + weaponData.enemyKnockbackChargeBonus, charge);
 
+                weaponItems[selectedIndex].currentExplosionStrength = Mathf.Lerp(weaponData.explosionStrength, weaponData.explosionStrength + weaponData.explosionStrengthChargeBonus, charge);
+
                 if (chargeTime > maxChargeTime)
                 {
                     chargeTime = 0;
@@ -338,7 +340,7 @@ public class PlayerWeaponController : MonoBehaviour
 
             if (weaponData.explodeOnDeath && trail != null)
             {
-                Explode(trail.transform.position, weaponItems[selectedIndex].currentKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
+                Explode(trail.transform.position, weaponItems[selectedIndex].currentKnockback, weaponData.explosionRadius, weaponItems[selectedIndex].currentExplosionStrength);
             }
 
             if ((weaponData.bulletType == BulletType.Bounce || weaponData.bulletType == BulletType.ChargeBounce) && bounceCount > 0)
@@ -364,7 +366,7 @@ public class PlayerWeaponController : MonoBehaviour
             {
                 if (weaponData.explodeOnDeath)
                 {
-                    Explode(trail.transform.position, weaponItems[selectedIndex].currentKnockback, weaponData.explosionRadius, weaponData.explosionStrength);
+                    Explode(trail.transform.position, weaponItems[selectedIndex].currentKnockback, weaponData.explosionRadius, weaponItems[selectedIndex].currentExplosionStrength);
                 }
             }
 
@@ -375,9 +377,18 @@ public class PlayerWeaponController : MonoBehaviour
     void Explode(Vector3 explosionPos, float knockbackValue, float explosionSize, float explosionStrength)
     {
         // For each possible collider, get the closest one then return if you're hitting it.
-        foreach (var collider in Physics.OverlapSphere(explosionPos, explosionSize))
+        foreach (Collider collider in Physics.OverlapSphere(explosionPos, explosionSize))
         {
-            Vector3 difference = collider.ClosestPoint(explosionPos) - explosionPos;
+            var type = collider.GetType();
+            Vector3 difference;
+            if (type == typeof(CapsuleCollider) || type == typeof(BoxCollider) || type == typeof(SphereCollider))
+            {
+                difference = collider.ClosestPoint(explosionPos) - explosionPos;
+            }
+            else
+            {
+                difference = collider.transform.position - explosionPos;
+            }
             
             if (collider.TryGetComponent(out HealthController currentHealth))
             {

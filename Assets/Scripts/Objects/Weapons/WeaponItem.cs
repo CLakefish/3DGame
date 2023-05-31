@@ -22,5 +22,6 @@ public class WeaponItem : ScriptableObject
     internal int currentDamage;
     internal float currentKnockback;
     internal float currentTrailSpeed;
+    internal float currentExplosionStrength;
     internal int currentBounceCount;
 }

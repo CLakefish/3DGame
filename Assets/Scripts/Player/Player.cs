@@ -66,6 +66,7 @@ namespace Player
         public bool playerCanBeHit;
         public float explosionRadius;
         public float explosionStrength;
+        public float explosionStrengthChargeBonus;
 
         internal float currentBulletCount,
                        previousFireTime;
