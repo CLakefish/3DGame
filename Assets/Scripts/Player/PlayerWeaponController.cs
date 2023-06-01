@@ -24,9 +24,9 @@ public class PlayerWeaponController : MonoBehaviour
     float previousFireTime;
     public float chargeTime;
     public bool canShoot = true;
-    bool isFiring;
     [Header("Explosion Prefab")]
     [SerializeField] GameObject explosion;
+    bool mouseButtonDown;
 
     #endregion
 
@@ -51,63 +51,19 @@ public class PlayerWeaponController : MonoBehaviour
 
     void Update()
     {
-        // Weapon Change 
-        if (Input.GetAxis("Mouse ScrollWheel") != 0)
+        float scrollValue = Input.GetAxis("Mouse ScrollWheel");
+        int scrollValueDirection = scrollValue != 0 ? (int)Mathf.Sign(scrollValue) : 0;
+        ScrollWeapon(scrollValueDirection);
+
+        bool mouseButtonDown = Input.GetMouseButton(0);
+
+        if (Input.GetKeyDown(KeyCode.R) && !mouseButtonDown)
         {
-            if (weaponItems.Count <= 1)
-            {
-                return;
-            }
-
-            if (Mathf.Sign(Input.GetAxis("Mouse ScrollWheel")) == 1)
-            {
-                weaponItems[selectedIndex].weaponData = weaponData;
-
-                if (selectedIndex < weaponItems.Count - 1) selectedIndex++;
-                else selectedIndex = 0;
-
-                chargeTime = 0f;
-
-                weaponData = weaponItems[selectedIndex].weaponData;
-                weaponData.isEmpty = false;
-                weaponData.isReloading = false;
-
-                StopCoroutine(ItemSwitchPause());
-                StartCoroutine(ItemSwitchPause());
-            }
-            else
-            {
-                weaponItems[selectedIndex].weaponData = weaponData;
-
-                if (selectedIndex > 0) selectedIndex--;
-                else selectedIndex = weaponItems.Count - 1;
-
-                chargeTime = 0f;
-
-                weaponData = weaponItems[selectedIndex].weaponData;
-                weaponData.isEmpty = false;
-                weaponData.isReloading = false;
-
-                StopCoroutine(ItemSwitchPause());
-                StartCoroutine(ItemSwitchPause());
-            }
-        }
-
-        isFiring = Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0);
-
-        if (Input.GetKeyDown(KeyCode.R) && !isFiring) StartCoroutine(Reload());
-
-        if (Input.GetMouseButton(0) && !Input.GetMouseButtonUp(0) && (weaponData.bulletType == BulletType.Charge || weaponData.bulletType == BulletType.ChargeBounce) && canShoot)
-        {
-            chargeTime += Time.deltaTime;
-        }
-        else
-        {
-            chargeTime = 0;
+            StartCoroutine(Reload());
         }
 
         // Shooting 
-        if (isFiring && weaponData.currentBulletCount > 0 && !weaponData.isReloading)
+        if (mouseButtonDown && weaponData.currentBulletCount > 0 && !weaponData.isReloading)
         {
             ShootObj();
         }
@@ -115,6 +71,32 @@ public class PlayerWeaponController : MonoBehaviour
         { 
             StartCoroutine(Reload());
         }
+    }
+
+    void ScrollWeapon(int direction)
+    {
+        if (direction == 0)
+        {
+            return;
+        }
+        if (weaponItems.Count <= 1)
+        {
+            return;
+        }
+        // Weapon Change
+        
+        selectedIndex += direction;
+        selectedIndex = Mathf.Clamp(selectedIndex, 0, weaponItems.Count - 1); 
+
+        weaponData = weaponItems[selectedIndex].weaponData;
+        weaponData.isEmpty = false;
+        weaponData.isReloading = false;
+
+        chargeTime = 0;
+        weaponItems[selectedIndex].weaponData = weaponData;
+
+        StopCoroutine(ItemSwitchPause());
+        StartCoroutine(ItemSwitchPause());
     }
 
 
@@ -253,13 +235,14 @@ public class PlayerWeaponController : MonoBehaviour
 
         while (weaponData.isReloading)
         {
-            if (!isFiring)
+            if (!mouseButtonDown)
             {
                 chargeTime = 0;
                 break;
             }
             else
             {
+                chargeTime += Time.deltaTime;
                 float charge = chargeTime / maxChargeTime;
                 
 
@@ -302,8 +285,10 @@ public class PlayerWeaponController : MonoBehaviour
         float d = Vector3.Distance(trail.transform.position, point);
         float startDist = d;
 
+        // the shotgun breaks in this while loop
         while (d > 0)
         {
+
             if (trail == null) yield break;
 
             trail.transform.position = (follow) ? Vector3.Slerp(startPos, point, 1 - (d / startDist)) : Vector3.Lerp(startPos, point, 1 - (d / startDist));
