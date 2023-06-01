@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// unused
 public class HealthObject : MonoBehaviour
 {
     [Header("Health")]
@@ -13,11 +14,11 @@ public class HealthObject : MonoBehaviour
     {
         if (other.tag == "Player" && canUse)
         {
-            Health player = other.gameObject.GetComponentInParent<Health>();
+            // Health player = other.gameObject.GetComponentInParent<Health>();
 
-            if (player == null || player.health >= 100) return;
+            // if (player == null || player.health >= 100) return;
 
-            player.health = Mathf.Min(100, player.health + hp);
+            // player.health = Mathf.Min(100, player.health + hp);
 
 
             StartCoroutine(Cooldown());

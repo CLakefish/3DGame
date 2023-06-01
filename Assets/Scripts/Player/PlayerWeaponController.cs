@@ -26,7 +26,8 @@ public class PlayerWeaponController : MonoBehaviour
     public bool canShoot = true;
     [Header("Explosion Prefab")]
     [SerializeField] GameObject explosion;
-    bool mouseButtonDown;
+    internal bool mouseButtonDown;
+    bool isCharging;
 
     #endregion
 
@@ -117,6 +118,10 @@ public class PlayerWeaponController : MonoBehaviour
             return;
         }
         if (weaponData.isReloading)
+        {
+            return;
+        }
+        if (isCharging)
         {
             return;
         }
@@ -225,10 +230,10 @@ public class PlayerWeaponController : MonoBehaviour
     }
 
     // Fix this
-    float maxChargeTime = 2;
+    public float maxChargeTime = 2;
     IEnumerator ChargedProjectileShotHandler()
     {
-        weaponData.isReloading = true;
+        isCharging = true;
 
         int bounceCount = weaponData.bounceCount;
         float tempStore = weaponData.trailSpeed;
@@ -260,9 +265,9 @@ public class PlayerWeaponController : MonoBehaviour
 
         weaponData.currentBulletCount--;
 
-        ProjectileShotHandler();
+        isCharging = false;
 
-        weaponData.isReloading = false;
+        ProjectileShotHandler();
     }
 
     // Visualization

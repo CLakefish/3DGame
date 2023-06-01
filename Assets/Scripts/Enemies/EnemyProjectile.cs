@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// unused
 public class EnemyProjectile : MonoBehaviour
 {
     public int damage;
@@ -19,7 +20,7 @@ public class EnemyProjectile : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            other.gameObject.GetComponentInParent<PlayerHealth>().Hit(damage, transform.position, 1f);
+            // other.gameObject.GetComponentInParent<PlayerHealth>().Hit(damage, transform.position, 1f);
         }
         else
             pierce--;
@@ -30,7 +31,7 @@ public class EnemyProjectile : MonoBehaviour
 
         if (other.gameObject.tag == "Player")
         {
-            other.gameObject.GetComponentInParent<PlayerHealth>().Hit(damage, transform.position, 1f);
+            // other.gameObject.GetComponentInParent<PlayerHealth>().Hit(damage, transform.position, 1f);
         }
             else pierce--;
     }

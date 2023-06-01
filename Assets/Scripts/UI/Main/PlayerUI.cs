@@ -60,26 +60,19 @@ public class PlayerUI : MonoBehaviour
         weaponName.text = playerWeaponController.weaponData.Name.ToString();
         ammoCount.text = playerWeaponController.weaponData.currentBulletCount.ToString();
 
-        // TODO: fix this if-statement hell
-        if ((playerWeaponController.weaponData.isReloading && playerWeaponController.weaponData.isEmpty) || (playerWeaponController.weaponData.currentBulletCount <= 0))
+        if (playerWeaponController.weaponData.isReloading)
         {
             ammoCount.text = "Reloading!";
         }
-        if ((playerWeaponController.weaponData.bulletType == Player.BulletType.Charge || playerWeaponController.weaponData.bulletType == Player.BulletType.ChargeBounce))
+        else if (playerWeaponController.mouseButtonDown && playerWeaponController.chargeTime > 0)
         {
-            if (playerWeaponController.weaponData.isReloading && playerWeaponController.weaponData.isShooting)
-            {
-                chargeCount.text = (playerWeaponController.weaponData.currentBulletCount.ToString()) + " | " + (playerWeaponController.chargeTime == 1.99f ? "Firing!" : "Charge : " + playerWeaponController.chargeTime.ToString((playerWeaponController.chargeTime < 1 ? "0.00" : "#.00")));
+            chargeCount.text = playerWeaponController.chargeTime.ToString(playerWeaponController.chargeTime < 1 ? "0.00" : "#.00"); 
 
-                chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerWeaponController.chargeTime / 2));
-            }
-            else
-            {
-                chargeCount.text = playerWeaponController.weaponData.currentBulletCount.ToString() + " | Charge : 0.00";
-            }
+            chargeCount.color = Color.Lerp(Color.white, healthBarColor, (playerWeaponController.chargeTime / playerWeaponController.maxChargeTime));
         }
         else 
         {
+            chargeCount.text = string.Empty;
             chargeCount.color = Color.white;
         }
 
