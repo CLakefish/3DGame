@@ -1,13 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Player;
 
 public class PlayerCamera : MonoBehaviour
 {
     [Header("Orientation")]
     public Transform playerObj;
-    public PlayerControls player;
+    PlayerMovementController playerMovementController;
     internal Camera cam;
 
     [Header("Mouse Stuff")]
@@ -26,12 +25,14 @@ public class PlayerCamera : MonoBehaviour
     public bool CanRotate = true;
     Vector2 mouseRotation;
     internal Vector2 mousePos;
+    [SerializeField] public Transform lookRotation;
 
     // Start is called before the first frame update
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
 
+        playerMovementController = FindObjectOfType<PlayerMovementController>();
         cam = GetComponent<Camera>();
 
         newFOV = FOV;
@@ -45,14 +46,14 @@ public class PlayerCamera : MonoBehaviour
     {
         #region FOV
 
-        if (player.state == PlayerState.Sliding || (player.state == PlayerState.Jumping && player.prevState == PlayerState.Sliding))
+        if (playerMovementController.isRunning && playerMovementController.isCrouching)
         {
             newFOV = Mathf.Lerp(newFOV, slidingFOV, 8 * Time.deltaTime);
         }
         else
         {
             // Change FOV in game
-            newFOV = (player.isRunning) ?
+            newFOV = (playerMovementController.isRunning) ?
                 newFOV = Mathf.Lerp(newFOV, newRunningFOV, 8 * Time.deltaTime) :
                 newFOV = Mathf.Lerp(newFOV, newWalkingFOV, 8 * Time.deltaTime);
         }
@@ -73,7 +74,11 @@ public class PlayerCamera : MonoBehaviour
         mouseRotation.x = Mathf.Clamp(mouseRotation.x, -90f, 90f);
 
         // Proper Rotation
-        transform.rotation = Quaternion.Euler(new Vector3(mouseRotation.x - player.viewTilt.y, mouseRotation.y, transform.rotation.z + player.viewTilt.x + shakePos));
+        Vector3 direction = new Vector3(mouseRotation.x - playerMovementController.viewTilt.y, mouseRotation.y, transform.rotation.z + playerMovementController.viewTilt.x + shakePos);
+        
+        transform.rotation = Quaternion.Euler(direction);
+        lookRotation.rotation = Quaternion.Euler(new Vector3(0, direction.y, direction.z));
+
         // orientation.rotation = Quaternion.Euler(0f, mouseRotation.y, 0f);
 
         // Proper Positioning

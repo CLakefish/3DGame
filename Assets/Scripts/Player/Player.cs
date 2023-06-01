@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Player
 {
+    // p: i really do not understand this namespace thing
     public enum WeaponType
     {
         Single,
@@ -20,16 +21,6 @@ namespace Player
         ChargeBounce,
     }
 
-    public enum PlayerState
-    {
-        Grounded,
-        Jumping,
-        Falling,
-        Crouching,
-        Sliding,
-        Running,
-    }
-
     [System.Serializable]
     public struct WeaponData
     {
@@ -42,17 +33,24 @@ namespace Player
 
         [Header("Bullets")]
         public int bulletDamage;
+        public int bulletDamageChargeBonus;
+
         public float timeBetweenShots;
         public int bulletCount;
         [SerializeField, Range(0, 1)]
         public float bulletSpread;
-        public float reloadTime,
-                     bounceCount,
-                     enemyKnockback;
+        public float reloadTime;
+        
+        public float enemyKnockback;
+        public float enemyKnockbackChargeBonus;
+        
+        public int bounceCount;
+        public int bounceCountChargeBonus;
 
         [Header("Trail Rendering")]
         public TrailRenderer bulletTrail;
         public float trailSpeed;
+        public float trailSpeedChargeBonus;
 
         [Header("Bullet Hole & Debugging")]
         public GameObject hitParticle;
@@ -67,44 +65,11 @@ namespace Player
 
         public bool playerCanBeHit;
         public float explosionRadius;
+        public float explosionStrength;
+        public float explosionStrengthChargeBonus;
 
         internal float currentBulletCount,
                        previousFireTime;
-    }
-
-    public abstract class Health : MonoBehaviour
-    {
-        [Space()]
-        [Header("Health")]
-        [SerializeField] public int health;
-        [SerializeField] public float invulnerabilitySeconds;
-        [SerializeField] public bool isInvulnerable = false;
-        [SerializeField] public bool hasInvulnerability = false;
-
-        public Rigidbody rb;
-
-        public abstract void Hit(int damage, Vector3 pos, float knockbackForce);
-
-        public abstract void OnDeath();
-
-        public IEnumerator Invulnerable(float seconds)
-        {
-            isInvulnerable = true;
-
-            yield return new WaitForSeconds(seconds);
-
-            isInvulnerable = false;
-        }
-
-        public IEnumerator Knockback(Vector3 pos, float knockbackForce, bool stopForce = true)
-        {
-            pos = (pos - rb.transform.position).normalized;
-
-            rb.velocity = (!stopForce) ? rb.velocity : new Vector3(0f, 0f, 0f);
-
-            yield return new WaitForSeconds(0.05f);
-            rb.AddForce(new Vector3(-pos.x, pos.y, -pos.z) * knockbackForce, ForceMode.Impulse);
-        }
     }
 
     public static class MovementHelp
@@ -130,44 +95,6 @@ namespace Player
             }
 
             return col.transform.TransformPoint(closest);
-        }
-
-        public static Vector3 VelocityClamp(float moveSpeed, Vector3 reference)
-        {
-            Vector3 sirSplinkle = reference;
-
-            if (sirSplinkle.magnitude > moveSpeed)
-            {
-                Vector3 newVel = reference.normalized * moveSpeed;
-                sirSplinkle = new Vector3(newVel.x, reference.y, newVel.z);
-            }
-
-            return sirSplinkle;
-        }
-
-        public static IEnumerator MoveSpeedLerp(float moveSpeed, float desiredMoveSpeed, bool onSlope, RaycastHit s)
-        {
-            float time = 0,
-                  difference = Mathf.Abs(desiredMoveSpeed - moveSpeed),
-                  start = moveSpeed;
-
-            while (time < difference)
-            {
-                moveSpeed = Mathf.Lerp(start, desiredMoveSpeed, time / difference);
-                if (onSlope)
-                {
-                    float angle = Vector3.Angle(Vector3.up, s.normal);
-                    float angleChange = 1 + (angle / 90);
-
-                    time += Time.deltaTime * 1.5f * 2.5f * angleChange;
-                }
-                else
-                    time += Time.deltaTime * 1.5f;
-
-                yield return null;
-            }
-
-            moveSpeed = desiredMoveSpeed;
         }
     }
 }

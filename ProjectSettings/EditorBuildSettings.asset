@@ -12,15 +12,21 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/Scenes/UIScene.unity
-    guid: f9b876c64b1eb1241804904ae8f26ad1
-  - enabled: 1
     path: Assets/Scenes/Data Testing/DataStore.unity
     guid: d6a6495ff7e416c479f9f8a55f20c7f7
-  - enabled: 1
-    path: Assets/Scenes/gm_construct.unity
-    guid: 4f561e854c5ff9a47bee110e67f52836
   - enabled: 0
     path: Assets/Scenes/TestPause.unity
     guid: 73c5f6b3ccdb8ac468ae0683b8b54e91
+  - enabled: 1
+    path: Assets/Scenes/Tutorial.unity
+    guid: e626cd1301b8b4c4daf5193674d62368
+  - enabled: 1
+    path: Assets/Scenes/gm_construct.unity
+    guid: 4f561e854c5ff9a47bee110e67f52836
+  - enabled: 1
+    path: Assets/Scenes/UIScene.unity
+    guid: f9b876c64b1eb1241804904ae8f26ad1
+  - enabled: 1
+    path: Assets/Scenes/Level1.unity
+    guid: 88cd7e9ee7004bd4e89c13585220a3b6
   m_configObjects: {}

@@ -140,7 +140,8 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
-  m_Materials: []
+  m_Materials:
+  - {fileID: 2100000, guid: 882f131789b7e9a43a5b600b979804cc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -201,8 +202,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotateToCam: 0
-  camera: {fileID: 0}
-  currentIndex: 0
+  Sprite: {fileID: 0}
+  spriteAnim: {fileID: 0}
+  backAngle: 0
+  sideAngle: 0
 --- !u!1 &7899100271402209667
 GameObject:
   m_ObjectHideFlags: 0

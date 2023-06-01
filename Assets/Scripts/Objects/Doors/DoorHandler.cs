@@ -5,19 +5,36 @@ using UnityEngine;
 public class DoorHandler : MonoBehaviour
 {
     public OpenObj[] doors;
+    bool hasOpened = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        doors = FindObjectsOfType<OpenObj>();
+        //doors = FindObjectsOfType<OpenObj>();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        foreach (OpenObj i in doors)
+        if (FindObjectOfType<Enemy>() == null && !hasOpened)
         {
-            i.isActive = true;
+            Open();
+            hasOpened = true;
+        }
+    }
+
+    public void Open(int index = -1)
+    {
+        if (index != -1)
+        {
+            doors[index].isActive = true;
+            return;
+        }
+        else
+        {
+            foreach (OpenObj i in doors)
+            {
+                i.isActive = true;
+            }
         }
     }
 }
