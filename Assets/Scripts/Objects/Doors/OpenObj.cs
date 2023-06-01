@@ -36,7 +36,7 @@ public class OpenObj : MonoBehaviour
             {
                 Vector3 objectPos = transform.position;
 
-                transform.position = Vector3.Lerp(objectPos, Door[i].pos, moveTime);
+                transform.position = Vector3.Lerp(objectPos, Door[i].pos, moveTime * Time.deltaTime);
 
                 if (Vector3.Distance(transform.position, Door[i].pos) <= distance)
                 {

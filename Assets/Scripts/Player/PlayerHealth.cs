@@ -6,36 +6,38 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class PlayerHealth : Health
+public class PlayerHealth : MonoBehaviour
 {
-    [SerializeField] public int maxHealth;
-
+    [HideInInspector] public Rigidbody rb;
+    [HideInInspector] public HealthController healthController;
     PlayerCamera cam;
 
-    // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
+        healthController = GetComponent<HealthController>();
+        rb = GetComponent<Rigidbody>();
         cam = FindObjectOfType<PlayerCamera>();
 
-        maxHealth = health;
+        healthController.onDeath += OnDeath;
+    }
+    void OnDisable()
+    {
+        healthController.onDeath -= OnDeath;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKey(KeyCode.R) || (health <= 0 && Input.GetMouseButtonDown(0)))
+        if (Input.GetKey(KeyCode.Backspace) || (healthController.health <= 0 && Input.GetMouseButtonDown(0)))
         {
             ResetLevel();
         }
     }
 
-    public override void OnDeath()
+    void OnDeath()
     {
         StartCoroutine(cam.ShakeCamera(4f, .25f));
-
-        health = 0;
-        Time.timeScale = 0f;
-        //throw new System.NotImplementedException();
+        Time.timeScale = 0;
     }
 
     public void ResetLevel()
@@ -44,39 +46,15 @@ public class PlayerHealth : Health
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
-    public override void Hit(int damage, Vector3 pos, float knockbackForce)
+    /*
+    public IEnumerator Knockback(Vector3 pos, float knockbackForce, bool stopForce = true)
     {
-        if (isInvulnerable || damage == 0)
-        {
-            return;
-        } 
-        health = health - damage;
+        pos = (pos - rb.transform.position).normalized;
 
-        if (health <= 0)
-        {
-            OnDeath();
-            isInvulnerable = true;
-            return;
-        }
+        rb.velocity = (!stopForce) ? rb.velocity : new Vector3(0f, 0f, 0f);
 
-        StartCoroutine(cam.ShakeCamera(damage <= 0 ? knockbackForce : Mathf.Clamp(damage, 0, 3), .25f));
-
-        StartCoroutine(Knockback(pos, knockbackForce));
-
-        if (hasInvulnerability)
-        {
-            StartCoroutine(Invulnerable(invulnerabilitySeconds));
-        }
-        //throw new System.NotImplementedException();
+        yield return new WaitForSeconds(0.05f);
+        rb.AddForce(new Vector3(-pos.x, pos.y, -pos.z) * knockbackForce, ForceMode.Impulse);
     }
-
-    public void GainHP(int hp)
-    {
-        health = health + hp;
-
-        if (health > maxHealth)
-        {
-            health = Mathf.CeilToInt(maxHealth);
-        }
-    }
+    */
 }

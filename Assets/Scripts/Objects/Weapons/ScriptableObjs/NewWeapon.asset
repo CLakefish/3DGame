@@ -15,20 +15,21 @@ MonoBehaviour:
   weaponData:
     Name: Shotgun
     weapon: 1
-    bulletType: 1
+    bulletType: 0
     bulletDamage: 1
-    timeBetweenShots: 0.1
-    bulletCount: 8
-    bulletSpread: 0.015
+    timeBetweenShots: 0.3
+    bulletCount: 16
+    bulletSpread: 0.069
     reloadTime: 0.5
     bounceCount: 0
     enemyKnockback: 20
     bulletTrail: {fileID: 7699256450685633083, guid: 3e755f47cd60d884688b8597ad60c46a, type: 3}
     trailSpeed: 100
     hitParticle: {fileID: 8890879366852258217, guid: b7e8e86824d5d0c4ab8dc9718f7015c9, type: 3}
-    isReloading: 0
+    isReloading: 1
     isEmpty: 0
     isShooting: 1
     explodeOnDeath: 0
     playerCanBeHit: 0
-    explosionRadius: 0
+    explosionRadius: 1.33
+    explosionStrength: 3.17

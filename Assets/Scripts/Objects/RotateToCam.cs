@@ -10,7 +10,8 @@ public class RotateToCam : MonoBehaviour
     [Header("Sprites and Angles")]
     [SerializeField] Transform Sprite;
     [SerializeField] Animator spriteAnim;
-    [SerializeField] public float backAngle,
+    [SerializeField]
+    public float backAngle,
                                   sideAngle;
     Vector2 moveDir;
 
@@ -33,6 +34,7 @@ public class RotateToCam : MonoBehaviour
 
         //if (spriteAnim == null) return;
 
+        return;
         spriteAnim.SetFloat("Position X", moveDir.x);
         spriteAnim.SetFloat("Position Y", moveDir.y);
     }

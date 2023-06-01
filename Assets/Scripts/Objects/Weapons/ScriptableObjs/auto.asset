@@ -17,18 +17,22 @@ MonoBehaviour:
     weapon: 0
     bulletType: 2
     bulletDamage: 1
+    maxBulletDamage: 0
     timeBetweenShots: 0.1
     bulletCount: 31
     bulletSpread: 0.004
     reloadTime: 1
-    bounceCount: 0
     enemyKnockback: 0
+    bounceCount: 0
+    maxBounceCount: 0
     bulletTrail: {fileID: 6727316020457667749, guid: 475611f0ee901e34f8b6ff96d4c82f0f, type: 3}
-    trailSpeed: 80.7
+    trailSpeed: 90
+    maxTrailSpeed: 110
     hitParticle: {fileID: 8890879366852258217, guid: b7e8e86824d5d0c4ab8dc9718f7015c9, type: 3}
-    isReloading: 0
-    isEmpty: 0
+    isReloading: 1
+    isEmpty: 1
     isShooting: 1
     explodeOnDeath: 0
     playerCanBeHit: 0
     explosionRadius: 0
+    explosionStrength: 0

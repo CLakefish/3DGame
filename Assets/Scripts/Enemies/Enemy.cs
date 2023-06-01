@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine; using UnityEngine.AI;
-using Player;
 
 // The class can be found in the player script/namespace
 // It contains 2 coroutines which handle invulnerability and knockback, both with slight delay and slight timing delay
@@ -9,135 +8,95 @@ using Player;
 
 public enum EnemyType
 {
-    Punch,
-    Shoot,
+    Melee,
 }
 
-public class Enemy : Health
+public class Enemy : MonoBehaviour
 {
-    [Header("Get Components")]
     public NavMeshAgent navigation;
-    public PlayerControls player;
-
-    [Header("Finding")]
+    PlayerMovementController playerMovementController;
+    PlayerHealth playerHealth;
+    HealthController healthController;
+    public SpriteRenderer sp;
     public Vector3 playerPos;
     public float knockBackTime;
     public bool knockBack = false;
     public bool grounded = false;
+    public bool openOnDeath = false;
+    public int index;
+    Rigidbody rb;
 
-    [Header("Attack Type")]
-    [SerializeField] EnemyType attackType;
-    [SerializeField] int damage;
-    [SerializeField] float shootInbetweenTime;
-    float prevShootTime;
-
-    [Header("Trails")]
-    [SerializeField] TrailRenderer TrailRenderer;
-    [SerializeField] float trailSpeed;
-    [SerializeField] float bulletSpread;
-    [SerializeField] int pierce;
-
-    // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
         rb = gameObject.GetComponent<Rigidbody>();
-        player = FindObjectOfType<PlayerControls>();
-    }
+        playerMovementController = FindObjectOfType<PlayerMovementController>();
+        playerHealth = playerMovementController.GetComponent<PlayerHealth>();
+        healthController = GetComponent<HealthController>();
 
-    // Update is called once per frame
+        healthController.onDeath += OnDeath;
+    }
+    void OnDisable()
+    {
+        healthController.onDeath -= OnDeath;
+    }
     void Update()
     {
-        grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, player.groundLayer);
-            
-        float distance = Vector3.Distance(rb.transform.position, player.rb.transform.position);
-        bool run = false;
+        grounded = Physics.Raycast(new Ray(rb.transform.position, Vector3.down), 2f, playerMovementController.groundLayer);
 
-        if (distance <= navigation.stoppingDistance || attackType == EnemyType.Shoot)
+        if (!knockBack) sp.color = Color.Lerp(sp.color, Color.white, 5f * Time.deltaTime);
+
+        if (!knockBack && grounded)
         {
-            switch (attackType)
-            {
-                case (EnemyType.Punch):
-                    player.GetComponent<PlayerHealth>().Hit(damage, rb.transform.position, 10f);
-
-                    break;
-
-                case (EnemyType.Shoot):
-                    if (distance >= navigation.stoppingDistance) ShootProjectile();
-                    else run = true;
-                    break;
-            }
+            FindObj();
+        }
+        if (!knockBack && grounded && navigation.isOnNavMesh)
+        {
+            navigation.SetDestination(playerPos);
         }
 
-        if (!knockBack && grounded) FindObj();
-        if (!knockBack && grounded) navigation.SetDestination((run) ? -playerPos : playerPos);
-
-        Debug.Log(knockBack);
+        // maybe turn this into some sort of collision event?
+        if (navigation.enabled && !navigation.pathPending && navigation.remainingDistance <= navigation.stoppingDistance && (!navigation.hasPath || navigation.velocity.sqrMagnitude == 0f) && Vector3.Distance(rb.transform.position, playerMovementController.rb.transform.position) <= 3.5f)
+        {
+            // player is hit
+            playerHealth.healthController.ChangeHealth(-Random.Range(2, 5));
+            Knockback(10, rb.transform.position);
+        }
     }
 
     // This is the death effect, which can be altered later
-    public override void OnDeath()
+    public void OnDeath()
     {
+        if (openOnDeath) FindObjectOfType<DoorHandler>().Open(index);
         Destroy(gameObject);
-        //throw new System.NotImplementedException();
     }
 
-    // When the enemy is hit it will do this
-    public override void Hit(int damage, Vector3 pos, float knockbackForce)
+    void Knockback(float knockbackForce, Vector3 hitPoint)
     {
-        if (isInvulnerable) return;
-        health = health - damage;
-
-        if (health <= 0)
-        {
-            OnDeath();
-            isInvulnerable = true;
-            return;
-        }
-
         if (!knockBack)
         {
-            StartCoroutine(Knockback(pos, knockbackForce));
-            StartCoroutine(NavKnockback());
+            return;
         }
-
-        if (hasInvulnerability) StartCoroutine(Invulnerable(invulnerabilitySeconds));
-
-        //throw new System.NotImplementedException();
+        StartCoroutine(KnockbackEnemy(knockbackForce, hitPoint));
+        StartCoroutine(NavKnockback());
     }
 
     void FindObj()
     {
-        if (Vector3.Distance(rb.transform.position, player.rb.transform.position) >= 10 || Vector3.Distance(rb.transform.position, player.rb.transform.position) == navigation.stoppingDistance) playerPos = rb.transform.position;
-        playerPos = player.rb.transform.position;
+        playerPos = playerMovementController.rb.transform.position;
     }
-    void ShootProjectile()
+
+    public IEnumerator KnockbackEnemy(float knockbackForce, Vector3 position)
     {
-        if (Time.time > shootInbetweenTime + prevShootTime + Random.Range(-0.1f, 0.1f))
-        {
-            prevShootTime = Time.time;
+        Vector3 direction = (position - rb.transform.position).normalized;
 
-            ProjectileCast();
-        }
-        else return;
+        rb.velocity = new Vector3(0f, 0f, 0f);
+
+        yield return new WaitForSeconds(0.0001f);
+
+        rb.AddForce(new Vector3(-direction.x, direction.y, -direction.z) * knockbackForce, ForceMode.Impulse);
     }
 
-    void ProjectileCast()
-    {
-        // Trail rendering
-        Rigidbody trail = Instantiate(TrailRenderer, rb.transform.position, player.cam.transform.rotation).GetComponent<Rigidbody>();
-        EnemyProjectile p = trail.GetComponent<EnemyProjectile>();
-
-        p.pierce = pierce;
-        p.damage = damage;
-
-        while (trail != null)
-        {
-            trail.AddForce((player.rb.transform.position - rb.transform.position).normalized * trailSpeed, ForceMode.VelocityChange);
-            return;
-        }
-    }
-
-    IEnumerator NavKnockback()
+    public IEnumerator NavKnockback()
     {
         navigation.enabled = false;
         knockBack = true;
