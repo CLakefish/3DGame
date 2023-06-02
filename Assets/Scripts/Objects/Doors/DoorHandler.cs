@@ -33,6 +33,9 @@ public class DoorHandler : MonoBehaviour
         {
             foreach (OpenObj i in doors)
             {
+                if (i == null)
+                    continue;
+
                 i.isActive = true;
             }
         }

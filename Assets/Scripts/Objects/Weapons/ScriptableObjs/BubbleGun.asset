@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 27715a93015925d48b3354dff8e3c317, type: 3}
-  m_Name: auto
+  m_Name: BubbleGun
   m_EditorClassIdentifier: 
   weaponData:
-    Name: funny muffler
-    weapon: 0
-    bulletType: 0
+    Name: Bubble Blower
+    weapon: 1
+    bulletType: 4
     bulletDamage: 1
-    bulletDamageChargeBonus: 0
-    timeBetweenShots: 0.1
-    bulletCount: 31
-    bulletSpread: 0.004
-    reloadTime: 1
-    enemyKnockback: 0
-    enemyKnockbackChargeBonus: 0
-    bounceCount: 0
-    bounceCountChargeBonus: 0
-    bulletTrail: {fileID: 6727316020457667749, guid: 475611f0ee901e34f8b6ff96d4c82f0f, type: 3}
+    bulletDamageChargeBonus: 1
+    timeBetweenShots: 0.3
+    bulletCount: 16
+    bulletSpread: 0.01
+    reloadTime: 0.83
+    enemyKnockback: 2
+    enemyKnockbackChargeBonus: 2
+    bounceCount: 3
+    bounceCountChargeBonus: 3
+    bulletTrail: {fileID: 6727316020457667749, guid: c187d879e0c531644b0fb233f59cb8cb, type: 3}
     trailSpeed: 90
     trailSpeedChargeBonus: 90
     hitParticle: {fileID: 8890879366852258217, guid: b7e8e86824d5d0c4ab8dc9718f7015c9, type: 3}

@@ -1,3 +1,4 @@
+using Player;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine; using UnityEngine.AI;
@@ -20,9 +21,13 @@ public class Enemy : MonoBehaviour
     public SpriteRenderer sp;
     public Vector3 playerPos;
     public float knockBackTime;
+    public bool canShoot = false;
     public bool knockBack = false;
     public bool grounded = false;
     public bool openOnDeath = false;
+    float fireRate = 0.3f;
+    float previousTimeFired;
+    public GameObject projectileVisual;
     public int index;
     Rigidbody rb;
 
@@ -52,6 +57,14 @@ public class Enemy : MonoBehaviour
         if (!knockBack && grounded && navigation.isOnNavMesh)
         {
             navigation.SetDestination(playerPos);
+        }
+
+        if (Time.time >= fireRate + previousTimeFired && canShoot)
+        {
+            previousTimeFired = Time.time + Random.Range(-1f, 1f);
+
+            GameObject projectile = Instantiate(projectileVisual, rb.transform.position, Quaternion.identity);
+            projectile.GetComponent<Rigidbody>().AddForce((playerPos - rb.transform.position).normalized * 100f, ForceMode.VelocityChange);
         }
 
         // maybe turn this into some sort of collision event?

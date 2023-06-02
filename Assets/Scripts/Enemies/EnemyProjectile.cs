@@ -20,10 +20,10 @@ public class EnemyProjectile : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            // other.gameObject.GetComponentInParent<PlayerHealth>().Hit(damage, transform.position, 1f);
+            other.GetComponentInParent<HealthController>().ChangeHealth(-damage);
+            Destroy(gameObject);
         }
-        else
-            pierce--;
+        else if (other.gameObject.tag != "Enemy") Destroy(gameObject);
     }
 
     private void OnTriggerStay(Collider other)
@@ -31,8 +31,9 @@ public class EnemyProjectile : MonoBehaviour
 
         if (other.gameObject.tag == "Player")
         {
-            // other.gameObject.GetComponentInParent<PlayerHealth>().Hit(damage, transform.position, 1f);
+            other.GetComponentInParent<HealthController>().ChangeHealth(-damage);
+            Destroy(gameObject);
         }
-            else pierce--;
+        else if (other.gameObject.tag != "Enemy") Destroy(gameObject);
     }
 }

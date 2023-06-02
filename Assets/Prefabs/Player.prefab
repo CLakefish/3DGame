@@ -151,8 +151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerObj: {fileID: 6182660525249806665}
-  sensX: 3
-  sensY: 3
+  sensX: 1.5
+  sensY: 1.5
   yOffset: 0.5
   FOV: 85
   invertY: 0
@@ -297,6 +297,7 @@ MonoBehaviour:
     bulletSpread: 0
     reloadTime: 0
     enemyKnockback: 0
+    enemyKnockbackChargeBonus: 0
     bounceCount: 0
     bounceCountChargeBonus: 0
     bulletTrail: {fileID: 0}
@@ -310,6 +311,7 @@ MonoBehaviour:
     playerCanBeHit: 0
     explosionRadius: 0
     explosionStrength: 0
+    explosionStrengthChargeBonus: 0
   selectedIndex: 0
   layers:
     serializedVersion: 2
@@ -318,6 +320,7 @@ MonoBehaviour:
   chargeTime: 0
   canShoot: 1
   explosion: {fileID: 8890879366852258217, guid: d2cbcb3b4c85d9348b5f90dd4c4e7191, type: 3}
+  maxChargeTime: 2
 --- !u!114 &6182660525145688321
 MonoBehaviour:
   m_ObjectHideFlags: 0

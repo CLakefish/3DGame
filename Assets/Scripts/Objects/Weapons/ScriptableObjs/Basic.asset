@@ -37,3 +37,4 @@ MonoBehaviour:
     playerCanBeHit: 1
     explosionRadius: 1.5
     explosionStrength: 10
+    explosionStrengthChargeBonus: 0

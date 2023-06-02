@@ -219,6 +219,7 @@ public class PlayerWeaponController : MonoBehaviour
 
             // If it hits or does not hit based on a raycast, Mathf.Infinity can be changed soon enough.
         }
+
         StartCoroutine(SpawnTrail(trail, raycast, point, normal, weaponItems[selectedIndex].currentBounceCount, 100, hit, weaponItems[selectedIndex].currentDamage, weaponItems[selectedIndex].currentTrailSpeed, weaponData.bulletType == BulletType.Follow));
     }
 
