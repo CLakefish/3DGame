@@ -1,3 +1,9 @@
+/*
+Author: Carson L
+Date: 5/24/2023
+Desc: Rotates objects toward the camera
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

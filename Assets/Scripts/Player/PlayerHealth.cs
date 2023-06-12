@@ -1,3 +1,9 @@
+/*
+Author: Carson L, Preston C
+Date: 6/1/2023
+Desc: Health script for player
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

@@ -1,3 +1,9 @@
+/*
+Author: Carson L
+Date: 5/23/2023
+Desc: rotates object to camera
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,8 +17,7 @@ public class RotateToCam : MonoBehaviour
     [SerializeField] Transform Sprite;
     [SerializeField] Animator spriteAnim;
     [SerializeField]
-    public float backAngle,
-                                  sideAngle;
+    public float backAngle, sideAngle;
     Vector2 moveDir;
 
     // Update is called once per frame
@@ -34,8 +39,10 @@ public class RotateToCam : MonoBehaviour
 
         //if (spriteAnim == null) return;
 
+        /*
         return;
         spriteAnim.SetFloat("Position X", moveDir.x);
         spriteAnim.SetFloat("Position Y", moveDir.y);
+        */
     }
 }

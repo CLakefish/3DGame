@@ -1,3 +1,9 @@
+/*
+Author: Carson L
+Date: 5/17
+Desc: Player camera rotation script
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

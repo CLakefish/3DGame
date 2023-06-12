@@ -1,6 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+/*
+Author: Preston Campbell
+Date: 6/1/2023
+Desc: Unused interace for health
+*/
 
 public interface IHealth
 {

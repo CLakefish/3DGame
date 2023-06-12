@@ -1,3 +1,9 @@
+/*
+Author: Carson L
+Date: 5/16/2023
+Desc: scene data handler
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

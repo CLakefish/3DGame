@@ -1,3 +1,9 @@
+/*
+Author: Carson L, Preston C
+Date: 5/23/2023
+Desc: Scriptable weapon object
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

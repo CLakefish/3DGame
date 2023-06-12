@@ -1,3 +1,9 @@
+/*
+Author: Carson L
+Date: 6/1/2022
+Desc: Script for object that makes the player win
+*/
+
 using System.Collections;
 using System.Collections.Generic; using UnityEngine.SceneManagement;
 using UnityEngine;

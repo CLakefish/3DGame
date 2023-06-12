@@ -1,3 +1,9 @@
+/*
+Author: Preston Campbell
+Date: Jun 1
+Desc: Monobehavior for all objects with health (enemies and player)
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

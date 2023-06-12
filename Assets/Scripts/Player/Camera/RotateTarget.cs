@@ -1,3 +1,9 @@
+/*
+Author: Carson L
+Date: 5/17
+Desc: Script for objects that look at a target
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

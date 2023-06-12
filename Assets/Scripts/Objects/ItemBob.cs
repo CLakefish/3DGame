@@ -1,3 +1,9 @@
+/*
+Author: Carson L
+Date: 5/26/2023
+Desc: Script that animates an object by bobbing it up and down
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

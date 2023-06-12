@@ -1,3 +1,9 @@
+/*
+Name: Hugo D, Carson L, Preston C
+Date: 5/15/2023
+Desc: Player controller
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
